@@ -4,7 +4,6 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		<title>质量报告</title>
 		<script src="{base_url()}resource/js/jquery.js"></script>
-		<script></script>
 		<style type="text/css">
 			body{
 				margin:0px;

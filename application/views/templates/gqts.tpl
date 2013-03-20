@@ -207,7 +207,14 @@
 		<tr><th>序号</th><th>时间</th><th>测试站</th><th>测试员</th><th>型号</th><th>序列号</th><th>工单号</th><th>订单号</th></tr>
 		{foreach from=$vnaResultArray item=value}
 		<tr>
-			<td>{$value['id']}</td><td>{$value['testTime']}</td><td>{$value['testStation']}</td><td>{$value['tester']}</td><td>{$value['productType']}</td><td>{$value['sn']}</td><td>&nbsp</td><td>&nbsp</td>
+			<td>{$value['id']}</td>
+			<td>{$value['testTime']}</td>
+			<td>{$value['testStation']}</td>
+			<td>{$value['tester']}</td>
+			<td>{$value['productType']}</td>
+			<td><a href="{site_url('/packing/detail')}/{$value['sn']}}" target="_blank">{$value['sn']}</a></td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
 			<!--
 			<td><a target="_blank" href="{site_url()}/gqts/vnaDetail/{$value['id']}">报告</a></td>
 			-->
@@ -219,9 +226,20 @@
 </div>
 <div class="testResult PIM">
 	<table border="0">
-		<tr><th>序号</th><th>时间</th><th>测试站</th><th>测试员</th><th>型号</th><th>序列号</th><th>工单号</th><th>订单号</th></tr>
+		<tr>
+			<th>序号</th><th>时间</th><th>测试站</th><th>测试员</th><th>型号</th><th>序列号</th><th>工单号</th><th>订单号</th>
+		</tr>
 		{foreach from=$pimResultArray item=value}
-		<tr><td>{$value['id']}</td><td>{$value['test_time']}</td><td>&nbsp</td><td>{$value['work_num']}</td><td>{$value['model']}</td><td>{$value['ser_num']}</td><td>{$value['name']}</td><td>&nbsp</td></tr>
+			<tr>
+				<td>{$value['id']}</td>
+				<td>{$value['test_time']}</td>
+				<td>&nbsp;</td>
+				<td>{$value['work_num']}</td>
+				<td>{$value['model']}</td>
+				<td><a href="{site_url('/packing/detail')}/{$value['ser_num']}" target="_blank">{$value['ser_num']}</a></td>
+				<td>{$value['name']}</td>
+				<td>&nbsp;</td>
+			</tr>
 		{/foreach}
 	</table>
 	{$pimFenye}

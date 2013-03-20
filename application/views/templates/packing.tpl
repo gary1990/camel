@@ -324,11 +324,11 @@
 				<td>{$value['packername']}</td>
 				<td>
 					{if $value['result'] eq 'PASS'}
-						<span style="background-color: #66FF66">合格<span>
+						<span style="background-color: #66FF66">合格</span>
 					{elseif $value['result'] eq 'FAIL'}
-						<span style="background-color: #FF3300">不合格<span>
+						<span style="background-color: #FF3300">不合格</span>
 					{else}
-						<span style="background-color: yellow">未测试<span>
+						<span style="background-color: yellow">未测试</span>
 					{/if}
 				</td>
 			</tr>	
