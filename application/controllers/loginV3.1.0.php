@@ -272,7 +272,7 @@ class Login extends CW_Controller
 	{
 		if (PHP_OS == 'WINNT')
 		{
-			$uploadRoot = "E:\\wwwRoot\\camel\\assets\\uploadedSource";
+			$uploadRoot = "D:\\camel\\camel\\assets\\uploadedSource";
 			$slash = "\\";
 		}
 		else if (PHP_OS == 'Darwin')
@@ -601,8 +601,9 @@ class Login extends CW_Controller
 		}
 	}
 
-	public function uploadPimFile($username = null, $password = null)
-	{			
+	public function uploadPimFile($username = null, $password = null, $ordernum = null)
+	{
+		//error_reporting(0);
 		if (PHP_OS == 'WINNT')
 		{
 			$uploadRoot = "E:\\wwwRoot\\camel\\assets\\uploadedSource\\pim";
@@ -626,7 +627,8 @@ class Login extends CW_Controller
 		 else
 		 {*/
 		//保存上传文件
-		$file_temp = $_FILES['Filedata']['tmp_name'];
+		//$file_temp = $_FILES['Filedata']['tmp_name'];
+		$file_temp = $_FILES['file']['tmp_name'];
 		date_default_timezone_set('Asia/Shanghai');
 		$dateStamp = date("Y_m_d");
 		$dateStampFolder = $uploadRoot.$slash.$dateStamp;
@@ -645,7 +647,7 @@ class Login extends CW_Controller
 				return;
 			}
 		}
-		$file_name = $dateStamp.$slash.$_FILES['Filedata']['name'];
+		$file_name = $dateStamp.$slash.$_FILES['file']['name'];
 		//complete upload
 		//解压前先删除旧文件
 		if (file_exists($uploadRoot.$slash.$file_name))
@@ -655,7 +657,7 @@ class Login extends CW_Controller
 		$filestatus = move_uploaded_file($file_temp, $uploadRoot.$slash.$file_name);
 		if (!$filestatus)
 		{
-			$this->_returnUploadFailed("文件:".$_FILES['Filedata']['name']."上传失败");
+			$this->_returnUploadFailed("文件:".$_FILES['file']['name']."上传失败");
 			return;
 		}
 		//解压缩文件
@@ -676,7 +678,7 @@ class Login extends CW_Controller
 			}
 			else
 			{
-				$this->_returnUploadFailed("文件:".$_FILES['Filedata']['name']."打开失败");
+				$this->_returnUploadFailed("文件:".$_FILES['file']['name']."打开失败");
 				return;
 			}
 		}
@@ -887,15 +889,13 @@ class Login extends CW_Controller
 			}
 		}
 	}
-	
-	//包装客户端验证服务器是否可连接的方法
+
 	public function packingConnectCheck()
 	{
 		$result = "<result>connected</result>";
 		print($result);
 	}
 	
-	//包装客户端对用户名密码的验证方法
 	public function packingUserCheck()
 	{
 		$userId = $_POST["packinguserid"];
@@ -921,31 +921,15 @@ class Login extends CW_Controller
 			}
 		}
 	}
-	//包装客户端对输入产品的验证
+	
 	public function packingProductSnCheck()
 	{
 		$sn = $_POST["productsn"];
-		$producttype = $_POST['producttype'];
 		$pimstate = $_POST["pimstate"];
 		$packer = $_POST["packer"];
 		$ordernum = $_POST["ordernum"];
 		$boxsn = $_POST["boxsn"];
 		$packingTime = date("Y-m-d H:i:s");
-		$productTypeObject = $this->db->query("SELECT pe.name 
-						     				  FROM producttestinfo po 
-						  					  JOIN producttype pe 
-						  					  ON po.productType = pe.id 
-						  					  WHERE po.sn = '".$sn."'");
-		$productTypeArray = $productTypeObject->result_array();
-		if(count($productTypeArray) != 0)
-		{
-			$productType = $productTypeArray[0]['name'];
-			if($productType != $producttype)
-			{
-				print("<result><info>$productType</info></result>");
-				return;
-			}
-		}
 		if($pimstate == "pimcheck")
 		{
 			$pimSn = $this->db->query("SELECT ser_num FROM pim_ser_num WHERE ser_num = '".$sn."'"); 
@@ -1078,26 +1062,7 @@ class Login extends CW_Controller
 			}	
 		}
 	}
-	//包装客户端取得产品型号的方法
-	public function getProducttype()
-	{
-		$producttype = $_POST['producttype'];
-		if($producttype == "")
-		{
-			$producttypeObject = $this->db->query("SELECT DISTINCT name FROM producttype");
-			$producttypeArray = $producttypeObject->result_array();
-			$producttypeString = "";
-			foreach ($producttypeArray as $value) 
-			{
-				$producttypeString = $value['name'].",".$producttypeString;
-			}
-			print($producttypeString);
-		}
-		else
-		{
-			print("<result><info>$producttype</info></result>");
-		}
-	}
+	
 }
 
 /*end*/
