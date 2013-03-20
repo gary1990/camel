@@ -12,7 +12,7 @@ class Csrygl extends CI_Controller
 	private function _init()
 	{
 	}
-
+//
 	private function _checkDateFormat($date)
 	{
 		//match the format of the date
