@@ -398,7 +398,7 @@ class Gqts extends CW_Controller
 				fwrite($handle,"<hr/>");
 				fwrite($handle, "<div style='margin-bottom:5px;margin-top:5px;'><span style='color:blue;font-weight:bold;'>生产信息</span></div>");
 				fwrite($handle, "<div style='margin-bottom:10px;margin-top:10px;'><table border=1 cellspacing=0 width='570px'>");
-				fwrite($handle, "<tr><th>测试项目</th><th>测试时间</th><th>测试设备型号</th><th>测试设备序列号</th><th>测试员</th><th>测试结果</th></tr>");
+				fwrite($handle, "<tr><th>测试项目</th><th>测试时</th><th>测试设备型号</th><th>测试设备序列号</th><th>测试员</th><th>测试结果</th></tr>");
 				fwrite($handle, "<tr><td>VNA</td><td>".$testtime."</td><td>".$testStationName."</td><td>".$testStationSn."</td><td>".$employeeId."</td><td>".$testResult."</td></tr>");
 				fwrite($handle, "<tr><td>PIM</td><td>".$pimTesttime."</td><td>&nbsp</td><td>&nbsp</td><td>".$pimWorkerId."</td><td>&nbsp</td></tr>");
 				fwrite($handle, "</table></div>");
