@@ -66,13 +66,21 @@
         left:0px;
         filter: Alpha(Opacity=20);
     }
+    
+    .testresult{
+    	width:100px;
+    }
+    
+    .datepicker_header{
+		width:224px;
+	}
 </style>
 <!--{/block}-->
-<!--{block name=subScript}-->
+<!--{block name=script}-->
 <script type="text/javascript" src="{base_url()}resource/js/calendar/ui.datepicker.js"></script>
 <script type="text/javascript" src="{base_url()}resource/js/calendar/ui.datepicker-zh-CN.js"></script>
 <script type="text/javascript" src="{base_url()}resource/js/jquery.mulitselector.js"></script>
-<script src="http://malsup.github.com/jquery.form.js"></script> 
+<script src="http://malsup.github.com/jquery.form.js"></script>
 <script type="text/javascript">
 	$(document).ready(function(){
 		//分页事件
@@ -165,7 +173,7 @@
 				[
 					{ id: "10",name: "{$count}"}
 				];
-		
+				
 				$(".locLong2").mulitselector({
 					title:"请选择要导出的测试项",
 					data:data
@@ -218,7 +226,7 @@
 	jQuery(function($)
 	{
 		$('#date_from').datepicker({
-			yearRange: '2012:2112',
+			yearRange: '1900:2999',
 			showOn: 'both',
 			buttonImage: '{base_url()}resource/img/calendar.gif',
 			buttonImageOnly: true,
@@ -229,7 +237,7 @@
 	jQuery(function($)
 	{
 		$('#date_to').datepicker({
-			yearRange: '2012:2112',
+			yearRange: '1900:2999',
 			showOn: 'both',
 			buttonImage: '{base_url()}resource/img/calendar.gif',
 			buttonImageOnly: true,
@@ -238,7 +246,7 @@
 	});
 </script>
 <!--{/block}-->
-<!--{block name=subBody}-->
+<!--{block name=body}-->
 <div class="prepend-1 span-63">
 	<form name="locForm" id="locForm" method="post" action="{site_url('packing/index')}">
 		<div class="packcondition">
@@ -259,7 +267,7 @@
 			<span class="span-block span-withmargin"> 产品序列号: </span>
 			<input name="productsn" class="productsn" type="text" value="{$smarty.post.productsn|default:''}" />
 			<span class="span-block span-withmargin"> 产品型号: </span>
-			{html_options name=producttype class=producttype options=$producttype selected=$smarty.post.producttype|default:''}
+			<input name="producttype" class="producttype" type="text" value="{$smarty.post.producttype|default:''}" />
 		</div>
 		<div class="packcondition">
 			<span class="span-block"> 订单号: </span>
@@ -309,16 +317,16 @@
 			<th>复检结果</th>
 		</tr>
 		{counter start=$count+1 skip=-1 print=false}
-		{foreach from=$packingResultArray key=k item=value}
-			{if $k is odd}
-				<tr style="background:#E5ECF9">
+		{foreach from=$packingResultArray key=k item=value name=packforeach}
+			{if $smarty.foreach.packforeach.index is odd}
+				<tr style="background:white">
 			{else}
-				<tr>
+				<tr style="background:#E5ECF9">
 			{/if}
 				<td>{counter}</td>
 				<td>{$value['packingtime']}</td>
 				<td>{$value['boxsn']}</td>
-				<td><a href="{site_url('/packing/detail')}/{$value['productsn']}" target="_blank">{$value['productsn']}</a></td>
+				<td><a href="{site_url('/packing/detail')}/{$value['id']}" target="_blank">{$value['productsn']}</a></td>
 				<td>{$value['name']}</td>
 				<td>{$value['ordernum']}</td>
 				<td>{$value['packername']}</td>

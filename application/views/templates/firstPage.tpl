@@ -1,4 +1,4 @@
-<!--{extends file='userPage.tpl'}-->
+<!--{extends file='defaultPage.tpl'}-->
 <!--{block name=title}-->
 <title>{$title}</title>
 <!--{/block}-->
@@ -12,7 +12,8 @@
 <link type="text/css" rel="stylesheet" href="{$file}" />
 <!--{/foreach}-->
 <!--{/block}-->
-<!--{block name=subScript}-->
+
+<!--{block name=script}-->
 <!--{foreach $js_files as $file}-->
 <script src="{$file}"></script>
 <!--{/foreach}-->
@@ -21,6 +22,38 @@
 <script src="{base_url()}resource/js/highCharts/modules/exporting.js"></script>
 {/if}
 <script>
+	//用户模块
+	/*{if $title == '系统用户'}*/
+	$(document).ready(function(){
+		//新增用户时，修改生成密码输入框
+		var url = window.location.toString();
+		if(url.indexOf('edit') == -1)
+		{
+			$('#field-password').remove();
+			var pass = '<input id="field-password" type="password" maxlength="255" value="" name="password">';
+			$("#password_input_box").after(pass);
+			$("#field-confirmpassword").remove();
+			var confpass = '<input id="field-confirmpassword" type="password" maxlength="255" value="" name="confirmpassword">';
+			$("#confirmpassword_input_box").after(confpass);
+		}
+		//判断确认密码与密码是否一致
+		$("#field-confirmpassword").blur(function()
+		{
+			var confpsw = $(this).val();
+			var psw = $("#field-password").val();
+			if(confpsw != psw)
+			{
+				$(this).after('<span id="errorMsg" style="color:red;display:inline-block;margin-left:5px;">输入密码不一致，请重新输入！</span>');
+				$(this).attr("value","");
+			}
+		});
+		
+		$("#field-confirmpassword").focus(function(){
+			$("#errorMsg").remove();
+		});
+	});
+	/*{/if}*/
+	
 	/*{if $title == '测试员'}*/
 	$(document).ready(function()
 	{
@@ -144,7 +177,7 @@
 	/*{/if}*/
 </script>
 <!--{/block}-->
-<!--{block name=subBody}-->
+<!--{block name=body}-->
 <!--{$output}-->
 <div id="diagram1" class="span-64 last">
 </div>

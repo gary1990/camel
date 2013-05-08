@@ -32,6 +32,26 @@ class CW_Controller extends CI_Controller
 		$this->flowplayerHead .= '<!-- flowplayer -->'."\n";
 		$this->flowplayerHead .= '<script src="'.base_url().'resource/flowplayer/flowplayer-3.2.6.min.js" type="text/javascript"></script>'."\n";
 		$this->smarty->assign('flowplayerHead', $this->flowplayerHead);
+		
+		$itemArr = array(""=>"",
+						 "VNA测试记录"=>"VNA测试记录",
+						 "PIM测试记录"=>"PIM测试记录",
+						 "包装记录"=>"包装记录",
+						 "测试方案"=>"测试方案",
+						 "产品型号"=>"产品型号",
+						 "测试项"=>"测试项",
+						 "测试站点"=>"测试站点",
+						 "测试设备"=>"测试设备",
+						 "测试员"=>"测试员",
+						 "高级查询"=>"高级查询",
+						 "报表"=>"报表",
+						 "质量放行"=>"质量放行",
+						 "用户"=>"用户",
+						 "用户组"=>"用户组",
+						 "工厂"=>"工厂",
+						 "车间"=>"车间");
+		$this->smarty->assign('items', $itemArr);
+		
 		if (!CW_Controller::_checkLogin())
 		{
 			redirect(base_url()."index.php/login");

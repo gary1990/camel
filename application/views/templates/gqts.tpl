@@ -1,4 +1,4 @@
-<!--{extends file='userPage.tpl'}-->
+<!--{extends file='defaultPage.tpl'}-->
 <!--{block name=title}-->
 <title>质量追溯</title>
 <!--{/block}-->
@@ -41,7 +41,7 @@
 	}
 </style>
 <!--{/block}-->
-<!--{block name=subScript}-->
+<!--{block name=script}-->
 <script type="text/javascript" src="{base_url()}resource/js/calendar/ui.datepicker.js"></script>
 <script type="text/javascript" src="{base_url()}resource/js/calendar/ui.datepicker-zh-CN.js"></script>
 <script src="http://malsup.github.com/jquery.form.js"></script> 
@@ -64,27 +64,6 @@
 		$(".bt").click(function(e){
 			var current_action = $(this).attr("id");
 			$(".current_action").attr("value",current_action);
-			if(current_action == "export")
-			{
-				/*
-				var u = window.location.toString();
-				var options = { 
-					url:u,
-					type:'POST'
-				}; 
-				$("#locForm").ajaxSubmit(options);
-				e.preventDefault();
-				*/
-				var crrent_item = $(".current_item").attr("value");
-				var totalnum = $("."+crrent_item+"totalNum").attr("value");
-				if(totalnum > 2000)
-				{
-					alert("您查找的记录大于2000条,请分批选择导出");
-					e.preventDefault();
-				}
-				
-			}
-			
 		});
 		$(".page").click(function(e){
 			e.preventDefault();
@@ -116,7 +95,7 @@
 	});
 </script>
 <!--{/block}-->
-<!--{block name=subBody}-->
+<!--{block name=body}-->
 <div class="prepend-1 span-64">
 	<div class="span-50">
 		<form name="locForm" id="locForm" method="post" action="{site_url('gqts')}">
@@ -183,13 +162,8 @@
 				</div>
 				<div class="subCondition">
 					<input class="bt" id="search" type="submit" value="查询"/>
-					<input class="bt" id="highsearch" type="submit" value="高级查询"/>
-					<!--
-					<input class="bt" id="export" type="submit" value="生成报告"/>
-					-->
-					<input name="current_item" class="current_item" value="{$smarty.post.current_item|default:'VNA'}" type="hidden"/>
-					<input name="current_page" class="current_page" value="{$smarty.post.current_page|default:'1'}" type="hidden"/>
-					<input name="current_action" class="current_action" value="{$smarty.post.current_action|default:'search'}" type="hidden"/>
+					<input name="current_item" class="current_item" value="{$smarty.post.current_item|default:'VNA'}" type="text"/>
+					<input name="current_page" class="current_page" value="{$smarty.post.current_page|default:'1'}" type="text"/>
 				</div>
 			</div>
 		</form>
@@ -212,17 +186,13 @@
 			<td>{$value['testStation']}</td>
 			<td>{$value['tester']}</td>
 			<td>{$value['productType']}</td>
-			<td><a href="{site_url('/packing/detail')}/{$value['sn']}}" target="_blank">{$value['sn']}</a></td>
+			<td><a href="{site_url('/packing/detail')}/{$value['sn']}" target="_blank">{$value['sn']}</a></td>
 			<td>&nbsp;</td>
 			<td>&nbsp;</td>
-			<!--
-			<td><a target="_blank" href="{site_url()}/gqts/vnaDetail/{$value['id']}">报告</a></td>
-			-->
 		</tr>
 		{/foreach}
 	</table>
 	{$vnaFenye}
-	<input class="VNAtotalNum" type="hidden" value="{$vnaTotalRecord}"/>
 </div>
 <div class="testResult PIM">
 	<table border="0">
@@ -243,6 +213,5 @@
 		{/foreach}
 	</table>
 	{$pimFenye}
-	<input class="PIMtotalNum" type="hidden" value="{$pimTotalRecord}"/>
 </div>
 <!--{/block}-->

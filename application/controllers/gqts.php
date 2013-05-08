@@ -1,6 +1,6 @@
 <?php
 if (!defined('BASEPATH'))
-	exit('no direct script sccess allowed');
+	exit('no direct script access allowed');
 class Gqts extends CW_Controller
 {
 	function __construct()
@@ -80,7 +80,7 @@ class Gqts extends CW_Controller
 		$ordernum = emptyToNull($this->input->post('ordernum'));
 		$tester = emptyToNull($this->input->post('tester'));
 		if ($current_item == "")
-		{ 
+		{
 		 	$arr = $this->defaultSerachResult();
 		 	$vnaResultArray = $arr[0];
 			$vnaFenye = $arr[1];
@@ -155,6 +155,7 @@ class Gqts extends CW_Controller
 							LIMIT ".$vnaSelectFrom.",".$vnaPageSize;
 			$vnaResultObject = $this->db->query($vnaResultSql);
 			$vnaResultArray = $vnaResultObject->result_array();
+			/*
 			if($current_action == "export")
 			{
 				$vnaTotalresultSql = "SELECT po.result,po.id,po.testTime,tn.name AS testStation,tr.name AS tester,pe.name AS productType,po.sn FROM producttestinfo po 
@@ -167,7 +168,7 @@ class Gqts extends CW_Controller
 				$vnaTotalresultArray = $vnaTotalresultObject->result_array();
 				$this->getVnaResultHtml($vnaTotalresultArray);
 			}
-			
+			*/
 			$vnaFenye = $this->pagefenye->getFenye($current_page, $vnaTotalpage, $vnaPageSize, $sidepage);
 			$arr = $this->defaultSerachResult();
 			$pimResultArray = $arr[2];
@@ -235,6 +236,7 @@ class Gqts extends CW_Controller
 							LIMIT ".$pimSelectFrom.",".$pimPageSize;
 			$pimResultObject = $this->db->query($pimResultSql);
 			$pimResultArray = $pimResultObject->result_array();
+			/*
 			if($current_action == "export")
 			{
 				$pimTotalresultSql = "SELECT t.id,MAX(t.test_time) AS test_time,t.upload_date,t.model,t.ser_num,t.work_num,t.name
@@ -250,6 +252,8 @@ class Gqts extends CW_Controller
 				$pimTotalresultArray = $pimTotalresultObject->result_array();
 				$this->getPimResultHtml($pimTotalresultArray);
 			}
+			 * 
+			 */
 			$pimFenye = $this->pagefenye->getFenye($current_page, $pimTotalpage, $pimPageSize, $sidepage);
 			$arr = $this->defaultSerachResult();
 			$vnaResultArray = $arr[0];
@@ -311,7 +315,7 @@ class Gqts extends CW_Controller
 		$pimResultArray = $pimResultObject->result_array();
 		return array($vnaResultArray,$vnaFenye,$pimResultArray,$pimFenye,$vnaTotalpage,$pimTotalpage);
 	}
-
+	/*
 	private function getVnaResultHtml($tmpArray)
 	{
 		if(count($tmpArray) != 0)
@@ -782,5 +786,5 @@ class Gqts extends CW_Controller
 		$this->smarty->assign("pimDetailArray",$pimDetailArray);
 		$this->smarty->display("gqts_pim.tpl");
 	}
-	
+	*/
 }

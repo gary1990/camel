@@ -12,6 +12,12 @@
 	border: 1px solid #777;
 	z-index: 9999; /*must have*/
 }
+/*add by gary*/
+.datepicker
+{
+	margin-bottom:0px;
+}
+/*end of this*/
 .datepicker_inline {
 	float: left;
 	display: block;

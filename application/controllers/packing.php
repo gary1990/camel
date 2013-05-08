@@ -8,7 +8,7 @@ class Packing extends CW_Controller
 		parent::construct();
 		$this->load->library("zip");
 	}
-		
+	
 	public function index($offset = 0, $limit = 30)
 	{
 		$hourList = array(''=>'');
@@ -26,19 +26,24 @@ class Packing extends CW_Controller
 			$minuteList = array_merge_recursive($minuteList,$arr);
 		}
 		$this->smarty->assign("minuteList", $minuteList);
+		
 		$testResult = array(
-			""=>"",
+			""=>"全部",
 			"PASS"=>"PASS",
 			"FAIL"=>"FAIL",
 			"UNTESTED"=>"UNTESTED"
 		);
-		$this->smarty->assign("testresult",$testResult);	
-		$packerObject = $this->db->query("SELECT employeeId,name FROM packingemployees");
+		$this->smarty->assign("testresult",$testResult);
+		$packerObject = $this->db->query("SELECT tr.employeeid,tr.fullname FROM tester tr 
+										  JOIN status ss ON tr.status = ss.id
+										  JOIN tester_section tn ON tr.tester_section = tn.id
+										  AND ss.statusname = 'active'
+										  AND tn.name = 'PACK'");
 		$packerArray  = $packerObject->result_array();
 		$packer = array(""=>"");
 		foreach ($packerArray as $value) 
 		{
-			$arr = array($value["employeeId"]=>$value["name"]);
+			$arr = array($value["employeeid"]=>$value["fullname"]);
 			$packer = $packer+$arr;
 		}
 		$this->smarty->assign("packer",$packer);
@@ -75,12 +80,12 @@ class Packing extends CW_Controller
 		$timeTo2 = $this->input->post("timeTo2");
 		if($timeTo2 == "")
 		{
-			$timeTo2 = "23";
+			$timeTo2 = "00";
 		}
 		$timeTo3 = $this->input->post("timeTo3");
 		if($timeTo3 == "")
 		{
-			$timeTo3 = "59";
+			$timeTo3 = "00";
 		}
 		$timeFrom = $timeFrom1." ".$timeFrom2.":".$timeFrom3;
 		$timeTo = $timeTo1." ".$timeTo2.":".$timeTo3;
@@ -107,7 +112,7 @@ class Packing extends CW_Controller
 		}
 		if($producttype != null)
 		{
-			$producttypeSql = " AND pe.id = '".$producttype."'";
+			$producttypeSql = " AND pe.name LIKE '%".$producttype."%'";
 		}
 		if($productSn !=null)
 		{
@@ -119,15 +124,15 @@ class Packing extends CW_Controller
 		}
 		if($packer != null)
 		{
-			$packerSql = " AND ps.employeeId = '".$packer."'";
+			$packerSql = " AND tr.employeeid = '".$packer."'";
 		}
 		if($testResult != null)
 		{
 			$testResultSql = " AND pt.result = '".$testResult."'";
 		}
-		$packingTotalResultSql = "SELECT pt.packingtime,pt.boxsn,pt.productsn,pe.name,pt.ordernum,ps.name AS packername,pt.result 
-		                          FROM packingresult pt 
-		                          JOIN packingemployees ps ON pt.packer=ps.employeeId 
+		$packingTotalResultSql = "SELECT DISTINCT pt.id,pt.packingtime,pt.boxsn,pt.productsn,pe.name,pt.ordernum,tr.fullname AS packername,pt.result 
+		                          FROM packingresult pt
+		                          JOIN tester tr ON pt.packer=tr.employeeid 
 								  LEFT JOIN producttestinfo po ON pt.productsn = po.sn
 								  LEFT JOIN producttype pe ON po.productType = pe.id
 							 	  ".$timeConditionSql.$packBoxSql.$producttypeSql.$productSnSql.$orderNumSql.$packerSql.$testResultSql." 
@@ -155,8 +160,9 @@ class Packing extends CW_Controller
 		$this->smarty->assign("testitemcount",$testitemcount);
 		
 		$this->smarty->assign("totalcount",$totalcount);
-		$this->smarty->assign("count",$count);
+		$this->smarty->assign("count",$totalcount-$offset);
 		$this->smarty->assign("packingResultArray",$packingResultArray);
+		$this->smarty->assign("item","包装记录");
 		$this->smarty->assign("title","包装记录");
 		$this->smarty->display("packing.tpl");
 	}
@@ -170,18 +176,23 @@ class Packing extends CW_Controller
 		$producter = iconv("gbk", "utf-8", $producter);
 		$this->smarty->assign("producter",$producter);
 		
-		$productsn = $var;
+		//取得产品序列号,包装标志位
+		$snObj = $this->db->query("SELECT pt.productsn,pt.tag FROM packingresult pt WHERE pt.id = '".$var."'");
+		$packTag = $snObj->first_row()->tag;
+		$productsn = $snObj->first_row()->productsn;
+		
 		$this->smarty->assign("productsn",$productsn);
 		
 		//获取vna基本信息
-		$basicInfoObject = $this->db->query("SELECT DISTINCT po.testTime,tn.name as teststationname,tn.equipmentSn,pe.name,tr.name AS tester,po.result
+		$basicInfoObject = $this->db->query("SELECT DISTINCT po.tag1,po.testTime,tn.name as teststationname,po.equipmentSn,pe.name,tr.fullname AS tester,po.result
 											FROM producttestinfo po 
 											JOIN testitemresult tt ON tt.productTestInfo = po.id 
 											JOIN testitemmarkvalue te ON te.testItemResult = tt.id
 											JOIN producttype pe ON po.productType = pe.id
 											JOIN tester tr ON po.tester = tr.id
 											JOIN teststation tn ON po.testStation = tn.id
-											WHERE po.sn = '".$productsn."'");
+											WHERE po.sn = '".$productsn."'
+											AND po.tag = '".$packTag."'");
 		$basicInfoArray = $basicInfoObject->result_array();
 		if(count($basicInfoArray) != 0)
 		{
@@ -199,7 +210,332 @@ class Packing extends CW_Controller
 										JOIN testitemresult tt ON tt.productTestInfo = po.id
 										JOIN testitemmarkvalue te ON te.testItemResult = tt.id
 										JOIN testitem tm ON tt.testItem = tm.id
-										WHERE po.sn = '".$productsn."'");
+										WHERE po.sn = '".$productsn."'
+										AND po.tag = '".$packTag."'");
+		$testDetailArray = $testDetailObject->result_array();
+		//结果数组
+		$result = array();
+		//测试项数组
+		$testitem = array();
+		if(count($testDetailArray) != 0)
+		{
+			foreach($testDetailArray as $value)
+			{
+				if(!in_array($value['name'], $testitem))
+				{
+					$arr = array($value['img'],array(array($value['mark'],$value['value'],$value['testResult'])));
+					$result[$value['name']] = $arr;
+					array_push($testitem,$value['name']);
+				}
+				else
+				{
+					$arr = array($value['mark'],$value['value'],$value['testResult']);
+					array_push($result[$value['name']][1],$arr);
+				}
+			}
+		}
+		$this->smarty->assign("result",$result);
+		
+		//获取PIM基本信息
+		$pimbasicInfoObject = $this->db->query("SELECT pl.name,pm.col12,pm.col13,MAX(pp.test_time) AS testtime,pp.upload_date
+												FROM pim_label pl
+												JOIN pim_ser_num pm ON pm.pim_label = pl.id
+												JOIN pim_ser_num_group pp ON pp.pim_ser_num = pm.id
+												JOIN pim_ser_num_group_data pa ON pa.pim_ser_num_group = pp.id
+												WHERE pm.ser_num = '".$productsn."'");
+		$pimbasicInfoArray = $pimbasicInfoObject->result_array();
+		
+		$pimbasicInfo = array();
+		$pimtestResult = "";
+		$pimmaxdataArray = array();
+		
+		if(count($pimbasicInfoArray) != 0 && $pimbasicInfoArray[0]["testtime"] != "")
+		{
+			$pimbasicInfo = $pimbasicInfoArray[0];
+			//取得极限值
+			$limitLine = substr($pimbasicInfo["col12"], strrpos($pimbasicInfo["col12"], ":")+1);
+			//取得所有值
+			$pimdataObject = $this->db->query("SELECT pp.test_time,pa.value
+									  FROM pim_label pl
+									  JOIN pim_ser_num pm ON pm.pim_label = pl.id
+									  JOIN pim_ser_num_group pp ON pp.pim_ser_num = pm.id
+									  JOIN pim_ser_num_group_data pa ON pa.pim_ser_num_group = pp.id
+									  WHERE pm.ser_num = '".$productsn."'");
+			$pimdataArray = $pimdataObject->result_array();
+			//对数据处理，将同一测试时间的数据放到一组
+			$pim_testtime = array();
+			$pimdataFormart = array();
+			foreach($pimdataArray as $value)
+			{
+				if(!in_array($value["test_time"], $pim_testtime))
+				{
+					$arr = array($value["value"]);
+					$pimdataFormart[$value["test_time"]] = $arr;
+					array_push($pim_testtime,$value["test_time"]);
+				}
+				else
+				{
+					array_push($pimdataFormart[$value["test_time"]],$value["value"]);
+				}
+			}
+			//判断有几组数据大于极限值
+			$i = 0;
+			foreach($pimdataFormart as $value)
+			{
+				foreach($value as $val)
+				{
+					if($val >= $limitLine)
+					{
+						$i++;
+						break;
+					}
+				}
+			}
+			//判断是否合格，0代表不合格，1代表合格
+			if(count($pimdataFormart) == 1)
+			{
+				if($i > 0)
+				{
+					$pimtestResult = "不合格";
+				}
+				else
+				{
+					$pimtestResult = "合格";
+				}
+			}
+			else
+			{
+				if($i >= 2)
+				{
+					$pimtestResult = "不合格";
+				}
+				else
+				{
+					$pimtestResult = "合格";
+				}
+			}
+			//取得各组的最大值
+			$pimmaxdataObject = $this->db->query("SELECT pp.test_time,pp.upload_date,MAX(pa.value) AS value FROM pim_ser_num pm
+											JOIN pim_label pl ON pm.pim_label=pl.id
+											JOIN pim_ser_num_group pp ON pp.pim_ser_num = pm.id
+											JOIN pim_ser_num_group_data pa ON pa.pim_ser_num_group = pp.id
+											AND pm.ser_num = '".$productsn."'
+											GROUP BY pp.test_time");
+			$pimmaxdataArray = $pimmaxdataObject->result_array();
+		}
+		$this->smarty->assign("pimbasicInfo",$pimbasicInfo);
+		$this->smarty->assign("pimtestResult",$pimtestResult);
+		$this->smarty->assign("pimmaxdataArray",$pimmaxdataArray);
+
+		$this->smarty->display("vna_pim_detail.tpl");
+	}
+	
+	//vna测试数据点击产品序列号，查看详情
+	public function detail_vna($var)
+	{
+		//取得生产厂家名称
+		$producterUrl = base_url()."/resource/producter.txt";
+		$producter = file_get_contents($producterUrl);
+		$producter = iconv("gbk", "utf-8", $producter);
+		$this->smarty->assign("producter",$producter);
+		
+		$productsnObj = $this->db->query("SELECT sn ,tag1 FROM producttestinfo WHERE id = $var");
+		$productsn = $productsnObj->first_row()->sn;
+		$tag1 = $productsnObj->first_row()->tag1;
+		
+		$this->smarty->assign("productsn",$productsn);
+		
+		//获取vna基本信息
+		$basicInfoObject = $this->db->query("SELECT DISTINCT po.testTime,tn.name as teststationname,po.equipmentSn,pe.name,tr.fullname AS tester,po.result,po.tag1
+											FROM producttestinfo po 
+											JOIN testitemresult tt ON tt.productTestInfo = po.id 
+											JOIN testitemmarkvalue te ON te.testItemResult = tt.id
+											JOIN producttype pe ON po.productType = pe.id
+											JOIN tester tr ON po.tester = tr.id
+											JOIN teststation tn ON po.testStation = tn.id
+											WHERE po.id = '".$var."'");
+		$basicInfoArray = $basicInfoObject->result_array();
+		if(count($basicInfoArray) != 0)
+		{
+			$basicInfoArray = $basicInfoArray[0];
+		}
+		else
+		{
+			$basicInfoArray = array();
+		}
+		$this->smarty->assign("basicInfoArray",$basicInfoArray);
+		
+		
+		//获取vna测试详情
+		$testDetailObject = $this->db->query("SELECT tm.name,tt.testResult,tt.img,te.value,te.mark
+										FROM producttestinfo po 
+										JOIN testitemresult tt ON tt.productTestInfo = po.id
+										JOIN testitemmarkvalue te ON te.testItemResult = tt.id
+										JOIN testitem tm ON tt.testItem = tm.id
+										WHERE po.id = '".$var."'");
+		$testDetailArray = $testDetailObject->result_array();
+		//结果数组
+		$result = array();
+		//测试项数组
+		$testitem = array();
+		if(count($testDetailArray) != 0)
+		{
+			foreach($testDetailArray as $value)
+			{
+				if(!in_array($value['name'], $testitem))
+				{
+					$arr = array($value['img'],array(array($value['mark'],$value['value'],$value['testResult'])));
+					$result[$value['name']] = $arr;
+					array_push($testitem,$value['name']);
+				}
+				else
+				{
+					$arr = array($value['mark'],$value['value'],$value['testResult']);
+					array_push($result[$value['name']][1],$arr);
+				}
+			}
+		}
+		$this->smarty->assign("result",$result);
+		
+		//获取PIM基本信息
+		$pimbasicInfoObject = $this->db->query("SELECT pl.name,pm.col12,pm.col13,MAX(pp.test_time) AS testtime,pp.upload_date
+												FROM pim_label pl
+												JOIN pim_ser_num pm ON pm.pim_label = pl.id
+												JOIN pim_ser_num_group pp ON pp.pim_ser_num = pm.id
+												JOIN pim_ser_num_group_data pa ON pa.pim_ser_num_group = pp.id
+												WHERE pm.ser_num = '".$productsn."'");
+		$pimbasicInfoArray = $pimbasicInfoObject->result_array();
+
+		$pimbasicInfo = array();
+		$pimtestResult = "";
+		$pimmaxdataArray = array();
+		
+		//加$pimbasicInfoArray[0]["testtime"] != ""条件，因为上面的sql语句执行结果总不为空
+		if(count($pimbasicInfoArray) != 0 && $pimbasicInfoArray[0]["testtime"] != "")
+		{
+			$pimbasicInfo = $pimbasicInfoArray[0];
+			//取得极限值
+			$limitLine = substr($pimbasicInfo["col12"], strrpos($pimbasicInfo["col12"], ":")+1);
+			//取得所有值
+			$pimdataObject = $this->db->query("SELECT pp.test_time,pa.value
+									  FROM pim_label pl
+									  JOIN pim_ser_num pm ON pm.pim_label = pl.id
+									  JOIN pim_ser_num_group pp ON pp.pim_ser_num = pm.id
+									  JOIN pim_ser_num_group_data pa ON pa.pim_ser_num_group = pp.id
+									  WHERE pm.ser_num = '".$productsn."'");
+			$pimdataArray = $pimdataObject->result_array();
+			//对数据处理，将同一测试时间的数据放到一组
+			$pim_testtime = array();
+			$pimdataFormart = array();
+			foreach($pimdataArray as $value)
+			{
+				if(!in_array($value["test_time"], $pim_testtime))
+				{
+					$arr = array($value["value"]);
+					$pimdataFormart[$value["test_time"]] = $arr;
+					array_push($pim_testtime,$value["test_time"]);
+				}
+				else
+				{
+					array_push($pimdataFormart[$value["test_time"]],$value["value"]);
+				}
+			}
+			//判断有几组数据大于极限值
+			$i = 0;
+			foreach($pimdataFormart as $value)
+			{
+				foreach($value as $val)
+				{
+					if($val >= $limitLine)
+					{
+						$i++;
+						break;
+					}
+				}
+			}
+			//判断是否合格，0代表不合格，1代表合格
+			if(count($pimdataFormart) == 1)
+			{
+				if($i > 0)
+				{
+					$pimtestResult = "不合格";
+				}
+				else
+				{
+					$pimtestResult = "合格";
+				}
+			}
+			else
+			{
+				if($i >= 2)
+				{
+					$pimtestResult = "不合格";
+				}
+				else
+				{
+					$pimtestResult = "合格";
+				}
+			}
+			//取得各组的最大值
+			$pimmaxdataObject = $this->db->query("SELECT pp.test_time,pp.upload_date,MAX(pa.value) AS value FROM pim_ser_num pm
+											JOIN pim_label pl ON pm.pim_label=pl.id
+											JOIN pim_ser_num_group pp ON pp.pim_ser_num = pm.id
+											JOIN pim_ser_num_group_data pa ON pa.pim_ser_num_group = pp.id
+											AND pm.ser_num = '".$productsn."'
+											GROUP BY pp.test_time");
+			$pimmaxdataArray = $pimmaxdataObject->result_array();
+		}
+		$this->smarty->assign("pimbasicInfo",$pimbasicInfo);
+		$this->smarty->assign("pimtestResult",$pimtestResult);
+		$this->smarty->assign("pimmaxdataArray",$pimmaxdataArray);
+
+		$this->smarty->display("vna_pim_detail.tpl");
+	}	
+	
+	//pim测试数据点击产品序列号，查看详情
+	public function detail_pim($var)
+	{
+		//取得生产厂家名称
+		$producterUrl = base_url()."/resource/producter.txt";
+		$producter = file_get_contents($producterUrl);
+		$producter = iconv("gbk", "utf-8", $producter);
+		$this->smarty->assign("producter",$producter);
+		
+		//取得序列号
+		$productSnObj = $this->db->query("SELECT pm.ser_num FROM pim_ser_num pm WHERE pm.id = '".$var."'");
+		$productSnArr = $productSnObj->result_array();
+		$productsn = $productSnArr[0]['ser_num'];
+		$this->smarty->assign("productsn",$productsn);
+		
+		//获取vna基本信息
+		$basicInfoObject = $this->db->query("SELECT DISTINCT po.tag1,po.testTime,tn.name as teststationname,po.equipmentSn,pe.name,tr.fullname AS tester,po.result
+											FROM producttestinfo po 
+											JOIN testitemresult tt ON tt.productTestInfo = po.id 
+											JOIN testitemmarkvalue te ON te.testItemResult = tt.id
+											JOIN producttype pe ON po.productType = pe.id
+											JOIN tester tr ON po.tester = tr.id
+											JOIN teststation tn ON po.testStation = tn.id
+											AND po.sn = '".$productsn."'
+											AND po.tag1 in (1,3)");
+		$basicInfoArray = $basicInfoObject->result_array();
+		if(count($basicInfoArray) != 0)
+		{
+			$basicInfoArray = $basicInfoArray[0];
+		}
+		else
+		{
+			$basicInfoArray = array();
+		}
+		$this->smarty->assign("basicInfoArray",$basicInfoArray);
+		
+		//获取vna测试详情
+		$testDetailObject = $this->db->query("SELECT tm.name,tt.testResult,tt.img,te.value,te.mark
+										FROM producttestinfo po 
+										JOIN testitemresult tt ON tt.productTestInfo = po.id
+										JOIN testitemmarkvalue te ON te.testItemResult = tt.id
+										JOIN testitem tm ON tt.testItem = tm.id
+										WHERE po.sn = '".$productsn."'
+										AND po.tag1 = '1'");
 		$testDetailArray = $testDetailObject->result_array();
 		//结果数组
 		$result = array();
@@ -278,13 +614,25 @@ class Packing extends CW_Controller
 					}
 				}
 			}
-			if($i >= 2)
+			//判断是否合格，0代表不合格，1代表合格
+			if(count($pimdataFormart) == 1)
 			{
-				$pimtestResult = "不合格";
+				if($i > 0)
+				{
+					$pimtestResult = "不合格";
+				}
+				else
+				{
+					$pimtestResult = "合格";
+				}
 			}
 			else
 			{
-				if(count($pimdataFormart) != 0)
+				if($i >= 2)
+				{
+					$pimtestResult = "不合格";
+				}
+				else
 				{
 					$pimtestResult = "合格";
 				}
@@ -404,16 +752,16 @@ class Packing extends CW_Controller
 		{
 			$testResultSql = " AND pt.result = '".$testResult."'";
 		}
-		$packingTotalSnSql = "SELECT DISTINCT pt.productsn,pt.boxsn,pt.result
+		$packingTotalSnSql = "SELECT DISTINCT pt.id,pt.productsn,pt.boxsn,pt.result,pt.tag
 		                          FROM packingresult pt 
-		                          JOIN packingemployees ps ON pt.packer=ps.employeeId 
+		                          JOIN tester tr ON pt.packer=tr.employeeid 
 								  LEFT JOIN producttestinfo po ON pt.productsn = po.sn
 								  LEFT JOIN producttype pe ON po.productType = pe.id
 							 	  ".$timeConditionSql.$packBoxSql.$producttypeSql.$productSnSql.$orderNumSql.$packerSql.$testResultSql." 
 							      ORDER BY pt.packingtime DESC";
 		$packingTotalSnObject = $this->db->query($packingTotalSnSql);
 		$packingTotalSnArray= $packingTotalSnObject->result_array();
-
+		
 		//遍历得到的序列号数组
 		if(count($packingTotalSnArray) == 0)
 		{
@@ -560,10 +908,15 @@ class Packing extends CW_Controller
 				$boxSn = $value['boxsn'];
 				//取得测试结果
 				$result = $value['result'];
+				//取得标志位
+				$packTag = $value['tag'];
+
 				//取得产品类型
 				$producttypeObject = $this->db->query("SELECT pe.name FROM producttestinfo po 
 								  					   JOIN producttype pe ON po.productType = pe.id
-								                       AND po.sn = '".$sn."'");
+								                       AND po.sn = '".$sn."'
+								                       AND po.tag = '".$packTag."'");
+
 				$producttypeArray = $producttypeObject->result_array();
 				if(count($producttypeArray) == 0)
 				{
@@ -573,6 +926,7 @@ class Packing extends CW_Controller
 				{
 					$producttype = $producttypeArray[0]["name"];
 				}
+				
 				//index.html中写入产品类型，装箱号，序列号
 				fwrite($indexHandle, '<td>'.$producttype.'</td><td>'.$boxSn.'</td><td>'.$sn.'</td>');
 				//index.html中写入检测结果
@@ -588,6 +942,7 @@ class Packing extends CW_Controller
 				{
 					fwrite($indexHandle, '<td style="color:yellow"><b>未测试</b></td>');
 				}
+				
 				//写入各vna测试项最大值--用户所选
 				if(count($testitemArray) == 0)
 				{
@@ -596,21 +951,24 @@ class Packing extends CW_Controller
 				else
 				{
 					//从产品测试方案表中取得当前产品--实际测试项
-					$actualTestItemObject = $this->db->query("SELECT pe.testItem FROM producttypetestcase pe 
-									  						  JOIN producttestinfo po ON pe.productType = po.productType
-									  						  AND po.sn = '".$sn."'");
+					$actualTestItemObject = $this->db->query("SELECT pn.testitem FROM test_configuration pn 
+									  						  JOIN producttestinfo po ON pn.producttype = po.productType
+									  						  AND po.sn = '".$sn."'
+									  						  AND po.tag = '".$packTag."'");
 					$actualTestItemArray = $actualTestItemObject->result_array();
 					$actualTestItem = array();
+					
 					if(count($actualTestItemArray) != 0)
 					{
 						foreach($actualTestItemArray as $value)
 						{
-							array_push($actualTestItem,$value['testItem']);
+							array_push($actualTestItem,$value['testitem']);
 						}
 					}
 					else
 					{
 					}
+					
 					//循环	用户所选的测试项
 					foreach($testitemArray as $value)
 					{
@@ -624,8 +982,10 @@ class Packing extends CW_Controller
 							 				  					JOIN producttestinfo po ON tt.productTestInfo = po.id
 							 				  					AND po.sn = '".$sn."'
 							 				  					AND tt.testItem = '".$testitemId."'
+							 				  					AND po.tag = '".$packTag."'
 							 				 					");
 							$maxvalueArray = $maxvalueObject->result_array();
+							
 							if(count($maxvalueArray) == 0)
 							{
 								fwrite($indexHandle, '<td>&nbsp;</td>');
@@ -988,6 +1348,7 @@ class Packing extends CW_Controller
 			fwrite($indexHandle, "</table>");
 			fwrite($indexHandle, '</div></div></body></html>');
 			fclose($indexHandle);
+			
 			exec('C:\Progra~1\7-Zip\7z.exe a -tzip '.$currdownloadRoot.'.zip '.$currdownloadRoot);
 			$this->delDirAndFile($currdownloadRoot);
 			
@@ -1012,8 +1373,10 @@ class Packing extends CW_Controller
         		ob_end_flush();
 				@readfile($fileRoot);
 			}
+			
 		}
 	}
+	
 	
 	//从数组中遍历元素，组成SQL的IN语句
 	protected function sqlColumnInArray($arr,$columName)
