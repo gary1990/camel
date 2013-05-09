@@ -4,6 +4,7 @@
 <!--{/block}-->
 <!--{block name=style}-->
 <link rel="stylesheet" type="text/css" href="{base_url()}resource/css/ui.datepicker.css" />
+<link rel="stylesheet" type="text/css" href="{base_url()}resource/css/chosen.css" />
 <style type="text/css">
 	.span-block
 	{
@@ -74,15 +75,22 @@
     .datepicker_header{
 		width:224px;
 	}
+	
+	.chzn-container-single{
+		vertical-align: middle;
+	}
 </style>
 <!--{/block}-->
 <!--{block name=script}-->
 <script type="text/javascript" src="{base_url()}resource/js/calendar/ui.datepicker.js"></script>
 <script type="text/javascript" src="{base_url()}resource/js/calendar/ui.datepicker-zh-CN.js"></script>
 <script type="text/javascript" src="{base_url()}resource/js/jquery.mulitselector.js"></script>
+<script type="text/javascript" src="{base_url()}resource/js/chosen.jquery.js"></script>
 <script src="http://malsup.github.com/jquery.form.js"></script>
 <script type="text/javascript">
 	$(document).ready(function(){
+		//可输入选择的下拉列表
+		$(".packer").chosen();
 		//分页事件
 		$(".locPage > a").click(function(e) {
 			e.preventDefault();

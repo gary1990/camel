@@ -12,7 +12,7 @@ class Qualitypass extends CW_Controller
 	private function _init()
 	{
 		//取得测试站
-		$teststation = array(""=>"");
+		$teststation = array(""=>"(ALL)");
 		$teststationObj = $this->db->query("SELECT id,name FROM teststation ORDER BY name");
 		if($teststationObj->num_rows != 0)
 		{

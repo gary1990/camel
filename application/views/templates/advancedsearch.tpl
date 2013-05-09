@@ -59,6 +59,9 @@
 	.datepicker_oneMonth{
 		width:231px;
 	}
+	.chzn-container-single{
+		vertical-align: middle;
+	}
 </style>
 <!--{/block}-->
 <!--{block name=script}-->
@@ -81,6 +84,10 @@
 		$(".ui-autocomplete-input").attr("value","");
 		//具有搜索功能的下拉列表
 		$(".teststation").chosen();
+		$(".equipment").chosen();
+		$(".tester").chosen();
+		$(".producttype").chosen();
+		$(".option_codition").chosen();
 	});
 	//日历插件
 	jQuery(function($)

@@ -15,9 +15,10 @@ class Producttestcase extends CW_Controller
 		//获得所有产品型号
 		$producttypeObj = $this->db->query("SELECT pe.id,pe.name FROM producttype pe
 											JOIN status ss ON pe.status = ss.id
-											AND ss.statusname = 'active'");
+											AND ss.statusname = 'active'
+											ORDER BY pe.name");
 		$producttypeArr = $producttypeObj->result_array();
-		$producttype = $this->array_switch($producttypeArr, 'name', "");
+		$producttype = $this->array_switch($producttypeArr, 'name', "(ALL)");
 		$this->smarty->assign("producttype",$producttype);
 		//获得所有测试项
 		$testitemObj = $this->db->query("SELECT tm.id,tm.name FROM testitem tm
@@ -88,7 +89,7 @@ class Producttestcase extends CW_Controller
 	//保存页面内容
 	public function del_ins($offset = 0)
 	{
-		//去当前页面的记录的id,并删除
+		//取当前页面的记录的id,并删除
 		$ids = $this->input->post("ids");
 		if($ids != "")
 		{

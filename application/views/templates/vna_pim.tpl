@@ -73,9 +73,8 @@
 		//具有搜索功能的下拉列表
 		$(".teststation").chosen();
 		$(".equipment").chosen();
-		$(".tester").chosen();
+		$(".vnatester").chosen();
 		$(".producttype").chosen();
-		$(".result").chosen();
 		var current_item = $(".current_item").attr("value");
 		if(current_item == "PIM")
 		{
@@ -84,11 +83,6 @@
 			$(".testerCn").hide();
 			$(".producttypeCn").hide();
 			$(".platenumCn").hide();
-			//$(".teststation").attr("disabled","disabled");
-			//$(".equipment").attr("disabled","disabled");
-			//$(".tester").attr("disabled","disabled");
-			//$(".producttype").attr("disabled","disabled");
-			//$(".platenum").attr("disabled","disabled");
 		}
 		$(".gqts_item").css("background-color","white");
 		$(".gqts_item").css("color","#DDDDDD");
@@ -117,11 +111,6 @@
 				$(".testerCn").hide();
 				$(".producttypeCn").hide();
 				$(".platenumCn").hide();
-				//$(".teststation").attr("disabled","disabled");
-				//$(".equipment").attr("disabled","disabled");
-				//$(".tester").attr("disabled","disabled");
-				//$(".producttype").attr("disabled","disabled");
-				//$(".platenum").attr("disabled","disabled");
 			}
 			else
 			{
@@ -130,12 +119,6 @@
 				$(".testerCn").show();
 				$(".producttypeCn").show();
 				$(".platenumCn").show();
-				//$(".teststation").removeAttr("disabled");
-				//$(".equipment").removeAttr("disabled");
-				//$(".tester").removeAttr("disabled");
-				//$(".producttype").removeAttr("disabled");
-				//$(".result").removeAttr("disabled");
-				//$(".platenum").removeAttr("disabled");
 			}
 		});
 		$(".bt").click(function(e){
@@ -224,7 +207,7 @@
 					<div class="span-5 spanStyle">
 						测试员:
 					</div>
-					{html_options class="option_codition tester" name=tester options=$tester selected=$smarty.post.tester|default:''}
+					{html_options class="option_codition vnatester" name=tester options=$vnatester selected=$smarty.post.tester|default:''}
 				</div>
 			</div>
 			<div class="condition">

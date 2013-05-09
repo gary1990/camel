@@ -70,7 +70,7 @@ class Login extends CW_Controller
 			array(
 				'field'=>'userName',
 				'label'=>'用户名',
-				'rules'=>'required|callback_checkUsername1|callback_checkUsername2|callback_checkUsername3'
+				'rules'=>'required|callback_checkUsername1'
 			),
 			array(
 				'field'=>'password',
@@ -93,10 +93,10 @@ class Login extends CW_Controller
 
 	public function checkUsername1($str)
 	{
-		$r1 = preg_match("/^[\w\.]{6,15}$/", $str);
+		$r1 = preg_match("/^[a-zA-Z0-9]{6,}$/", $str);
 		if ($r1 == 0)
 		{
-			$this->form_validation->set_message('checkUsername1', '%s 只能包含英文字母，数字，下划线和点,长度为6-15.');
+			$this->form_validation->set_message('checkUsername1', '%s 只能包含英文字母，数字，长度最少为6位。');
 			return FALSE;
 		}
 		else
@@ -235,6 +235,27 @@ class Login extends CW_Controller
 				//没有查到测试设备
 				$testStation = xml_add_child($dom, 'equipment');
 				xml_add_child($testStation, 'result', 'false');
+			}
+			//取得测试站
+			$testastationRes = $this->db->query("SELECT tn.* FROM teststation tn
+												JOIN status ss ON tn.status = ss.id
+												AND ss.statusname = 'active'");
+			if($testastationRes->num_rows() > 0)
+			{
+				$testastationArr = $testastationRes->result_array();
+				$teststaions = xml_add_child($dom, 'teststations');
+				xml_add_child($teststaions, 'result', 'true');
+				foreach ($testastationArr as $value) 
+				{
+					$teststaion = xml_add_child($teststaions,"teststaion");
+					xml_add_child($teststaion,"name",$value['name']);
+					xml_add_child($teststaion,"id",$value['id']);
+				}
+			}
+			else
+			{
+				$teststaions = xml_add_child($dom, 'teststations');
+				xml_add_child($teststaions, 'result', 'false');
 			}
 			//取得产品类型列表
 			$tmpRes = $this->db->query("SELECT a.* FROM productType a 

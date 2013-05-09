@@ -28,7 +28,7 @@ class Packing extends CW_Controller
 		$this->smarty->assign("minuteList", $minuteList);
 		
 		$testResult = array(
-			""=>"全部",
+			""=>"(ALL)",
 			"PASS"=>"PASS",
 			"FAIL"=>"FAIL",
 			"UNTESTED"=>"UNTESTED"
@@ -40,8 +40,8 @@ class Packing extends CW_Controller
 										  AND ss.statusname = 'active'
 										  AND tn.name = 'PACK'");
 		$packerArray  = $packerObject->result_array();
-		$packer = array(""=>"");
-		foreach ($packerArray as $value) 
+		$packer = array(""=>"(ALL)");
+		foreach ($packerArray as $value)
 		{
 			$arr = array($value["employeeid"]=>$value["fullname"]);
 			$packer = $packer+$arr;

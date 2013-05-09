@@ -140,7 +140,7 @@
 							</div>
 							<div class="clear prepend-1 span-11 inline append-bottom10">
 								<div class="relative">
-									<input id="userName" name="userName" class="locInputYellow locDefaultStrContainer input1 validate[required, custom[onlyLetterNumber], minSize[6], maxSize[15]]" value="{$smarty.post.userName|default:''}" type="text" />
+									<input id="userName" name="userName" class="locInputYellow locDefaultStrContainer input1 validate[required, custom[onlyLetterNumber], minSize[6]]" value="{$smarty.post.userName|default:''}" type="text" />
 									<div class="locDefaultStr defaultStr1 locUserNameDefaultStr">
 										请输入用户名
 									</div>

@@ -4,6 +4,7 @@
 <!--{/block}-->
 <!--{block name=style}-->
 <link rel="stylesheet" type="text/css" href="{base_url()}resource/css/ui.datepicker.css" />
+<link rel="stylesheet" type="text/css" href="{base_url()}resource/css/chosen.css" />
 <style>
 	.seprateline
 	{
@@ -35,8 +36,11 @@
 <script src="{base_url()}resource/js/highCharts/modules/exporting.js"></script>
 <script type="text/javascript" src="{base_url()}resource/js/calendar/ui.datepicker.js"></script>
 <script type="text/javascript" src="{base_url()}resource/js/calendar/ui.datepicker-zh-CN.js"></script>
+<script type="text/javascript" src="{base_url()}resource/js/chosen.jquery.js"></script>
 <script type="text/javascript">
 	$(document).ready(function(){
+		$(".factory").chosen();
+		$(".department1").chosen();
 		$(".factory").change(function(){
 			var department = $(this).attr('id');
 			var siteurl = $(".site_url").val();

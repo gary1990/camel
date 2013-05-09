@@ -3,29 +3,34 @@
 <title>{$title}</title>
 <!--{/block}-->
 <!--{block name=style}-->
-	<style>
-		.separate_line{
-			margin-top:20px;
-			height:3px;
-		}
-		.short_input{
-			width:30px;
-		}
-		.long_input{
-			width:100px;
-		}
-		.addbtn{
-			cursor:pointer;
-		}
-		.delbtn{
-			cursor:pointer;
-		}
-		.per_record_hidden{
-			display:none;
-		}
-	</style>
+<link rel="stylesheet" type="text/css" href="{base_url()}resource/css/chosen.css" />
+<style>
+	.separate_line{
+		margin-top:20px;
+		height:3px;
+	}
+	.short_input{
+		width:45px;
+	}
+	.long_input{
+		width:100px;
+	}
+	.addbtn{
+		cursor:pointer;
+	}
+	.delbtn{
+		cursor:pointer;
+	}
+	.per_record_hidden{
+		display:none;
+	}
+	.chzn-container-single{
+		vertical-align: middle;
+	}
+</style>
 <!--{/block}-->
 <!--{block name=script}-->
+<script type="text/javascript" src="{base_url()}resource/js/chosen.jquery.js"></script>
 <script type="text/javascript">
 	//在当前行下面添加一行
 	function add_record(thisid){
@@ -48,6 +53,8 @@
 	}
 	
 	$(document).ready(function(){
+		$(".producttypeCondition").chosen();
+		//$(".producttype").chosen();
 		//产品型号下拉列表的判空
 		$("body").delegate(".producttype", "change", function(){
 			var producttype = $(this).val();
@@ -77,9 +84,9 @@
 		//分页事件
 		$(".locPage > a").click(function(e) {
 			e.preventDefault();
-			var url = $("#locForm").attr('action') + $(this).attr('href');
-			$("#locForm").attr('action', url);
-			$("#locForm").submit();
+			var url = $("#searchForm").attr('action') + $(this).attr('href');
+			$("#searchForm").attr('action', url);
+			$("#searchForm").submit();
 		});
 		//查看按钮点击时，判断页面上是否做了修改
 		$(".searchbtn").click(function(e){
@@ -175,9 +182,9 @@
 <!--{block name=body}-->
 <div class="span-64 last subitems">
 	<div class="prepend-1 span-63">
-		<form method="post" action="{site_url()}/producttestcase">
+		<form method="post" id="searchForm" action="{site_url()}/producttestcase/index">
 			产品型号：
-			{html_options name=producttypesearch options=$producttype selected=$smarty.post.producttypesearch|default:''}
+			{html_options name=producttypesearch class="producttypeCondition" options=$producttype selected=$smarty.post.producttypesearch|default:''}
 			&nbsp;&nbsp;&nbsp;
 			<input class="searchbtn" type="submit" value="查看" />
 		</form>
@@ -193,16 +200,16 @@
 				<form name="locForm" id="locForm" method="post" action="{site_url('producttestcase/del_ins/')}">
 					<table>
 						<tr>
-							<th>序号</th><th>产品型号</th>
+							<th>产品型号</th>
 							<th>测试项</th><th>状态文件</th>
-							<th>端口数</th><th style="border-left:1px solid #DDDDDD;">Channel</th>
+							<th width="45px">端口数</th><th style="border-left:1px solid #DDDDDD;">Channel</th>
 							<th>Trace</th><th>Start MHz</th>
 							<th>Stop MHz</th><th>Mark</th>
 							<th>Min</th><th>Max</th>
 							<th>&nbsp;</th><th style="border-right:1px solid #DDDDDD">&nbsp;</th>
 						</tr>
 						<tr class="per_record per_record_hidden">
-							<td>&nbsp;</td><td>{html_options name=producttype_ class=producttype options=$producttype}<input type="hidden" class="short_input" value=""/></td>
+							<td>{html_options name=producttype_ class=producttype options=$producttype}<input type="hidden" class="short_input" value=""/></td>
 							<td>{html_options name=testitem_ class=testitem options=$testitem}<input type="hidden" class="short_input" value=""/></td>
 							<td><input class="long_input statusfile" name="statusfile_" type="text" /><input type="hidden" class="short_input" value=""/></td>
 							<td><input class="short_input ports" name="ports_" maxlength="4" type="text" /><input type="hidden" class="short_input" value=""/></td>
@@ -218,7 +225,7 @@
 						</tr>
 						{if count($testcaseArr) eq 0}
 							<tr class="per_record" id="1">
-								<td>1</td><td>{html_options name=producttype1 class=producttype options=$producttype}<input type="hidden" class="short_input" value=""/></td>
+								<td>{html_options name=producttype1 class=producttype options=$producttype}<input type="hidden" class="short_input" value=""/></td>
 								<td>{html_options name=testitem1 class=testitem options=$testitem}<input type="hidden" class="short_input" value=""/></td>
 								<td><input class="long_input statusfile" name="statusfile1" type="text" /><input type="hidden" class="short_input" value=""/></td>
 								<td><input class="short_input ports" name="ports1" maxlength="4" type="text" /><input type="hidden" class="short_input" value=""/></td>
@@ -235,7 +242,7 @@
 						{else}
 							{foreach from=$testcaseArr key=k item=value}
 								<tr class="per_record" id="{$k+1}">
-									<td>{$k+1}</td><td>{html_options name="producttype{$k+1}" class=producttype options=$producttype selected=$value["producttype"]|default:""}<input type="hidden" class="short_input" value="{$value["producttype"]|default:""}"/></td>
+									<td>{html_options name="producttype{$k+1}" class=producttype options=$producttype selected=$value["producttype"]|default:""}<input type="hidden" class="short_input" value="{$value["producttype"]|default:""}"/></td>
 									<td>{html_options name="testitem{$k+1}" class=testitem options=$testitem selected=$value["testitem"]|default:""}<input type="hidden" class="short_input" value="{$value["testitem"]|default:""}"/></td>
 									<td><input class="long_input statusfile" name="statusfile{$k+1}" type="text" value="{$value["statefile"]|default:""}"/><input type="hidden" class="short_input" value="{$value["statefile"]|default:""}"/></td>
 									<td><input class="short_input ports" name="ports{$k+1}" maxlength="4" type="text" value="{$value["ports"]|default:""}" /><input type="hidden" class="short_input" value="{$value["ports"]|default:""}"/></td>

@@ -11,7 +11,7 @@ class Reportform extends CW_Controller
 	public function _init()
 	{
 		//取得工厂
-		$factoryArr = array(""=>"");
+		$factoryArr = array(""=>"(ALL)");
 		$factoryObj=$this->db->query("SELECT DISTINCT fy.id,fy.name 
 									  FROM factory fy
 									  JOIN status ss ON fy.status = ss.id
@@ -25,7 +25,7 @@ class Reportform extends CW_Controller
 		}
 		$this->smarty->assign("factoryArr",$factoryArr);
 		//取得车间
-		$departmentArr = array(""=>"");
+		$departmentArr = array(""=>"(ALL)");
 		$departmentObj = $this->db->query("SELECT DISTINCT dt.id,dt.name 
 										   FROM department dt
 										   JOIN factory fy ON dt.factory = fy.id

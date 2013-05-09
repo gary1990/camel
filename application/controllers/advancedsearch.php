@@ -26,7 +26,7 @@ class Advancedsearch extends CW_Controller
 		}
 		$this->smarty->assign("minuteList", $minuteList);
 		$testResultList = array(
-			''=>'ALL',
+			''=>'(ALL)',
 			'0'=>'FAIL',
 			'1'=>'PASS'
 		);
@@ -37,22 +37,24 @@ class Advancedsearch extends CW_Controller
 											   AND ss.statusname = 'active'
 											   ORDER BY tn.name");
 		$teststationArray = $teststationObject->result_array();
-		$teststation = $this->array_switch($teststationArray, "name", "ALL");
+		$teststation = $this->array_switch($teststationArray, "name", "(ALL)");
 
 		$this->smarty->assign("teststation",$teststation);
 		//取得测试设备
 		$equipmentObject = $this->db->query("SELECT et.id,et.sn FROM equipment et 
 											   JOIN status ss ON et.status = ss.id
-											   AND ss.statusname = 'active'");
+											   AND ss.statusname = 'active'
+											   ORDER BY et.sn");
 		$equipmentArray = $equipmentObject->result_array();
-		$equipment = $this->array_switch($equipmentArray, "sn", "ALL");
+		$equipment = $this->array_switch($equipmentArray, "sn", "(ALL)");
 		$this->smarty->assign("equipment",$equipment);
 		//取得测试者
 		$testerObject = $this->db->query("SELECT tr.id,tr.employeeid FROM tester tr 
 											   JOIN status ss ON tr.status = ss.id
+											   ORDER BY tr.employeeid
 											   ");
 		$testerArray = $testerObject->result_array();
-		$tester = $this->array_switch($testerArray, "employeeid", "ALL");
+		$tester = $this->array_switch($testerArray, "employeeid", "(ALL)");
 		$this->smarty->assign("tester",$tester);
 		//取得产品型号
 		$producttypeObject = $this->db->query("SELECT pe.id,pe.name FROM producttype pe
@@ -60,7 +62,7 @@ class Advancedsearch extends CW_Controller
 											   AND ss.statusname = 'active'
 											   ORDER BY pe.name");
 		$producttypeArray = $producttypeObject->result_array();
-		$producttype = $this->array_switch($producttypeArray, "name", "ALL");
+		$producttype = $this->array_switch($producttypeArray, "name", "(ALL)");
 		$this->smarty->assign("producttype",$producttype);
 		//取得测试项
 		$testitemObject = $this->db->query("SELECT tm.id,tm.name FROM testitem tm
