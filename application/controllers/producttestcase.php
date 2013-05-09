@@ -5,6 +5,7 @@ class Producttestcase extends CW_Controller
 {
 	public function __construct()
 	{
+		//
 		parent::__construct();
 		//判断当前登录用户
 		$userrole = $this->session->userdata("userrole");
