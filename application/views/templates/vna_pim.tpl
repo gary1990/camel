@@ -66,7 +66,7 @@
 <!--{block name=script}-->
 <script type="text/javascript" src="{base_url()}resource/js/calendar/ui.datepicker.js"></script>
 <script type="text/javascript" src="{base_url()}resource/js/calendar/ui.datepicker-zh-CN.js"></script>
-<script src="http://malsup.github.com/jquery.form.js"></script>
+<script type="text/javascript" src="{base_url()}resource/js/jquery.form.js"></script>
 <script type="text/javascript" src="{base_url()}resource/js/chosen.jquery.js"></script>
 <script type="text/javascript">
 	$(function(){

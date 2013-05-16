@@ -29,6 +29,9 @@
 	{
 		width:150px;
 	}
+	.chzn-container-single{
+		vertical-align:middle;
+	}
 </style>
 <!--{/block}-->
 <!--{block name=script}-->
@@ -39,8 +42,7 @@
 <script type="text/javascript" src="{base_url()}resource/js/chosen.jquery.js"></script>
 <script type="text/javascript">
 	$(document).ready(function(){
-		$(".factory").chosen();
-		$(".department1").chosen();
+		$(".producttype").chosen();
 		$(".factory").change(function(){
 			var department = $(this).attr('id');
 			var siteurl = $(".site_url").val();

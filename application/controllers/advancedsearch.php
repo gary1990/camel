@@ -70,7 +70,7 @@ class Advancedsearch extends CW_Controller
 											   AND ss.statusname = 'active'
 											   ORDER BY tm.name");
 		$testitemArray = $testitemObject->result_array();
-		$testitem = $this->array_switch($testitemArray, "name", "NULL");
+		$testitem = $this->array_switch($testitemArray, "name", "(NULL)");
 		$this->smarty->assign("testitem",$testitem);
 	}
 	

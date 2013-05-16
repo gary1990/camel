@@ -87,7 +87,7 @@
 		$(".equipment").chosen();
 		$(".tester").chosen();
 		$(".producttype").chosen();
-		$(".option_codition").chosen();
+		$(".testitem").chosen();
 	});
 	//日历插件
 	jQuery(function($)
@@ -179,7 +179,7 @@
 					<div class="subCondition">
 						<span class="span-block"> 测试项{$itemcount}: </span> 
 						{assign var="tmp" value="testitem{$itemcount}"}
-						{html_options class="option_codition" name="testitem{$itemcount}" options=$testitem selected=$smarty.post.$tmp|default:''}
+						{html_options class="option_codition testitem" name="testitem{$itemcount}" options=$testitem selected=$smarty.post.$tmp|default:''}
 					</div>
 					<div class="subCondition">
 						<span class="span-block"> 范围: </span>

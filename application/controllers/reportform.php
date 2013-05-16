@@ -41,8 +41,8 @@ class Reportform extends CW_Controller
 		}
 		$this->smarty->assign("departmentArr",$departmentArr);
 		//取得机台
-		$latheArr = array(""=>"");
-		$latheObj = $this->db->query("SELECT DISTINCT lathe FROM producttestinfo");
+		$latheArr = array(""=>"(ALL)");
+		$latheObj = $this->db->query("SELECT DISTINCT lathe FROM producttestinfo WHERE lathe <> ''");
 		if($latheObj->num_rows() != 0)
 		{
 			foreach ($latheObj->result() as  $value) 
@@ -52,7 +52,7 @@ class Reportform extends CW_Controller
 		}
 		$this->smarty->assign("latheArr",$latheArr);
 		//取得产品型号
-		$producttypeArr = array(""=>"");
+		$producttypeArr = array(""=>"(ALL)");
 		$producttypeObj = $this->db->query("SELECT id,name FROM producttype");
 		if($producttypeObj->num_rows() != 0)
 		{

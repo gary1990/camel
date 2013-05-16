@@ -334,11 +334,10 @@ class Packing extends CW_Controller
 	public function detail_vna($var)
 	{
 		//取得生产厂家名称
-		$producterUrl = base_url()."/resource/producter.txt";
+		$producterUrl = base_url()."resource/producter.txt";
 		$producter = file_get_contents($producterUrl);
 		$producter = iconv("gbk", "utf-8", $producter);
 		$this->smarty->assign("producter",$producter);
-		
 		$productsnObj = $this->db->query("SELECT sn ,tag1 FROM producttestinfo WHERE id = $var");
 		$productsn = $productsnObj->first_row()->sn;
 		$tag1 = $productsnObj->first_row()->tag1;
