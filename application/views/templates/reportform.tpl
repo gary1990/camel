@@ -43,6 +43,7 @@
 <script type="text/javascript">
 	$(document).ready(function(){
 		$(".producttype").chosen();
+		$(".lathe").chosen();
 		$(".factory").change(function(){
 			var department = $(this).attr('id');
 			var siteurl = $(".site_url").val();
