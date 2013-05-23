@@ -27,6 +27,15 @@
 	.chzn-container-single{
 		vertical-align: middle;
 	}
+	.producttype{
+		width:150px;
+	}
+	.testitem{
+		width:150px;
+	}
+	.producttypeCondition{
+		width:150px;
+	}
 </style>
 <!--{/block}-->
 <!--{block name=script}-->
