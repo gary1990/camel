@@ -56,7 +56,8 @@ class Producttestcase extends CW_Controller
 								   JOIN status ss ON pe.status = ss.id
 								   AND tm.status = ss.id
 								   AND ss.statusname = 'active'
-								   ".$producttypeSql." GROUP BY tn.producttype,tn.testitem,tn.statefile,tn.ports";
+								   ".$producttypeSql." 
+								   GROUP BY tn.producttype,tn.testitem,tn.statefile,tn.ports,tn.channel,tn.trace,tn.startf,tn.stopf,tn.mark";
 			$testcaseObj = $this->db->query($producttestcaseSql);
 			$testcaseArr = $testcaseObj->result_array();
 			

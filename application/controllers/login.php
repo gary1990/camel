@@ -274,11 +274,13 @@ class Login extends CW_Controller
 					xml_add_child($productType, 'id', $productTypeItem['id']);
 					xml_add_child($productType, 'name', $productTypeItem['name']);
 					//取得产品测试案例内容
-					$tmpRes = $this->db->query('SELECT DISTINCT a.producttype,a.testitem,a.statefile,a.ports,a.channel,a.trace,a.startf,a.stopf,a.mark,a.min,a.max,b.name testItemName 
+					$tmpRes = $this->db->query("SELECT DISTINCT a.producttype,a.testitem,a.statefile,a.ports,a.channel,a.trace,a.startf,a.stopf,a.mark,a.min,a.max,b.name testItemName 
 												FROM test_configuration a 
 												JOIN testItem b ON a.testItem = b.id 
-												WHERE a.productType = ? 
-												ORDER BY a.testItem', array($productTypeItem['id']));
+												JOIN status c ON b.status = c.id
+								   				AND c.statusname = 'active'
+												AND a.productType = ? 
+												ORDER BY a.testItem", array($productTypeItem['id']));
 					if ($tmpRes->num_rows() > 0)
 					{
 						$tmpTestItemArray = $tmpRes->result_array();
@@ -815,7 +817,7 @@ class Login extends CW_Controller
 			$file = $uploadRoot.$slash.$file_name;
 			$file1 = str_replace(' ', '', $file);
 			rename($file,$file1);
-			exec('C:\Progra~1\7-Zip\7z.exe x '.$file1.' -o'.$uploadRoot.$slash.$dateStamp.' -y', $info);
+			exec('C:\Progra~1\7-Zip\7z.exe x '.$file1.' -o'.$uploadRoot.$slash.$dateStamp.$slash.substr($_FILES['file']['name'], 0, -4).' -y', $info);
 		}
 		else if (PHP_OS == 'Darwin')
 		{
