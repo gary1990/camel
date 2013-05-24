@@ -737,12 +737,18 @@ class Login extends CW_Controller
 		}
 		else
 		{
-			$this->_returnUploadFailed("错误的服务器操作系统");
+			//false01->错误的服务器操作系统
+			$this->_returnUploadFailed("false01");
 			return;
 		}
+		if ($this->_checkTestUser($username, $password, 'PIM') === FALSE)
+		{
+			//false02->错误的用户名密码
+		 	$this->_returnUploadFailed("false02");
+		 	return;
+		}
 		//保存上传文件
-		$file_temp = $_FILES['Filedata']['tmp_name'];
-		//$file_temp = $_FILES['file']['tmp_name'];
+		$file_temp = $_FILES['file']['tmp_name'];
 		date_default_timezone_set('Asia/Shanghai');
 		$dateStamp = date("Y_m_d");
 		$dateStampFolder = $uploadRoot.$slash.$dateStamp;
@@ -757,12 +763,12 @@ class Login extends CW_Controller
 			}
 			else
 			{
-				$this->_returnUploadFailed("日期目录创建失败");
+				//false03->日期目录创建失败
+				$this->_returnUploadFailed("false03");
 				return;
 			}
 		}
-		$file_name = $dateStamp.$slash.$_FILES['Filedata']['name'];
-		//$file_name = $dateStamp.$slash.$_FILES['file']['name'];
+		$file_name = $dateStamp.$slash.$_FILES['file']['name'];
 		//complete upload
 		//解压前先删除旧文件
 		if (file_exists($uploadRoot.$slash.$file_name))
@@ -772,8 +778,8 @@ class Login extends CW_Controller
 		$filestatus = move_uploaded_file($file_temp, $uploadRoot.$slash.$file_name);
 		if (!$filestatus)
 		{
-			$this->_returnUploadFailed("文件:".$_FILES['Filedata']['name']."上传失败");
-			//$this->_returnUploadFailed("文件:".$_FILES['file']['name']."上传失败");
+			//false04->文件:".$_FILES['file']['name']."上传失败
+			$this->_returnUploadFailed("false04");
 			return;
 		}
 		//解压缩文件
@@ -781,7 +787,11 @@ class Login extends CW_Controller
 		$this->delDirAndFile($uploadRoot.$slash.substr($file_name, 0, -4));
 		if (PHP_OS == 'WINNT')
 		{
-			exec('C:\Progra~1\7-Zip\7z.exe x '.$uploadRoot.$slash.$file_name.' -o'.$uploadRoot.$slash.substr($file_name, 0, -4).' -y', $info);
+			//判断.zip文件是否有空格，并解压缩
+			$file = $uploadRoot.$slash.$file_name;
+			$file1 = str_replace(' ', '', $file);
+			rename($file,$file1);
+			exec('C:\Progra~1\7-Zip\7z.exe x '.$file1.' -o'.$uploadRoot.$slash.$dateStamp.$slash.substr($_FILES['file']['name'], 0, -4).' -y', $info);
 		}
 		else if (PHP_OS == 'Darwin')
 		{
@@ -794,15 +804,15 @@ class Login extends CW_Controller
 			}
 			else
 			{
-				$this->_returnUploadFailed("文件:".$_FILES['Filedata']['name']."打开失败");
-				//$this->_returnUploadFailed("文件:".$_FILES['file']['name']."打开失败");
+				//false05->文件:".$_FILES['file']['name']."打开失败
+				$this->_returnUploadFailed("false05");
 				return;
 			}
 		}
 		//解析文件并插入数据库
 		$this->db->trans_start();
 		//初始化pim_label(工单号)
-		$pim_label = substr($file_name, strrpos($file_name, $slash) + 1, -4);
+		$pim_label = substr($_FILES['file']['name'], 0, strrpos($_FILES['file']['name'], '_'));
 		//对pim_label插入数据
 		$tmpSql = "INSERT INTO `pim_label`(`name`) ";
 		$tmpSql .= "VALUES ('".$pim_label."')";
@@ -870,7 +880,8 @@ class Login extends CW_Controller
 							else
 							{
 								$this->db->trans_rollback();
-								$this->_returnUploadFailed("插入pim_ser_num失败!原始数据:$csv中$line");
+								//false06->插入pim_ser_num失败!原始数据:$csv中$line
+								$this->_returnUploadFailed("false06");
 								return;
 							}
 						}
@@ -882,7 +893,8 @@ class Login extends CW_Controller
 						if (!file_exists($jpgFile))
 						{
 							$this->db->trans_rollback();
-							$this->_returnUploadFailed("$jpgFile,插入pim_ser_num_group时对应图片没有找到!原始数据:{$csv}中{$line}中");
+							//false07->$jpgFile,插入pim_ser_num_group时对应图片没有找到!原始数据:{$csv}中{$line}中
+							$this->_returnUploadFailed("false07");
 							return;
 						}
 						//插入pim_ser_num_group
@@ -908,7 +920,8 @@ class Login extends CW_Controller
 								else
 								{
 									$this->db->trans_rollback();
-									$this->_returnUploadFailed("插入pim_ser_num_group_data失败!原始数据:$csv中$line中".$lineContentArray[$i]);
+									//false08->插入pim_ser_num_group_data失败!原始数据:$csv中$line中".$lineContentArray[$i]
+									$this->_returnUploadFailed("false08");
 									return;
 								}
 							}
@@ -916,7 +929,8 @@ class Login extends CW_Controller
 						else
 						{
 							$this->db->trans_rollback();
-							$this->_returnUploadFailed("插入pim_ser_num_group失败!原始数据:$csv中$line");
+							//false09->插入pim_ser_num_group失败!原始数据:$csv中$line
+							$this->_returnUploadFailed("false09");
 							return;
 						}
 						//设置本组测试时间
@@ -931,7 +945,8 @@ class Login extends CW_Controller
 						else
 						{
 							$this->db->trans_rollback();
-							$this->_returnUploadFailed("更新pim_ser_num_group测试时间失败!原始数据:$csv中$line");
+							//false10->更新pim_ser_num_group测试时间失败!原始数据:$csv中$line
+							$this->_returnUploadFailed("false10");
 							return;
 						}
 						$firstGroup = false;					
@@ -940,7 +955,8 @@ class Login extends CW_Controller
 				else
 				{
 					$this->db->trans_rollback();
-					$this->_returnUploadFailed("打开文件$csv失败!");
+					//false11->打开文件$csv失败!
+					$this->_returnUploadFailed("false11");
 					return;
 				}
 			}
@@ -950,7 +966,8 @@ class Login extends CW_Controller
 		else
 		{
 			$this->db->trans_rollback();
-			$this->_returnUploadFailed("创建工单号$pim_label失败!");
+			//false12->创建工单号$pim_label失败!
+			$this->_returnUploadFailed("false12");
 			return;
 		}
 	}
