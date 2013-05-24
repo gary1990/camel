@@ -13,7 +13,7 @@
 		width:45px;
 	}
 	.long_input{
-		width:100px;
+		width:150px;
 	}
 	.addbtn{
 		cursor:pointer;
@@ -112,15 +112,6 @@
       			alert("端口数为整数");
       		}
     	});
-    	//start,stop,min,max输入框是否为数字的判断
-    	$("body").delegate(".start,.stop,.min,.max", "blur", function(){
-			var start = $(this).val();
-			//取整后和原来数比较
-      		if(isNaN(start))
-      		{
-      			alert("start,stop,min,max为数字");
-      		}
-    	});
 		//分页事件
 		$(".locPage > a").click(function(e) {
 			e.preventDefault();
@@ -147,14 +138,7 @@
 					var case2 = $('[name="testitem'+i+'"]').val() == $('[name="testitem'+i+'"]').next().next().val();
 					var case3 = $('[name="statusfile'+i+'"]').val() == $('[name="statusfile'+i+'"]').next().val();
 					var case4 = $('[name="ports'+i+'"]').val() == $('[name="ports'+i+'"]').next().val();
-					var case5 = $('[name="channel'+i+'"]').val() == $('[name="channel'+i+'"]').next().val();
-					var case6 = $('[name="trace'+i+'"]').val() == $('[name="trace'+i+'"]').next().val();
-					var case7 = $('[name="start'+i+'"]').val() == $('[name="start'+i+'"]').next().val();
-					var case8 = $('[name="stop'+i+'"]').val() == $('[name="stop'+i+'"]').next().val();
-					var case9 = $('[name="mark'+i+'"]').val() == $('[name="mark'+i+'"]').next().val();
-					var case10 = $('[name="min'+i+'"]').val() == $('[name="min'+i+'"]').next().val();
-					var case11 = $('[name="max'+i+'"]').val() == $('[name="max'+i+'"]').next().val();
-					var changed = case1 && case2 && case3 && case4 && case5 && case6 && case7 && case8 && case9 && case10 && case11;
+					var changed = case1 && case2 && case3 && case4;
 					if(changed)
 					{
 						//do noting
@@ -198,8 +182,8 @@
 			e.preventDefault();
 			//取得当前记录条数
 			var tatolcount = $(".addcount").val();
-			//产品型号，测试项，端口数判空判空结果
-			var nullResult;
+			//产品型号，测试项，端口数判空判空结果。默认为true，防止页面记录全部删除后无法比较结果
+			var nullResult = true;
 			//产品型号，测试项，端口数判空
 			for(var i=tatolcount;i >= 1;i--)
 			{
@@ -244,20 +228,6 @@
 						$('[name="statusfile'+i+'"]').next().attr("value",statusfile);
 						var ports = $('[name="ports'+i+'"]').val();
 						$('[name="ports'+i+'"]').next().attr("value",ports);
-						var channel = $('[name="channel'+i+'"]').val();
-						$('[name="channel'+i+'"]').next().attr("value",channel);
-						var trace = $('[name="trace'+i+'"]').val();
-						$('[name="trace'+i+'"]').next().attr("value",trace);
-						var start = $('[name="start'+i+'"]').val();
-						$('[name="start'+i+'"]').next().attr("value",start);
-						var stop = $('[name="stop'+i+'"]').val();
-						$('[name="stop'+i+'"]').next().attr("value",stop);
-						var mark = $('[name="mark'+i+'"]').val();
-						$('[name="mark'+i+'"]').next().attr("value",mark);
-						var min = $('[name="min'+i+'"]').val();
-						$('[name="min'+i+'"]').next().attr("value",min);
-						var max = $('[name="max'+i+'"]').val();
-						$('[name="max'+i+'"]').next().attr("value",max);
 					}
 				}
 				var options = { 
@@ -285,37 +255,23 @@
 		<hr class="separate_line">
 		<div>
 			<div>
-				<div style="width:50%;float:left;">
-					&nbsp;
-				</div>
-				<div style="padding-left:50%;text-align:center;">极限值定义(oiption)</div>
-			</div>
-			<div>
 				<form name="locForm" id="locForm" method="post" action="{site_url('producttestcase/del_ins/')}">
 					<table>
 						<tr>
 							<th>产品型号</th>
-							<th>测试项</th><th>状态文件</th>
-							<th width="45px">端口数</th><th style="border-left:1px solid #DDDDDD;">Channel</th>
-							<th>Trace</th><th>Start MHz</th>
-							<th>Stop MHz</th><th>Mark</th>
-							<th>Min</th><th>Max</th>
-							<th>&nbsp;</th><th style="border-right:1px solid #DDDDDD">&nbsp;</th>
+							<th>测试项</th>
+							<th>状态文件</th>
+							<th width="45px">端口数</th>
+							<th>&nbsp;</th>
+							<th>&nbsp;</th>
 						</tr>
 						<tr class="per_record per_record_hidden">
 							<td>{html_options class="addproducttype" name=producttype_ options=$producttype}<input type="hidden" class="short_input" value=""/></td>
 							<td>{html_options class="addtestitem" name=testitem_ options=$testitem}<input type="hidden" class="short_input" value=""/></td>
 							<td><input class="long_input statusfile" name="statusfile_" type="text" readonly="readonly" /><input type="hidden" class="short_input" value=""/></td>
 							<td><input class="short_input ports" name="ports_" maxlength="4" type="text" /><input type="hidden" class="short_input" value=""/></td>
-							<td style="border-left:1px solid #DDDDDD;">{html_options name=channel_ class=channel options=$one_tenArr}<input type="hidden" class="short_input" value="1"/></td>
-							<td>{html_options name=trace_ class=trace options=$one_tenArr}<input type="hidden" class="short_input" value="1"/></td>
-							<td><input class="short_input start" name="start_" type="text"/><input type="hidden" class="short_input" value=""/></td>
-							<td><input class="short_input stop" name="stop_" type="text" /><input type="hidden" class="short_input" value=""/></td>
-							<td>{html_options name=mark_ class=mark options=$one_tenArr}<input type="hidden" class="short_input" value="1"/></td>
-							<td><input class="short_input min" name="min_" type="text" /><input type="hidden" class="short_input" value=""/></td>
-							<td><input class="short_input max" name="max_" type="text" /><input type="hidden" class="short_input" value=""/></td>
 							<td><span class="addbtn" onclick="add_record(selfid)">+</span></td>
-							<td style="border-right:1px solid #DDDDDD"><span class="delbtn" onclick="del_record(selfid)">-</span></td>
+							<td><span class="delbtn" onclick="del_record(selfid)">-</span></td>
 						</tr>
 						{if count($testcaseArr) eq 0}
 							<tr class="per_record" id="1">
@@ -323,15 +279,8 @@
 								<td>{html_options name=testitem1 class=testitem options=$testitem}<input type="hidden" class="short_input" value=""/></td>
 								<td><input class="long_input statusfile" name="statusfile1" readonly="readonly" type="text" /><input type="hidden" class="short_input" value=""/></td>
 								<td><input class="short_input ports" name="ports1" maxlength="4" type="text" /><input type="hidden" class="short_input" value=""/></td>
-								<td style="border-left:1px solid #DDDDDD;">{html_options name=channel1 class=channel options=$one_tenArr}<input type="hidden" class="short_input" value="1"/></td>
-								<td>{html_options name=trace1 class=trace options=$one_tenArr}<input type="hidden" class="short_input" value="1"/></td>
-								<td><input class="short_input start" name="start1" type="text" /><input type="hidden" class="short_input" value=""/></td>
-								<td><input class="short_input stop" name="stop1" type="text" /><input type="hidden" class="short_input" value=""/></td>
-								<td>{html_options name=mark1 class=mark options=$one_tenArr}<input type="hidden" class="short_input" value="1"/></td>
-								<td><input class="short_input min" name="min1" type="text" /><input type="hidden" class="short_input" value=""/></td>
-								<td><input class="short_input max" name="max1" type="text" /><input type="hidden" class="short_input" value=""/></td>
 								<td><span class="addbtn" onclick="add_record(1)">+</span></td>
-								<td style="border-right:1px solid #DDDDDD"><span class="delbtn">-</span></td>
+								<td><span class="delbtn">-</span></td>
 							</tr>
 						{else}
 							{foreach from=$testcaseArr key=k item=value}
@@ -340,15 +289,8 @@
 									<td>{html_options name="testitem{$k+1}" class=testitem options=$testitem selected=$value["testitem"]|default:""}<input type="hidden" class="short_input" value="{$value["testitem"]|default:""}"/></td>
 									<td><input class="long_input statusfile" name="statusfile{$k+1}" type="text" readonly="readonly" value="{$value["statefile"]|default:""}" /><input type="hidden" class="short_input" value="{$value["statefile"]|default:""}"/></td>
 									<td><input class="short_input ports" name="ports{$k+1}" maxlength="4" type="text" value="{$value["ports"]|default:""}" /><input type="hidden" class="short_input" value="{$value["ports"]|default:""}"/></td>
-									<td style="border-left:1px solid #DDDDDD;">{html_options name="channel{$k+1}" class=channel options=$one_tenArr selected=$value["channel"]|default:""}<input type="hidden" class="short_input" value="{$value["channel"]|default:""}"/></td>
-									<td>{html_options name="trace{$k+1}" class=trace options=$one_tenArr selected=$value["trace"]|default:""}<input type="hidden" class="short_input" value="{$value["trace"]|default:""}"/></td>
-									<td><input class="short_input start" name="start{$k+1}" type="text" value="{$value["startf"]|default:""}" /><input type="hidden" class="short_input" value="{$value["startf"]|default:""}"/></td>
-									<td><input class="short_input stop" name="stop{$k+1}" type="text" value="{$value["stopf"]|default:""}" /><input type="hidden" class="short_input" value="{$value["stopf"]|default:""}"/></td>
-									<td>{html_options name="mark{$k+1}" class=mark options=$one_tenArr selected=$value["mark"]|default:""}<input type="hidden" class="short_input" value="{$value["mark"]|default:""}"/></td>
-									<td><input class="short_input min" name="min{$k+1}" type="text" value="{$value["min"]|default:""}" /><input type="hidden" class="short_input" value="{$value["min"]|default:""}"/></td>
-									<td><input class="short_input max" name="max{$k+1}" type="text" value="{$value["max"]|default:""}" /><input type="hidden" class="short_input" value="{$value["max"]|default:""}"/></td>
 									<td><span class="addbtn" onclick="add_record({$k+1})">+</span></td>
-									<td style="border-right:1px solid #DDDDDD"><span class="delbtn" onclick="del_record({$k+1})">-</span></td>
+									<td><span class="delbtn" onclick="del_record({$k+1})">-</span></td>
 								</tr>
 							{/foreach}
 						{/if}

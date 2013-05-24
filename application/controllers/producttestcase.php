@@ -117,8 +117,7 @@ class Producttestcase extends CW_Controller
 		   		{
 		   			//fputcsv($handle, $value);
 		   			$str = $value["producttypeName"].",".$value["testitemName"].",".$value["statefile"].",".
-		   				   $value["ports"].",".$value["channel"].",".$value["trace"].",".$value["startf"].",".
-		   				   $value["stopf"].",".$value["mark"].",".$value["min"].",".$value["max"]."\r\n";
+		   				   $value["ports"]."\r\n";
 		   			fwrite($handle, iconv('UTF-8','GB2312',$str));
 		   		}
 			}
@@ -163,13 +162,13 @@ class Producttestcase extends CW_Controller
 			$testitem = $this->input->post("testitem".$i);
 			$statusfile = $this->input->post("statusfile".$i);
 			$ports = $this->input->post("ports".$i);
-			$channel = $this->input->post("channel".$i);
-			$trace = $this->input->post("trace".$i);
-			$start = $this->input->post("start".$i);
-			$stop = $this->input->post("stop".$i);
-			$mark = $this->input->post("mark".$i);
-			$min = $this->input->post("min".$i);
-			$max = $this->input->post("max".$i);
+			$channel = 1;
+			$trace = 1;
+			$start = 1;
+			$stop = 1;
+			$mark = 1;
+			$min = 1;
+			$max = 1;
 			if($producttype != "")
 			{
 				$value .= "('$producttype','$testitem','$statusfile','$ports','$channel','$trace','$start','$stop','$mark','$min','$max'),";

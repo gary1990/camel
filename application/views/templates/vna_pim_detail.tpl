@@ -174,7 +174,7 @@
 			{foreach from=$pimmaxdataArray key=k item=value}
 				<div style="display: inline-block;margin-top:10px;margin-right:25px;">
 					<div>组{$k+1}</div>
-					<img class="pimImg" src="{base_url()}assets/uploadedSource/pim/{$value['upload_date']|regex_replace:"/[-]/":"_"}/{$pimbasicInfo['name']|default:''}_{$productsn}/{$productsn}_{$value['test_time']|regex_replace:'/[-:\s]/':''}.jpg"/>
+					<img class="pimImg" src="{base_url()}assets/uploadedSource/pim/{$value['upload_date']|regex_replace:"/[-]/":"_"}/{$pimbasicInfo['name']|default:''}/{$productsn}_{$value['test_time']|regex_replace:'/[-:\s]/':''}.jpg"/>
 				</div>
 			{/foreach}
 		</div>

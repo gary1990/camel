@@ -106,9 +106,7 @@
         </div>
 		<div class="itemTitle"><b>生产看板</b></div>
 		<div>
-			<span><a href="{site_url()}/advancedsearch">1.高级查询</a></span><br/>
-			<span><a href="{site_url()}/reportform">2.报表</a></span><br/>
-			<span><a href="{site_url()}/qualitypass">3.质量放行</a></span><br/>
+			
 		</div>
 	</div>
 	<div class="span-11 subitem">
@@ -124,8 +122,6 @@
 		<div>
 			<span><a href="{site_url()}/firstPage/user">1.用户</a></span><br/>
 			<span><a href="{site_url()}/firstPage/team">2.用户组</a></span><br/>
-			<span><a href="{site_url()}/firstPage/factory">3.工厂</a></span><br/>
-			<span><a href="{site_url()}/firstPage/department">4.车间</a></span><br/>
 		</div>
 	</div>
 </div>

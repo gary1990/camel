@@ -43,13 +43,9 @@ class CW_Controller extends CI_Controller
 						 "测试站点"=>"测试站点",
 						 "测试设备"=>"测试设备",
 						 "测试员"=>"测试员",
-						 "高级查询"=>"高级查询",
-						 "报表"=>"报表",
-						 "质量放行"=>"质量放行",
 						 "用户"=>"用户",
-						 "用户组"=>"用户组",
-						 "工厂"=>"工厂",
-						 "车间"=>"车间");
+						 "用户组"=>"用户组"
+						 );
 		$this->smarty->assign('items', $itemArr);
 		
 		if (!CW_Controller::_checkLogin())
