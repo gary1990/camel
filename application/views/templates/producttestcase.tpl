@@ -78,12 +78,7 @@
       		}
       		else
       		{
-      			//产品型号名称
-      			var producttypeName = $(this).find(":selected").text();
-      			//测试项名称
-      			var testitemName = $(this).parent().next().children().eq(0).find(":selected").text();
-      			//状态文件输入框
-      			$(this).parent().next().next().children().eq(0).attr("value",producttypeName+testitemName);
+      			//do noting
       		}
     	});
     	//测试项下拉列表change事件
@@ -95,12 +90,7 @@
       		}
       		else
       		{
-      			//测试项名称
-      			var testitemName = $(this).find(":selected").text();
-      			//产品型号名称
-      			var producttypeName = $(this).parent().prev().children().eq(0).find(":selected").text();
-      			//状态文件输入框
-      			$(this).parent().next().children().eq(0).attr("value",producttypeName+testitemName);
+      			//do noting
       		}
     	});
     	//端口数输入框的为整数判断
@@ -268,7 +258,7 @@
 						<tr class="per_record per_record_hidden">
 							<td>{html_options class="addproducttype" name=producttype_ options=$producttype}<input type="hidden" class="short_input" value=""/></td>
 							<td>{html_options class="addtestitem" name=testitem_ options=$testitem}<input type="hidden" class="short_input" value=""/></td>
-							<td><input class="long_input statusfile" name="statusfile_" type="text" readonly="readonly" /><input type="hidden" class="short_input" value=""/></td>
+							<td><input class="long_input statusfile" name="statusfile_" type="text"/><input type="hidden" class="short_input" value=""/></td>
 							<td><input class="short_input ports" name="ports_" maxlength="4" type="text" /><input type="hidden" class="short_input" value=""/></td>
 							<td><span class="addbtn" onclick="add_record(selfid)">+</span></td>
 							<td><span class="delbtn" onclick="del_record(selfid)">-</span></td>
@@ -277,7 +267,7 @@
 							<tr class="per_record" id="1">
 								<td>{html_options name=producttype1 class=producttype options=$producttype}<input type="hidden" class="short_input" value=""/></td>
 								<td>{html_options name=testitem1 class=testitem options=$testitem}<input type="hidden" class="short_input" value=""/></td>
-								<td><input class="long_input statusfile" name="statusfile1" readonly="readonly" type="text" /><input type="hidden" class="short_input" value=""/></td>
+								<td><input class="long_input statusfile" name="statusfile1" type="text" /><input type="hidden" class="short_input" value=""/></td>
 								<td><input class="short_input ports" name="ports1" maxlength="4" type="text" /><input type="hidden" class="short_input" value=""/></td>
 								<td><span class="addbtn" onclick="add_record(1)">+</span></td>
 								<td><span class="delbtn">-</span></td>
@@ -287,7 +277,7 @@
 								<tr class="per_record" id="{$k+1}">
 									<td>{html_options name="producttype{$k+1}" class=producttype options=$producttype selected=$value["producttype"]|default:""}<input type="hidden" class="short_input" value="{$value["producttype"]|default:""}"/></td>
 									<td>{html_options name="testitem{$k+1}" class=testitem options=$testitem selected=$value["testitem"]|default:""}<input type="hidden" class="short_input" value="{$value["testitem"]|default:""}"/></td>
-									<td><input class="long_input statusfile" name="statusfile{$k+1}" type="text" readonly="readonly" value="{$value["statefile"]|default:""}" /><input type="hidden" class="short_input" value="{$value["statefile"]|default:""}"/></td>
+									<td><input class="long_input statusfile" name="statusfile{$k+1}" type="text" value="{$value["statefile"]|default:""}" /><input type="hidden" class="short_input" value="{$value["statefile"]|default:""}"/></td>
 									<td><input class="short_input ports" name="ports{$k+1}" maxlength="4" type="text" value="{$value["ports"]|default:""}" /><input type="hidden" class="short_input" value="{$value["ports"]|default:""}"/></td>
 									<td><span class="addbtn" onclick="add_record({$k+1})">+</span></td>
 									<td><span class="delbtn" onclick="del_record({$k+1})">-</span></td>
