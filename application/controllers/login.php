@@ -274,7 +274,7 @@ class Login extends CW_Controller
 					xml_add_child($productType, 'id', $productTypeItem['id']);
 					xml_add_child($productType, 'name', $productTypeItem['name']);
 					//取得产品测试案例内容
-					$tmpRes = $this->db->query("SELECT DISTINCT a.producttype,a.testitem,a.statefile,a.ports,a.channel,a.trace,a.startf,a.stopf,a.mark,a.min,a.max,b.name testItemName 
+					$tmpRes = $this->db->query("SELECT DISTINCT a.producttype,a.testitem,a.statefile,a.ports,a.channel,a.trace,a.type,a.beginstim,a.endstim,a.beginresp,a.endresp,b.name AS testItemName 
 												FROM test_configuration a 
 												JOIN testItem b ON a.testItem = b.id 
 												JOIN status c ON b.status = c.id
@@ -294,11 +294,11 @@ class Login extends CW_Controller
 							xml_add_child($testItem, 'port_num', $testItemItem['ports']);
 							xml_add_child($testItem, 'channel', $testItemItem['channel']);
 							xml_add_child($testItem, 'trace', $testItemItem['trace']);
-							xml_add_child($testItem, 'startf', $testItemItem['startf']);
-							xml_add_child($testItem, 'stopf', $testItemItem['stopf']);
-							xml_add_child($testItem, 'mark', $testItemItem['mark']);
-							xml_add_child($testItem, 'min', $testItemItem['min']);
-							xml_add_child($testItem, 'max', $testItemItem['max']);
+							xml_add_child($testItem, 'type', $testItemItem['type']);
+							xml_add_child($testItem, 'beginstim', str_replace("#", "", $testItemItem['beginstim']));
+							xml_add_child($testItem, 'endstim', str_replace("#", "", $testItemItem['endstim']));
+							xml_add_child($testItem, 'beginresp', $testItemItem['beginresp']);
+							xml_add_child($testItem, 'endresp', $testItemItem['endresp']);
 						}
 					}
 					else

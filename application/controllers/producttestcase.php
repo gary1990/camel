@@ -30,6 +30,22 @@ class Producttestcase extends CW_Controller
 		$testitemArr = $testitemObj->result_array();
 		$testitem = $this->array_switch($testitemArr, 'name', "");
 		$this->smarty->assign("testitem",$testitem);
+		//Type数组
+		$type = array(""=>"",
+					  "MAX"=>"MAX",
+					  "MIN"=>"MIN",
+					  "OFF"=>"OFF");
+		$this->smarty->assign("type",$type);
+		//单位数组
+		$unit = array(""=>"",
+					  "n"=>"n",
+					  "u"=>"u",
+					  "m"=>"m",
+					  "k"=>"k",
+					  "M"=>"M",
+					  "G"=>"G"
+					  );
+		$this->smarty->assign("unit",$unit);
 		//取得1~10供用户所选
 		$one_tenArr = array();
 		for($i=1;$i<=10;$i++)
@@ -57,7 +73,8 @@ class Producttestcase extends CW_Controller
 								   AND tm.status = ss.id
 								   AND ss.statusname = 'active'
 								   ".$producttypeSql." 
-								   GROUP BY tn.producttype,tn.testitem,tn.statefile,tn.ports,tn.channel,tn.trace,tn.startf,tn.stopf,tn.mark";
+								   GROUP BY tn.producttype,tn.testitem,tn.statefile,tn.ports,tn.channel,tn.trace,
+								   tn.type,tn.beginstim,tn.endstim,tn.beginresp,tn.endresp ";
 			$testcaseObj = $this->db->query($producttestcaseSql);
 			$testcaseArr = $testcaseObj->result_array();
 			
@@ -93,6 +110,7 @@ class Producttestcase extends CW_Controller
 		}
 		else
 		{
+			/*
 			$producttestcaseSql = "SELECT pe.name AS producttypeName,tm.name AS testitemName,tn.statefile,tn.ports,tn.channel,tn.trace,tn.startf,tn.stopf,tn.mark,tn.min,tn.max 
 								   FROM test_configuration tn
 								   JOIN producttype pe ON tn.producttype = pe.id
@@ -136,6 +154,8 @@ class Producttestcase extends CW_Controller
     		ob_end_flush();
 			@readfile($filename);
 			unlink($filename);
+			 * 
+			 */
 		}
 	}
 	
@@ -165,20 +185,38 @@ class Producttestcase extends CW_Controller
 			$ports = $this->input->post("ports".$i);
 			$channel = $this->input->post("channel".$i);
 			$trace = $this->input->post("trace".$i);
-			$start = $this->input->post("start".$i);
-			$stop = $this->input->post("stop".$i);
-			$mark = $this->input->post("mark".$i);
-			$min = $this->input->post("min".$i);
-			$max = $this->input->post("max".$i);
+			$type = $this->input->post("type".$i);
+			$beginstimVal = $this->input->post("beginstim".$i);
+			$beginstimUnit = $this->input->post("beginstimunit".$i);
+			if($beginstimVal == "")
+			{
+				$beginstim = "";
+			}
+			else
+			{
+				$beginstim = $beginstimVal."#".$beginstimUnit;
+			}
+			$endstimVal = $this->input->post("endstim".$i);
+			$endstimUnit = $this->input->post("endstimunit".$i);
+			if($endstimVal == "")
+			{
+				$endstim = "";
+			}
+			else
+			{
+				$endstim = $endstimVal."#".$endstimUnit;
+			}
+			$beginresp = $this->input->post("beginresp".$i);
+			$endresp = $this->input->post("endresp".$i);
 			if($producttype != "")
 			{
-				$value .= "('$producttype','$testitem','$statusfile','$ports','$channel','$trace','$start','$stop','$mark','$min','$max'),";
+				$value .= "('$producttype','$testitem','$statusfile','$ports','$channel','$trace','$type','$beginstim','$endstim','$beginresp','$endresp'),";
 			}
 		}
 		if(strlen($value) > 0)
 		{
 			$value = substr($value, 0, -1);
-			$insertSql = "INSERT INTO `test_configuration`(`producttype`, `testitem`, `statefile`, `ports`, `channel`, `trace`, `startf`, `stopf`, `mark`, `min`, `max`) VALUES ".$value;
+			$insertSql = "INSERT INTO `test_configuration`(`producttype`, `testitem`, `statefile`, `ports`, `channel`, `trace`, `type`, `beginstim`, `endstim`, `beginresp`, `endresp`) VALUES ".$value;
 			$this->db->query($insertSql);
 		}
 		else

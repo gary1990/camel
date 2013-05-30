@@ -10,10 +10,10 @@
 		height:3px;
 	}
 	.short_input{
-		width:45px;
+		width:30px;
 	}
 	.long_input{
-		width:100px;
+		width:55px;
 	}
 	.addbtn{
 		cursor:pointer;
@@ -28,13 +28,22 @@
 		vertical-align: middle;
 	}
 	.producttype{
-		width:150px;
+		width:125px;
 	}
 	.testitem{
-		width:150px;
+		width:120px;
 	}
 	.producttypeCondition{
-		width:150px;
+		width:130px;
+	}
+	.beginstim,.endstim{
+		margin:0px;
+		padding:0px;
+	}
+	.beginstimunit,.endstimunit{
+		width:38px;
+		margin:0px;
+		padding:0px;
 	}
 </style>
 <!--{/block}-->
@@ -42,7 +51,7 @@
 <script type="text/javascript" src="{base_url()}resource/js/chosen.jquery.js"></script>
 <script type="text/javascript" src="{base_url()}resource/js/jquery.form.js"></script>
 <script type="text/javascript">
-	//在当前行下面添加一行
+	//在当前行下面添加一行 
 	function add_record(thisid){
 		var num = $(".addcount").val();
 		var add_td = $(".per_record").html();
@@ -51,9 +60,9 @@
 		add_tr = add_tr.replace(/producttype_/g,'producttype'+num).replace(/testitem_/g,'testitem'+num);
 		add_tr = add_tr.replace(/statusfile_/g,'statusfile'+num).replace(/ports_/g,'ports'+num);
 		add_tr = add_tr.replace(/channel_/g,'channel'+num).replace(/trace_/g,'trace'+num);
-		add_tr = add_tr.replace(/start_/g,'start'+num).replace(/stop_/g,'stop'+num);
-		add_tr = add_tr.replace(/mark_/g,'mark'+num).replace(/min_/g,'min'+num);
-		add_tr = add_tr.replace(/max_/g,'max'+num).replace(/selfid/g,num);
+		add_tr = add_tr.replace(/type_/g,'type'+num).replace(/beginstim_/g,'beginstim'+num);
+		add_tr = add_tr.replace(/beginstimunit_/g,'beginstimunit'+num).replace(/endstim_/g,'endstim'+num);
+		add_tr = add_tr.replace(/endstimunit_/g,'endstimunit'+num).replace(/beginresp_/g,'beginresp'+num).replace(/endresp_/g,'endresp'+num).replace(/selfid/g,num);
 		$("#"+thisid).after(add_tr);
 		$("#"+num+" select").eq(0).chosen();
 		$("#"+num+" select").eq(1).chosen();
@@ -78,12 +87,7 @@
       		}
       		else
       		{
-      			//产品型号名称
-      			var producttypeName = $(this).find(":selected").text();
-      			//测试项名称
-      			var testitemName = $(this).parent().next().children().eq(0).find(":selected").text();
-      			//状态文件输入框
-      			$(this).parent().next().next().children().eq(0).attr("value",producttypeName+testitemName);
+				//do nothing
       		}
     	});
     	//测试项下拉列表change事件
@@ -95,12 +99,7 @@
       		}
       		else
       		{
-      			//测试项名称
-      			var testitemName = $(this).find(":selected").text();
-      			//产品型号名称
-      			var producttypeName = $(this).parent().prev().children().eq(0).find(":selected").text();
-      			//状态文件输入框
-      			$(this).parent().next().children().eq(0).attr("value",producttypeName+testitemName);
+				//do nothing
       		}
     	});
     	//端口数输入框的为整数判断
@@ -110,15 +109,18 @@
       		if(parseInt(ports) != ports)
       		{
       			alert("端口数为整数");
+      			$(this).attr("value","");
       		}
     	});
-    	//start,stop,min,max输入框是否为数字的判断
-    	$("body").delegate(".start,.stop,.min,.max", "blur", function(){
+    	//beginstim,endstim,beginresp,endresp输入框是否为数字的判断
+    	$("body").delegate(".beginstim,.endstim,.beginresp,.endresp", "blur", function(){
 			var start = $(this).val();
 			//取整后和原来数比较
       		if(isNaN(start))
       		{
-      			alert("start,stop,min,max为数字");
+      			alert("BeginStim,EndStim,BeginResp,EndResp为数字");
+      			$(this).attr("value","");
+      			$(this).focus();
       		}
     	});
 		//分页事件
@@ -149,12 +151,14 @@
 					var case4 = $('[name="ports'+i+'"]').val() == $('[name="ports'+i+'"]').next().val();
 					var case5 = $('[name="channel'+i+'"]').val() == $('[name="channel'+i+'"]').next().val();
 					var case6 = $('[name="trace'+i+'"]').val() == $('[name="trace'+i+'"]').next().val();
-					var case7 = $('[name="start'+i+'"]').val() == $('[name="start'+i+'"]').next().val();
-					var case8 = $('[name="stop'+i+'"]').val() == $('[name="stop'+i+'"]').next().val();
-					var case9 = $('[name="mark'+i+'"]').val() == $('[name="mark'+i+'"]').next().val();
-					var case10 = $('[name="min'+i+'"]').val() == $('[name="min'+i+'"]').next().val();
-					var case11 = $('[name="max'+i+'"]').val() == $('[name="max'+i+'"]').next().val();
-					var changed = case1 && case2 && case3 && case4 && case5 && case6 && case7 && case8 && case9 && case10 && case11;
+					var case7 = $('[name="type'+i+'"]').val() == $('[name="type'+i+'"]').next().val();
+					var case8 = $('[name="beginstim'+i+'"]').val() == $('[name="beginstim'+i+'"]').next().val();
+					var case9 = $('[name="beginstimunit'+i+'"]').val() == $('[name="beginstimunit'+i+'"]').next().val();
+					var case10 = $('[name="endstim'+i+'"]').val() == $('[name="endstim'+i+'"]').next().val();
+					var case11 = $('[name="endstimunit'+i+'"]').val() == $('[name="endstimunit'+i+'"]').next().val();
+					var case12 = $('[name="beginresp'+i+'"]').val() == $('[name="beginresp'+i+'"]').next().val();
+					var case13 = $('[name="endresp'+i+'"]').val() == $('[name="endresp'+i+'"]').next().val();
+					var changed = case1 && case2 && case3 && case4 && case5 && case6 && case7 && case8 && case9 && case10 && case12 && case13;
 					if(changed)
 					{
 						//do noting
@@ -183,7 +187,7 @@
 				}
 			}
 		});
-		//导出按钮点击时间
+		//导出按钮点击事件
 		$(".exportbtn").click(function(){
 			var oldurl = $("#searchForm").attr('action');
 			var url = oldurl+"/0/30/export";
@@ -213,14 +217,15 @@
 					var case1 = $('[name="producttype'+i+'"]').val() != "";
 					var case2 = $('[name="testitem'+i+'"]').val() != "";
 					var case3 = $('[name="ports'+i+'"]').val() != "";
-					var empty = case1 && case2 && case3;
+					var case4 = $('[name="statusfile'+i+'"]').val() != "";
+					var empty = case1 && case2 && case3 && case4;
 					if(empty)
 					{
 						nullResult = empty;
 					}
 					else
 					{
-						alert("产品型号，测试项，端口数不为空！");
+						alert("产品型号，测试项，端口数,状态文件不为空！");
 						break;
 					}
 				}
@@ -248,16 +253,20 @@
 						$('[name="channel'+i+'"]').next().attr("value",channel);
 						var trace = $('[name="trace'+i+'"]').val();
 						$('[name="trace'+i+'"]').next().attr("value",trace);
-						var start = $('[name="start'+i+'"]').val();
-						$('[name="start'+i+'"]').next().attr("value",start);
-						var stop = $('[name="stop'+i+'"]').val();
-						$('[name="stop'+i+'"]').next().attr("value",stop);
-						var mark = $('[name="mark'+i+'"]').val();
-						$('[name="mark'+i+'"]').next().attr("value",mark);
-						var min = $('[name="min'+i+'"]').val();
-						$('[name="min'+i+'"]').next().attr("value",min);
-						var max = $('[name="max'+i+'"]').val();
-						$('[name="max'+i+'"]').next().attr("value",max);
+						var type = $('[name="type'+i+'"]').val();
+						$('[name="type'+i+'"]').next().attr("value",type);
+						var beginstim = $('[name="beginstim'+i+'"]').val();
+						$('[name="beginstim'+i+'"]').next().attr("value",beginstim);
+						var beginstimunit = $('[name="beginstimunit'+i+'"]').val();
+						$('[name="beginstimunit'+i+'"]').next().attr("value",beginstimunit);
+						var endstim = $('[name="endstim'+i+'"]').val();
+						$('[name="endstim'+i+'"]').next().attr("value",endstim);
+						var endstimunit = $('[name="endstimunit'+i+'"]').val();
+						$('[name="endstimunit'+i+'"]').next().attr("value",endstimunit);
+						var beginresp = $('[name="beginresp'+i+'"]').val();
+						$('[name="beginresp'+i+'"]').next().attr("value",beginresp);
+						var endresp = $('[name="endresp'+i+'"]').val();
+						$('[name="endresp'+i+'"]').next().attr("value",endresp);
 					}
 				}
 				var options = { 
@@ -279,8 +288,6 @@
 			{html_options name=producttypesearch class="producttypeCondition" options=$producttypeSearch selected=$smarty.post.producttypesearch|default:''}
 			&nbsp;&nbsp;&nbsp;
 			<input class="searchbtn" type="submit" value="查看" />
-			&nbsp;&nbsp;&nbsp;
-			<input class="exportbtn" type="button" value="导出" />
 		</form>
 		<hr class="separate_line">
 		<div>
@@ -297,23 +304,43 @@
 							<th>产品型号</th>
 							<th>测试项</th><th>状态文件</th>
 							<th width="45px">端口数</th><th style="border-left:1px solid #DDDDDD;">Channel</th>
-							<th>Trace</th><th>Start MHz</th>
-							<th>Stop MHz</th><th>Mark</th>
-							<th>Min</th><th>Max</th>
+							<th>Trace</th><th>Type</th>
+							<th width="90px;">BeginStim (Hz/S)</th>
+							<th width="100px;">EndStim (Hz/S)</th>
+							<th>Begin Resp</th><th>End Resp</th>
 							<th>&nbsp;</th><th style="border-right:1px solid #DDDDDD">&nbsp;</th>
 						</tr>
 						<tr class="per_record per_record_hidden">
 							<td>{html_options class="addproducttype" name=producttype_ options=$producttype}<input type="hidden" class="short_input" value=""/></td>
 							<td>{html_options class="addtestitem" name=testitem_ options=$testitem}<input type="hidden" class="short_input" value=""/></td>
-							<td><input class="long_input statusfile" name="statusfile_" type="text" readonly="readonly" /><input type="hidden" class="short_input" value=""/></td>
+							<td><input class="long_input statusfile" name="statusfile_" type="text"/><input type="hidden" class="short_input" value=""/></td>
 							<td><input class="short_input ports" name="ports_" maxlength="4" type="text" /><input type="hidden" class="short_input" value=""/></td>
 							<td style="border-left:1px solid #DDDDDD;">{html_options name=channel_ class=channel options=$one_tenArr}<input type="hidden" class="short_input" value="1"/></td>
 							<td>{html_options name=trace_ class=trace options=$one_tenArr}<input type="hidden" class="short_input" value="1"/></td>
-							<td><input class="short_input start" name="start_" type="text"/><input type="hidden" class="short_input" value=""/></td>
-							<td><input class="short_input stop" name="stop_" type="text" /><input type="hidden" class="short_input" value=""/></td>
-							<td>{html_options name=mark_ class=mark options=$one_tenArr}<input type="hidden" class="short_input" value="1"/></td>
-							<td><input class="short_input min" name="min_" type="text" /><input type="hidden" class="short_input" value=""/></td>
-							<td><input class="short_input max" name="max_" type="text" /><input type="hidden" class="short_input" value=""/></td>
+							<td>
+								{html_options name=type_ class=type options=$type}
+								<input type="hidden" class="short_input" value=""/>
+							</td>
+							<td>
+								<input class="short_input beginstim" name="beginstim_" type="text" value="" />
+								<input type="hidden" class="short_input" value=""/>
+								{html_options name=beginstimunit_ class=beginstimunit options=$unit}
+								<input type="hidden" class="short_input" value=""/>
+							</td>
+							<td>
+								<input class="short_input endstim" name="endstim_" type="text" value="" />
+								<input type="hidden" class="short_input" value=""/>
+								{html_options name=endstimunit_ class=endstimunit options=$unit}
+								<input type="hidden" class="short_input" value=""/>
+							</td>
+							<td>
+								<input class="short_input beginresp" name="beginresp_" type="text" value="" />
+								<input type="hidden" class="short_input" value=""/>
+							</td>
+							<td>
+								<input class="short_input endresp" name="endresp_" type="text" value="" />
+								<input type="hidden" class="short_input" value=""/>
+							</td>
 							<td><span class="addbtn" onclick="add_record(selfid)">+</span></td>
 							<td style="border-right:1px solid #DDDDDD"><span class="delbtn" onclick="del_record(selfid)">-</span></td>
 						</tr>
@@ -321,15 +348,34 @@
 							<tr class="per_record" id="1">
 								<td>{html_options name=producttype1 class=producttype options=$producttype}<input type="hidden" class="short_input" value=""/></td>
 								<td>{html_options name=testitem1 class=testitem options=$testitem}<input type="hidden" class="short_input" value=""/></td>
-								<td><input class="long_input statusfile" name="statusfile1" readonly="readonly" type="text" /><input type="hidden" class="short_input" value=""/></td>
+								<td><input class="long_input statusfile" name="statusfile1" type="text" /><input type="hidden" class="short_input" value=""/></td>
 								<td><input class="short_input ports" name="ports1" maxlength="4" type="text" /><input type="hidden" class="short_input" value=""/></td>
 								<td style="border-left:1px solid #DDDDDD;">{html_options name=channel1 class=channel options=$one_tenArr}<input type="hidden" class="short_input" value="1"/></td>
 								<td>{html_options name=trace1 class=trace options=$one_tenArr}<input type="hidden" class="short_input" value="1"/></td>
-								<td><input class="short_input start" name="start1" type="text" /><input type="hidden" class="short_input" value=""/></td>
-								<td><input class="short_input stop" name="stop1" type="text" /><input type="hidden" class="short_input" value=""/></td>
-								<td>{html_options name=mark1 class=mark options=$one_tenArr}<input type="hidden" class="short_input" value="1"/></td>
-								<td><input class="short_input min" name="min1" type="text" /><input type="hidden" class="short_input" value=""/></td>
-								<td><input class="short_input max" name="max1" type="text" /><input type="hidden" class="short_input" value=""/></td>
+								<td>
+									{html_options name="type1" class=type options=$type}
+									<input type="hidden" class="short_input" value=""/>
+								</td>
+								<td>
+									<input class="short_input beginstim" name="beginstim1" type="text" value="" />
+									<input type="hidden" class="short_input" value=""/>
+									{html_options name="beginstimunit1" class=beginstimunit options=$unit}
+									<input type="hidden" class="short_input" value=""/>
+								</td>
+								<td>
+									<input class="short_input endstim" name="endstim1" type="text" value="" />
+									<input type="hidden" class="short_input" value=""/>
+									{html_options name="endstimunit1" class=endstimunit options=$unit}
+									<input type="hidden" class="short_input" value=""/>
+								</td>
+								<td>
+									<input class="short_input beginresp" name="beginresp1" type="text" value="" />
+									<input type="hidden" class="short_input" value=""/>
+								</td>
+								<td>
+									<input class="short_input endresp" name="endresp1" type="text" value="" />
+									<input type="hidden" class="short_input" value=""/>
+								</td>
 								<td><span class="addbtn" onclick="add_record(1)">+</span></td>
 								<td style="border-right:1px solid #DDDDDD"><span class="delbtn">-</span></td>
 							</tr>
@@ -338,15 +384,48 @@
 								<tr class="per_record" id="{$k+1}">
 									<td>{html_options name="producttype{$k+1}" class=producttype options=$producttype selected=$value["producttype"]|default:""}<input type="hidden" class="short_input" value="{$value["producttype"]|default:""}"/></td>
 									<td>{html_options name="testitem{$k+1}" class=testitem options=$testitem selected=$value["testitem"]|default:""}<input type="hidden" class="short_input" value="{$value["testitem"]|default:""}"/></td>
-									<td><input class="long_input statusfile" name="statusfile{$k+1}" type="text" readonly="readonly" value="{$value["statefile"]|default:""}" /><input type="hidden" class="short_input" value="{$value["statefile"]|default:""}"/></td>
+									<td><input class="long_input statusfile" name="statusfile{$k+1}" type="text" value="{$value["statefile"]|default:""}" /><input type="hidden" class="short_input" value="{$value["statefile"]|default:""}"/></td>
 									<td><input class="short_input ports" name="ports{$k+1}" maxlength="4" type="text" value="{$value["ports"]|default:""}" /><input type="hidden" class="short_input" value="{$value["ports"]|default:""}"/></td>
 									<td style="border-left:1px solid #DDDDDD;">{html_options name="channel{$k+1}" class=channel options=$one_tenArr selected=$value["channel"]|default:""}<input type="hidden" class="short_input" value="{$value["channel"]|default:""}"/></td>
 									<td>{html_options name="trace{$k+1}" class=trace options=$one_tenArr selected=$value["trace"]|default:""}<input type="hidden" class="short_input" value="{$value["trace"]|default:""}"/></td>
-									<td><input class="short_input start" name="start{$k+1}" type="text" value="{$value["startf"]|default:""}" /><input type="hidden" class="short_input" value="{$value["startf"]|default:""}"/></td>
-									<td><input class="short_input stop" name="stop{$k+1}" type="text" value="{$value["stopf"]|default:""}" /><input type="hidden" class="short_input" value="{$value["stopf"]|default:""}"/></td>
-									<td>{html_options name="mark{$k+1}" class=mark options=$one_tenArr selected=$value["mark"]|default:""}<input type="hidden" class="short_input" value="{$value["mark"]|default:""}"/></td>
-									<td><input class="short_input min" name="min{$k+1}" type="text" value="{$value["min"]|default:""}" /><input type="hidden" class="short_input" value="{$value["min"]|default:""}"/></td>
-									<td><input class="short_input max" name="max{$k+1}" type="text" value="{$value["max"]|default:""}" /><input type="hidden" class="short_input" value="{$value["max"]|default:""}"/></td>
+									<td>
+										{html_options name="type{$k+1}" class=type options=$type selected=$value["type"]|default:""}
+										<input type="hidden" class="short_input" value="{$value["type"]|default:""}"/>
+									</td>
+									<td>
+										{if $value["beginstim"]|substr:-1 eq '#'}
+											<input class="short_input beginstim" name="beginstim{$k+1}" type="text" value="{$value["beginstim"]|substr:0:-1|default:""}" />
+											<input type="hidden" class="short_input" value="{$value["beginstim"]|substr:0:-1|default:""}"/>
+											{html_options name="beginstimunit{$k+1}" class=beginstimunit options=$unit selected=""}
+											<input type="hidden" class="short_input" value=""/>
+										{else}
+											<input class="short_input beginstim" name="beginstim{$k+1}" type="text" value="{$value["beginstim"]|substr:0:-2|default:""}" />
+											<input type="hidden" class="short_input" value="{$value["beginstim"]|substr:0:-2|default:""}"/>
+											{html_options name="beginstimunit{$k+1}" class=beginstimunit options=$unit selected=$value["beginstim"]|substr:-1|default:""}
+											<input type="hidden" class="short_input" value="{$value["beginstim"]|substr:-1|default:""}"/>
+										{/if}
+									</td>
+									<td>
+										{if $value["endstim"]|substr:-1 eq '#'}
+											<input class="short_input endstim" name="endstim{$k+1}" type="text" value="{$value["endstim"]|substr:0:-1|default:""}" />
+											<input type="hidden" class="short_input" value="{$value["endstim"]|substr:0:-1|default:""}"/>
+											{html_options name="endstimunit{$k+1}" class=endstimunit options=$unit selected=""}
+											<input type="hidden" class="short_input" value=""/>
+										{else}
+											<input class="short_input endstim" name="endstim{$k+1}" type="text" value="{$value["endstim"]|substr:0:-2|default:""}" />
+											<input type="hidden" class="short_input" value="{$value["endstim"]|substr:0:-2|default:""}"/>
+											{html_options name="endstimunit{$k+1}" class=endstimunit options=$unit selected=$value["endstim"]|substr:-1|default:""}
+											<input type="hidden" class="short_input" value="{$value["endstim"]|substr:-1|default:""}"/>
+										{/if}
+									</td>
+									<td>
+										<input class="short_input beginresp" name="beginresp{$k+1}" type="text" value="{$value["beginresp"]|default:""}" />
+										<input type="hidden" class="short_input" value="{$value["beginresp"]|default:""}"/>
+									</td>
+									<td>
+										<input class="short_input endresp" name="endresp{$k+1}" type="text" value="{$value["endresp"]|default:""}" />
+										<input type="hidden" class="short_input" value="{$value["endresp"]|default:""}"/>
+									</td>
 									<td><span class="addbtn" onclick="add_record({$k+1})">+</span></td>
 									<td style="border-right:1px solid #DDDDDD"><span class="delbtn" onclick="del_record({$k+1})">-</span></td>
 								</tr>
