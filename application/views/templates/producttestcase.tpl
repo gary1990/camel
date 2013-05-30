@@ -226,6 +226,7 @@
 					else
 					{
 						alert("产品型号，测试项，端口数,状态文件不为空！");
+						nullResult = empty;
 						break;
 					}
 				}
@@ -270,8 +271,12 @@
 					}
 				}
 				var options = { 
-			        success:function (res){ alert(res); }
-			    }; 
+			        success:function (res){
+			        		//改变要删除的记录的ID
+			        		$(".ids").attr("value",res);
+			        		alert("保存成功！"); 
+			        	}
+			    };
 				$('#locForm').ajaxSubmit(options);
 			}
 		});
@@ -306,7 +311,7 @@
 							<th width="45px">端口数</th><th style="border-left:1px solid #DDDDDD;">Channel</th>
 							<th>Trace</th><th>Type</th>
 							<th width="90px;">BeginStim (Hz/S)</th>
-							<th width="100px;">EndStim (Hz/S)</th>
+							<th width="120px;">EndStim (Hz/S)</th>
 							<th>Begin Resp</th><th>End Resp</th>
 							<th>&nbsp;</th><th style="border-right:1px solid #DDDDDD">&nbsp;</th>
 						</tr>

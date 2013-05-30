@@ -162,6 +162,7 @@ class Producttestcase extends CW_Controller
 	//保存页面内容
 	public function del_ins()
 	{
+		$this->db->trans_start();
 		//取当前页面的记录的id,并删除
 		$ids = $this->input->post("ids");
 		if($ids != "")
@@ -176,6 +177,8 @@ class Producttestcase extends CW_Controller
 		$addcount = $this->input->post("addcount");
 		//遍历取得所有记录的值
 		$value = "";
+		//保存实际有多少条记录
+		$actualRecord = 0;
 		for($i=1;$i<=$addcount;$i++)
 		{
 			//取得当前记录的各个值
@@ -210,6 +213,7 @@ class Producttestcase extends CW_Controller
 			$endresp = $this->input->post("endresp".$i);
 			if($producttype != "")
 			{
+				$actualRecord++;
 				$value .= "('$producttype','$testitem','$statusfile','$ports','$channel','$trace','$type','$beginstim','$endstim','$beginresp','$endresp'),";
 			}
 		}
@@ -218,12 +222,32 @@ class Producttestcase extends CW_Controller
 			$value = substr($value, 0, -1);
 			$insertSql = "INSERT INTO `test_configuration`(`producttype`, `testitem`, `statefile`, `ports`, `channel`, `trace`, `type`, `beginstim`, `endstim`, `beginresp`, `endresp`) VALUES ".$value;
 			$this->db->query($insertSql);
+			//取得插入记录的开始ID
+			$insertId = $this->db->insert_id();
 		}
 		else
 		{
 			//echo "helloworld";
 		}
-		echo "保存成功！";
+		if ($this->db->trans_status() === FALSE)
+		{
+			$this->db->trans_rollback();
+			echo "保存失败，请重试";
+		}
+		else
+		{
+			$this->db->trans_commit();
+			//成功信息
+			$successRecord = "";
+			//取得刚才插入的记录的所有ID
+			for($k = 0;$k < $actualRecord;$k++)
+			{
+				$successRecord.= ($insertId+$k).",";
+			}
+			//将记录ID传回前台页面
+			echo $successRecord;
+		}
+		$this->db->trans_complete();
 	}
 	
 	//转换从数据库根据id,另一项项取出的数组，赋给页面下拉列表
