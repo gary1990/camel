@@ -40,7 +40,7 @@ class Producttestcase extends CW_Controller
 		$this->smarty->assign("one_tenArr",$one_tenArr);
 	}
 	
-	public function index($offset = 0, $limit = 30,$search_export = "")
+	public function index($offset = 0, $limit = 5,$search_export = "")
 	{
 		$producttype = $this->input->post("producttypesearch");
 		$producttypeSql = "";
@@ -141,6 +141,7 @@ class Producttestcase extends CW_Controller
 	//保存页面内容
 	public function del_ins()
 	{
+		$this->db->trans_start();
 		//取当前页面的记录的id,并删除
 		$ids = $this->input->post("ids");
 		if($ids != "")
@@ -155,6 +156,7 @@ class Producttestcase extends CW_Controller
 		$addcount = $this->input->post("addcount");
 		//遍历取得所有记录的值
 		$value = "";
+		$j = 0;
 		for($i=1;$i<=$addcount;$i++)
 		{
 			//取得当前记录的各个值
@@ -171,6 +173,7 @@ class Producttestcase extends CW_Controller
 			$max = 1;
 			if($producttype != "")
 			{
+				$j++;
 				$value .= "('$producttype','$testitem','$statusfile','$ports','$channel','$trace','$start','$stop','$mark','$min','$max'),";
 			}
 		}
@@ -179,12 +182,31 @@ class Producttestcase extends CW_Controller
 			$value = substr($value, 0, -1);
 			$insertSql = "INSERT INTO `test_configuration`(`producttype`, `testitem`, `statefile`, `ports`, `channel`, `trace`, `startf`, `stopf`, `mark`, `min`, `max`) VALUES ".$value;
 			$this->db->query($insertSql);
+			$insertId = $this->db->insert_id();
 		}
 		else
 		{
-			//echo "helloworld";
+			//do nothing
 		}
-		echo "保存成功！";
+		if ($this->db->trans_status() === FALSE)
+		{
+			$this->db->trans_rollback();
+			echo "保存失败，请重试";
+		}
+		else
+		{
+			$this->db->trans_commit();
+			//成功信息
+			$successRecord = "";
+			//取得刚才插入的记录的ID
+			for($k=0;$k < $j;$k++)
+			{
+				$successRecord.= ($insertId+$k).",";
+			}
+			//将记录ID传回前台页面
+			echo $successRecord;
+		}
+		$this->db->trans_complete();
 	}
 	
 	//转换从数据库根据id,另一项项取出的数组，赋给页面下拉列表

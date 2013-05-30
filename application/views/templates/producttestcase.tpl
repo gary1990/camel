@@ -223,10 +223,26 @@
 					}
 				}
 				var options = { 
-			        success:function (res){ alert(res); }
+			        success:function (res){ 
+			        		$(".ids").attr("value",res);
+			        		alert("保存成功！"); 
+			        	}
 			    }; 
 				$('#locForm').ajaxSubmit(options);
+				/*
+				var url = $("#locForm").attr("action");
+				var producttypesearch = $('[name="producttypesearch"]').val();
+				var currenPage = $(".locPage").find("strong").html();
+				if(currenPage == null)
+				{
+					currenPage = 1;
+				}
+				var url = $("#searchForm").attr('action')+"/"+(currenPage-1)*5;
+				$("#searchForm").attr('action', url);
+				$("#searchForm").submit();
+				*/
 			}
+			//$(this).attr("disabled","disabled");
 		});
 	});
 </script>
