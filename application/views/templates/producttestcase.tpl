@@ -196,7 +196,7 @@
 					else
 					{
 						nullResult = empty;
-						alert("产品型号，测试项，端口数不为空！");
+						alert("产品型号，测试项，端口数，状态文件不为空！");
 						break;
 					}
 				}
