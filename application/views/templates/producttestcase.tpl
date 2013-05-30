@@ -187,13 +187,15 @@
 					var case1 = $('[name="producttype'+i+'"]').val() != "";
 					var case2 = $('[name="testitem'+i+'"]').val() != "";
 					var case3 = $('[name="ports'+i+'"]').val() != "";
-					var empty = case1 && case2 && case3;
+					var case4 = $('[name="statusfile'+i+'"]').val() != "";
+					var empty = case1 && case2 && case3 && case4;
 					if(empty)
 					{
 						nullResult = empty;
 					}
 					else
 					{
+						nullResult = empty;
 						alert("产品型号，测试项，端口数不为空！");
 						break;
 					}
