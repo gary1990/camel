@@ -40,7 +40,7 @@ class Producttestcase extends CW_Controller
 		$this->smarty->assign("one_tenArr",$one_tenArr);
 	}
 	
-	public function index($offset = 0, $limit = 5,$search_export = "")
+	public function index($offset = 0, $limit = 30,$search_export = "")
 	{
 		$producttype = $this->input->post("producttypesearch");
 		$producttypeSql = "";
@@ -207,6 +207,136 @@ class Producttestcase extends CW_Controller
 			echo $successRecord;
 		}
 		$this->db->trans_complete();
+	}
+	
+	//导入csv方法
+	public function importCsvFile()
+	{
+		if(count($_FILES) == 0)
+		{
+			echo "Error";
+			return;
+		}
+		if ($_FILES["file"]["error"] > 0)
+  		{
+ 	 		echo "Error";
+  		}
+		else
+  		{
+  			//判断是不是.csv格式文件
+  			if($_FILES["file"]["type"] == "application/csv" || $_FILES["file"]["type"] == "application/vnd.ms-excel")
+  			{
+  				//暂存目录
+  				$root = getcwd();
+				$slash = "\\";
+				$file_temp = $_FILES['file']['tmp_name'];
+				$file_name = $root.$slash.iconv("utf-8","gbk",$_FILES['file']['name']);
+				//文件是否存在。如存在，删除
+				if(file_exists($file_name))
+				{
+					unlink($file_name);
+				}
+				//保存文件
+				$filestatus = move_uploaded_file($file_temp, $file_name);
+				if(!$filestatus)
+				{
+					echo "Error";
+				}
+				else
+				{
+					//打开文件
+					if($handle = fopen($file_name, "r"))
+					{
+						$producttypeObj = $this->db->query("SELECT id,name FROM producttype");
+						$producttypeArr = $producttypeObj->result_array();
+						$testitemObj = $this->db->query("SELECT id,name FROM testitem");
+						$testitemArr = $testitemObj->result_array();
+						if(count($producttypeArr) == 0 || count($testitemArr) == 0)
+						{
+							echo "Error";
+						}
+						else
+						{
+							//转换产品型号，测试项数组
+							$producttype = array();
+							foreach ($producttypeArr as $value) 
+							{
+								if($value["name"] != "")
+								{
+									$producttype[$value['id']] = $value['name'];
+								}
+							}
+							$testitem = array();
+							foreach ($testitemArr as $value) 
+							{
+								if($value["name"] != "")
+								{
+									$testitem[$value['id']] = $value['name'];
+								}
+							}
+							$row = 0;
+							$insertSql = "INSERT INTO `test_configuration`(`producttype`, `testitem`, `statefile`, `ports`, `channel`, `trace`, `startf`, `stopf`, `mark`, `min`, `max`) VALUES ";
+							$insertValue = "";
+							$errorLine = "";
+							while(!feof($handle))
+							{
+						    	$line = str_replace("\t",",",fgets($handle));
+		   						$lineArr = explode(",", $line);
+								if($row < 1)
+								{
+									//do noting
+								}
+								else
+								{
+									if($lineArr[0] == "" || $lineArr[1] == "")
+									{
+										$errorLine .= $row.",";
+									}
+									else
+									{
+										$producttypeId = array_search($lineArr[0], $producttype);
+										$testitemId = array_search($lineArr[1], $testitem);
+										$status = $lineArr[2];
+										$ports = $lineArr[3];
+										if($producttypeId == NULL || $testitemId== NULL)
+										{
+											$errorLine .= $row.",";
+										}
+										else
+										{
+											$insertValue .= "('$producttypeId','$testitemId','$status','$ports','1','1','1','1','1','1','1'),";
+										}
+									}
+								}
+								$row++;
+					    	}
+							$insertValue = substr($insertValue, 0,-1).";";
+							$insertSql .= $insertValue;
+							$this->db->query($insertSql);
+							if(strlen($errorLine) == 0)
+							{
+								echo "Success";
+							}
+							else
+							{
+								echo "Error Line:".substr($errorLine,0,-1);
+							}
+						}
+						fclose($handle);
+					}
+					else
+					{
+						echo "Error";
+					}
+					
+				}
+				unlink($file_name);
+  			}
+  			else
+  			{
+  				echo "Error";
+  			}
+  		}
 	}
 	
 	//转换从数据库根据id,另一项项取出的数组，赋给页面下拉列表

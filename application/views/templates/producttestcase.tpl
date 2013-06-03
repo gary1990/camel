@@ -6,7 +6,6 @@
 <link rel="stylesheet" type="text/css" href="{base_url()}resource/css/chosen.css" />
 <style>
 	.separate_line{
-		margin-top:20px;
 		height:3px;
 	}
 	.short_input{
@@ -229,20 +228,21 @@
 			        	}
 			    }; 
 				$('#locForm').ajaxSubmit(options);
-				/*
-				var url = $("#locForm").attr("action");
-				var producttypesearch = $('[name="producttypesearch"]').val();
-				var currenPage = $(".locPage").find("strong").html();
-				if(currenPage == null)
-				{
-					currenPage = 1;
-				}
-				var url = $("#searchForm").attr('action')+"/"+(currenPage-1)*5;
-				$("#searchForm").attr('action', url);
-				$("#searchForm").submit();
-				*/
 			}
-			//$(this).attr("disabled","disabled");
+		});
+		
+		//导入按钮点击事件，触发“浏览”文件输入框点击事件
+		$(".importbtn").click(function(e){
+			
+			e.preventDefault();
+			var options = { 
+			        success:function (res){ 
+			        		alert(res); 
+			        	}
+			    }; 
+			$("#importForm").ajaxSubmit(options);
+			
+			//$("#importForm").submit();
 		});
 	});
 </script>
@@ -258,8 +258,14 @@
 			&nbsp;&nbsp;&nbsp;
 			<input class="searchbtn" type="submit" value="查看" />
 			&nbsp;&nbsp;&nbsp;
-			<input class="exportbtn" type="button" value="导出" />
 		</form>
+		<div style="text-align: right;">
+			<form id="importForm" action="{site_url()}/producttestcase/importCsvFile" method="post" enctype="multipart/form-data">
+				<input type="file" name="file" id="file"/>
+				<input class="importbtn" type="submit" value="导入"/>
+				<input class="exportbtn" type="button" value="导出" />
+			</form>
+		</div>
 		<hr class="separate_line">
 		<div>
 			<div>

@@ -87,7 +87,7 @@
 		$(".gqts_item").css("background-color","white");
 		$(".gqts_item").css("color","#DDDDDD");
 		$(".gqts_item").css("font-weight","normal");
-		$("#"+current_item).css("background-color","blue");
+		$("#"+current_item).css("background-color","#E5ECF9");
 		$("#"+current_item).css("color","black");
 		$("#"+current_item).css("font-weight","bold");
 		$(".testResult").hide();
@@ -97,7 +97,7 @@
 			$(".gqts_item").css("background-color","white");
 			$(".gqts_item").css("color","#DDDDDD");
 			$(".gqts_item").css("font-weight","normal");
-			$(this).css("background-color","blue");
+			$(this).css("background-color","#E5ECF9");
 			$(this).css("color","black");
 			$(this).css("font-weight","bold");
 			var current_item = $(this).attr("id");

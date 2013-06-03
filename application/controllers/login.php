@@ -13,14 +13,18 @@ class Login extends CW_Controller
 	public function index()
 	{
 		$this->session->sess_destroy();
-		//取得首页通知内容
-		/*
-		$tmpRes = $this->db->query('SELECT content FROM firstpagenotice');
-		if ($tmpRes)
+		//取得生产厂家名称
+		$producterUrl = base_url()."resource/producter.txt";
+		$producter = @file_get_contents($producterUrl);
+		if($producter == FALSE)
 		{
-			$this->smarty->assign('noticeBody', $tmpRes->first_row()->content);
+			$producter = "未找到配置文件producter.txt";
 		}
-		 */
+		else
+		{
+			$producter = iconv("gbk", "utf-8", $producter);
+		}
+		$this->smarty->assign("producter",$producter);
 		$this->smarty->display('login1.tpl');
 	}
 

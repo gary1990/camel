@@ -335,7 +335,15 @@ class Packing extends CW_Controller
 	{
 		//取得生产厂家名称
 		$producterUrl = base_url()."resource/producter.txt";
-		$producter = file_get_contents($producterUrl);
+		$producter = @file_get_contents($producterUrl);
+		if($producter == FALSE)
+		{
+			$producter = "未找到配置文件producter.txt";
+		}
+		else
+		{
+			$producter = iconv("gbk", "utf-8", $producter);
+		}
 		$producter = iconv("gbk", "utf-8", $producter);
 		$this->smarty->assign("producter",$producter);
 		$productsnObj = $this->db->query("SELECT sn ,tag1 FROM producttestinfo WHERE id = $var");
@@ -495,8 +503,16 @@ class Packing extends CW_Controller
 	public function detail_pim($var)
 	{
 		//取得生产厂家名称
-		$producterUrl = base_url()."/resource/producter.txt";
-		$producter = file_get_contents($producterUrl);
+		$producterUrl = base_url()."resource/producter.txt";
+		$producter = @file_get_contents($producterUrl);
+		if($producter == FALSE)
+		{
+			$producter = "未找到配置文件producter.txt";
+		}
+		else
+		{
+			$producter = iconv("gbk", "utf-8", $producter);
+		}
 		$producter = iconv("gbk", "utf-8", $producter);
 		$this->smarty->assign("producter",$producter);
 		
