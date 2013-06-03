@@ -31,8 +31,7 @@ class Producttestcase extends CW_Controller
 		$testitem = $this->array_switch($testitemArr, 'name', "");
 		$this->smarty->assign("testitem",$testitem);
 		//Type数组
-		$type = array(""=>"",
-					  "MAX"=>"MAX",
+		$type = array("MAX"=>"MAX",
 					  "MIN"=>"MIN",
 					  "OFF"=>"OFF");
 		$this->smarty->assign("type",$type);
@@ -53,6 +52,13 @@ class Producttestcase extends CW_Controller
 			$arr = array($i => $i);
 			$one_tenArr += $arr;
 		}
+		$one_tenArr_withNull = array(""=>"NULL");
+		for($i=1;$i<=10;$i++)
+		{
+			$arr = array($i => $i);
+			$one_tenArr_withNull += $arr;
+		}
+		$this->smarty->assign("one_tenArr_withNull",$one_tenArr_withNull);
 		$this->smarty->assign("one_tenArr",$one_tenArr);
 	}
 	
@@ -110,15 +116,14 @@ class Producttestcase extends CW_Controller
 		}
 		else
 		{
-			/*
-			$producttestcaseSql = "SELECT pe.name AS producttypeName,tm.name AS testitemName,tn.statefile,tn.ports,tn.channel,tn.trace,tn.startf,tn.stopf,tn.mark,tn.min,tn.max 
+			$producttestcaseSql = "SELECT pe.name AS producttypeName,tm.name AS testitemName,tn.statefile,tn.ports,tn.channel,tn.trace,tn.type,tn.beginstim,tn.endstim,tn.beginresp,tn.endresp 
 								   FROM test_configuration tn
 								   JOIN producttype pe ON tn.producttype = pe.id
 								   JOIN testitem tm ON tn.testitem = tm.id
 								   JOIN status ss ON pe.status = ss.id
 								   AND tm.status = ss.id
 								   AND ss.statusname = 'active'
-								   ".$producttypeSql." GROUP BY tn.producttype,tn.testitem,tn.statefile,tn.ports";
+								   ".$producttypeSql." GROUP BY tn.producttype,tn.testitem,tn.statefile,tn.ports,tn.channel,tn.trace,tn.type,tn.beginstim,tn.endstim";
 			$testcaseObj = $this->db->query($producttestcaseSql);
 			$testcaseArr = $testcaseObj->result_array();
 			$slash = "\\";
@@ -135,8 +140,9 @@ class Producttestcase extends CW_Controller
 		   		{
 		   			//fputcsv($handle, $value);
 		   			$str = $value["producttypeName"].",".$value["testitemName"].",".$value["statefile"].",".
-		   				   $value["ports"].",".$value["channel"].",".$value["trace"].",".$value["startf"].",".
-		   				   $value["stopf"].",".$value["mark"].",".$value["min"].",".$value["max"]."\r\n";
+		   				   $value["ports"].",".$value["channel"].",".$value["trace"].",".$value["type"].",".
+		   				   str_replace("#", "", $value["beginstim"]).",".str_replace("#", "", $value["endstim"]).",".
+		   				   $value["beginresp"].",".$value["endresp"]."\r\n";
 		   			fwrite($handle, iconv('UTF-8','GB2312',$str));
 		   		}
 			}
@@ -154,9 +160,145 @@ class Producttestcase extends CW_Controller
     		ob_end_flush();
 			@readfile($filename);
 			unlink($filename);
-			 * 
-			 */
 		}
+	}
+	
+	//导入csv方法
+	public function importCsvFile()
+	{
+		if(count($_FILES) == 0)
+		{
+			echo "Error";
+			return;
+		}
+		if ($_FILES["file"]["error"] > 0)
+  		{
+ 	 		echo "Error";
+  		}
+		else
+  		{
+  			//判断是不是.csv格式文件
+  			if($_FILES["file"]["type"] == "application/csv" || $_FILES["file"]["type"] == "application/vnd.ms-excel")
+  			{
+  				//暂存目录
+  				$root = getcwd();
+				$slash = "\\";
+				$file_temp = $_FILES['file']['tmp_name'];
+				$file_name = $root.$slash.iconv("utf-8","gbk",$_FILES['file']['name']);
+				//文件是否存在。如存在，删除
+				if(file_exists($file_name))
+				{
+					unlink($file_name);
+				}
+				//保存文件
+				$filestatus = move_uploaded_file($file_temp, $file_name);
+				if(!$filestatus)
+				{
+					echo "Error:upload file fail.";
+				}
+				else
+				{
+					//打开文件
+					if($handle = fopen($file_name, "r"))
+					{
+						$producttypeObj = $this->db->query("SELECT id,name FROM producttype");
+						$producttypeArr = $producttypeObj->result_array();
+						$testitemObj = $this->db->query("SELECT id,name FROM testitem");
+						$testitemArr = $testitemObj->result_array();
+						if(count($producttypeArr) == 0 || count($testitemArr) == 0)
+						{
+							echo "Error:producttype&&testitem Table can not null.";
+						}
+						else
+						{
+							//转换产品型号，测试项数组
+							$producttype = array();
+							foreach ($producttypeArr as $value) 
+							{
+								if($value["name"] != "")
+								{
+									$producttype[$value['id']] = $value['name'];
+								}
+							}
+							$testitem = array();
+							foreach ($testitemArr as $value) 
+							{
+								if($value["name"] != "")
+								{
+									$testitem[$value['id']] = $value['name'];
+								}
+							}
+							$row = 0;
+							$insertSql = "INSERT INTO `test_configuration`(`producttype`, `testitem`, `statefile`, `ports`, `channel`, `trace`, `type`, `beginstim`, `endstim`, `beginresp`, `endresp`) VALUES ";
+							$insertValue = "";
+							$errorLine = "";
+							while(!feof($handle))
+							{
+						    	$line = str_replace("\t",",",fgets($handle));
+		   						$lineArr = explode(",", $line);
+								if($row < 1)
+								{
+									//do noting
+								}
+								else
+								{
+									if($lineArr[0] == "" || $lineArr[1] == "")
+									{
+										$errorLine .= $row.",";
+									}
+									else
+									{
+										$producttypeId = array_search($lineArr[0], $producttype);
+										$testitemId = array_search($lineArr[1], $testitem);
+										$status = $lineArr[2];
+										$ports = $lineArr[3];
+										if($producttypeId == NULL || $testitemId== NULL)
+										{
+											$errorLine .= $row.",";
+										}
+										else
+										{
+											$insertValue .= "('$producttypeId','$testitemId','$status','$ports','','1','MAX','','','',''),";
+										}
+									}
+								}
+								$row++;
+					    	}
+							$insertValue = substr($insertValue, 0,-1).";";
+							if(strlen($insertValue) == 0)
+							{
+								$insertSql .= $insertValue;
+								$this->db->query($insertSql);
+							}
+							else
+							{
+								//do nothing
+							}
+							
+							if(strlen($errorLine) == 0)
+							{
+								echo "Success";
+							}
+							else
+							{
+								echo "Error Line:".substr($errorLine,0,-1);
+							}
+						}
+						fclose($handle);
+					}
+					else
+					{
+						echo "Error";
+					}
+					
+				}
+				unlink($file_name);
+  			}
+  			else
+  			{
+  				echo "Error";
+  			}
+  		}
 	}
 	
 	//保存页面内容
@@ -187,30 +329,43 @@ class Producttestcase extends CW_Controller
 			$statusfile = $this->input->post("statusfile".$i);
 			$ports = $this->input->post("ports".$i);
 			$channel = $this->input->post("channel".$i);
-			$trace = $this->input->post("trace".$i);
-			$type = $this->input->post("type".$i);
-			$beginstimVal = $this->input->post("beginstim".$i);
-			$beginstimUnit = $this->input->post("beginstimunit".$i);
-			if($beginstimVal == "")
+			//判断$_POST是否传过来Trace
+			if(isset($_POST["trace".$i]))
 			{
+				$trace = $this->input->post("trace".$i);
+				$type = $this->input->post("type".$i);
+				$beginstimVal = $this->input->post("beginstim".$i);
+				$beginstimUnit = $this->input->post("beginstimunit".$i);
+				if($beginstimVal == "")
+				{
+					$beginstim = "";
+				}
+				else
+				{
+					$beginstim = $beginstimVal."#".$beginstimUnit;
+				}
+				$endstimVal = $this->input->post("endstim".$i);
+				$endstimUnit = $this->input->post("endstimunit".$i);
+				if($endstimVal == "")
+				{
+					$endstim = "";
+				}
+				else
+				{
+					$endstim = $endstimVal."#".$endstimUnit;
+				}
+				$beginresp = $this->input->post("beginresp".$i);
+				$endresp = $this->input->post("endresp".$i);
+			}
+			else
+			{
+				$trace = '1';
+				$type = 'MAX';
 				$beginstim = "";
-			}
-			else
-			{
-				$beginstim = $beginstimVal."#".$beginstimUnit;
-			}
-			$endstimVal = $this->input->post("endstim".$i);
-			$endstimUnit = $this->input->post("endstimunit".$i);
-			if($endstimVal == "")
-			{
 				$endstim = "";
+				$beginresp = "";
+				$endresp = "";
 			}
-			else
-			{
-				$endstim = $endstimVal."#".$endstimUnit;
-			}
-			$beginresp = $this->input->post("beginresp".$i);
-			$endresp = $this->input->post("endresp".$i);
 			if($producttype != "")
 			{
 				$actualRecord++;

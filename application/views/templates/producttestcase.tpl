@@ -6,7 +6,6 @@
 <link rel="stylesheet" type="text/css" href="{base_url()}resource/css/chosen.css" />
 <style>
 	.separate_line{
-		margin-top:20px;
 		height:3px;
 	}
 	.short_input{
@@ -45,12 +44,47 @@
 		margin:0px;
 		padding:0px;
 	}
+	.disable
+	{
+		disabled:disabled;
+	}
 </style>
 <!--{/block}-->
 <!--{block name=script}-->
 <script type="text/javascript" src="{base_url()}resource/js/chosen.jquery.js"></script>
 <script type="text/javascript" src="{base_url()}resource/js/jquery.form.js"></script>
 <script type="text/javascript">
+	//页面完全加载后,Chanel为空的后面的可见的Element->disabled
+	$(window).load(function () {
+		var tatolcount = $(".addcount").val();
+		for(i = 0; i <= tatolcount; i++)
+		{
+			var channel = $('[name="channel'+i+'"]').val();
+			if(channel != undefined)
+			{
+				if(channel == "")
+				{
+					$('[name="trace'+i+'"]').attr('disabled','disabled');
+      				$('[name="type'+i+'"]').attr('disabled','disabled');
+      				$('[name="beginstim'+i+'"]').attr('disabled','disabled');
+      				$('[name="beginstimunit'+i+'"]').attr('disabled','disabled');
+      				$('[name="endstim'+i+'"]').attr('disabled','disabled');
+      				$('[name="endstimunit'+i+'"]').attr('disabled','disabled');
+      				$('[name="beginresp'+i+'"]').attr('disabled','disabled');
+      				$('[name="endresp'+i+'"]').attr('disabled','disabled');
+				}
+			}
+			//隐藏记录行
+			$('[name="trace_"]').attr('disabled','disabled');
+      			$('[name="type_"]').attr('disabled','disabled');
+      			$('[name="beginstim_"]').attr('disabled','disabled');
+      			$('[name="beginstimunit_"]').attr('disabled','disabled');
+      			$('[name="endstim_"]').attr('disabled','disabled');
+      			$('[name="endstimunit_"]').attr('disabled','disabled');
+      			$('[name="beginresp_"]').attr('disabled','disabled');
+      			$('[name="endresp_"]').attr('disabled','disabled');
+		}
+	});
 	//在当前行下面添加一行 
 	function add_record(thisid){
 		var num = $(".addcount").val();
@@ -110,6 +144,34 @@
       		{
       			alert("端口数为整数");
       			$(this).attr("value","");
+      		}
+    	});
+    	//Channel下拉列表change事件
+    	$("body").delegate(".channel", "change", function(){
+			var channel = $(this).val();
+			var name = $(this).attr("name");
+			var num = name.charAt(name.length-1);
+      		if(channel == "")
+      		{
+      			$('[name="trace'+num+'"]').attr('disabled','disabled');
+      			$('[name="type'+num+'"]').attr('disabled','disabled');
+      			$('[name="beginstim'+num+'"]').attr('disabled','disabled');
+      			$('[name="beginstimunit'+num+'"]').attr('disabled','disabled');
+      			$('[name="endstim'+num+'"]').attr('disabled','disabled');
+      			$('[name="endstimunit'+num+'"]').attr('disabled','disabled');
+      			$('[name="beginresp'+num+'"]').attr('disabled','disabled');
+      			$('[name="endresp'+num+'"]').attr('disabled','disabled');
+      		}
+      		else
+      		{
+				$('[name="trace'+num+'"]').removeAttr('disabled');
+				$('[name="type'+num+'"]').removeAttr('disabled');
+				$('[name="beginstim'+num+'"]').removeAttr('disabled');
+				$('[name="beginstimunit'+num+'"]').removeAttr('disabled');
+				$('[name="endstim'+num+'"]').removeAttr('disabled');
+				$('[name="endstimunit'+num+'"]').removeAttr('disabled');
+				$('[name="beginresp'+num+'"]').removeAttr('disabled');
+				$('[name="endresp'+num+'"]').removeAttr('disabled');
       		}
     	});
     	//beginstim,endstim,beginresp,endresp输入框是否为数字的判断
@@ -270,15 +332,29 @@
 						$('[name="endresp'+i+'"]').next().attr("value",endresp);
 					}
 				}
+				
 				var options = { 
 			        success:function (res){
 			        		//改变要删除的记录的ID
 			        		$(".ids").attr("value",res);
-			        		alert("保存成功！"); 
+			        		alert(res); 
 			        	}
 			    };
 				$('#locForm').ajaxSubmit(options);
+				
 			}
+		});
+		
+		
+		//导入按钮点击事件，触发“浏览”文件输入框点击事件
+		$(".importbtn").click(function(e){
+			e.preventDefault();
+			var options = { 
+			        success:function (res){ 
+			        		alert(res); 
+			        	}
+			    }; 
+			$("#importForm").ajaxSubmit(options);
 		});
 	});
 </script>
@@ -294,6 +370,13 @@
 			&nbsp;&nbsp;&nbsp;
 			<input class="searchbtn" type="submit" value="查看" />
 		</form>
+		<div style="text-align: right;">
+			<form id="importForm" action="{site_url()}/producttestcase/importCsvFile" method="post" enctype="multipart/form-data">
+				<input type="file" name="file" id="file"/>
+				<input class="importbtn" type="submit" value="导入"/>
+				<input class="exportbtn" type="button" value="导出" />
+			</form>
+		</div>
 		<hr class="separate_line">
 		<div>
 			<div>
@@ -308,7 +391,7 @@
 						<tr>
 							<th>产品型号</th>
 							<th>测试项</th><th>状态文件</th>
-							<th width="45px">端口数</th><th style="border-left:1px solid #DDDDDD;">Channel</th>
+							<th width="50px">Ports</th><th style="border-left:1px solid #DDDDDD;">Channel</th>
 							<th>Trace</th><th>Type</th>
 							<th width="90px;">BeginStim (Hz/S)</th>
 							<th width="120px;">EndStim (Hz/S)</th>
@@ -320,11 +403,11 @@
 							<td>{html_options class="addtestitem" name=testitem_ options=$testitem}<input type="hidden" class="short_input" value=""/></td>
 							<td><input class="long_input statusfile" name="statusfile_" type="text"/><input type="hidden" class="short_input" value=""/></td>
 							<td><input class="short_input ports" name="ports_" maxlength="4" type="text" /><input type="hidden" class="short_input" value=""/></td>
-							<td style="border-left:1px solid #DDDDDD;">{html_options name=channel_ class=channel options=$one_tenArr}<input type="hidden" class="short_input" value="1"/></td>
+							<td style="border-left:1px solid #DDDDDD;">{html_options name=channel_ class=channel options=$one_tenArr_withNull}<input type="hidden" class="short_input" value=""/></td>
 							<td>{html_options name=trace_ class=trace options=$one_tenArr}<input type="hidden" class="short_input" value="1"/></td>
 							<td>
 								{html_options name=type_ class=type options=$type}
-								<input type="hidden" class="short_input" value=""/>
+								<input type="hidden" class="short_input" value="MAX"/>
 							</td>
 							<td>
 								<input class="short_input beginstim" name="beginstim_" type="text" value="" />
@@ -355,11 +438,11 @@
 								<td>{html_options name=testitem1 class=testitem options=$testitem}<input type="hidden" class="short_input" value=""/></td>
 								<td><input class="long_input statusfile" name="statusfile1" type="text" /><input type="hidden" class="short_input" value=""/></td>
 								<td><input class="short_input ports" name="ports1" maxlength="4" type="text" /><input type="hidden" class="short_input" value=""/></td>
-								<td style="border-left:1px solid #DDDDDD;">{html_options name=channel1 class=channel options=$one_tenArr}<input type="hidden" class="short_input" value="1"/></td>
+								<td style="border-left:1px solid #DDDDDD;">{html_options name=channel1 class=channel options=$one_tenArr_withNull}<input type="hidden" class="short_input" value=""/></td>
 								<td>{html_options name=trace1 class=trace options=$one_tenArr}<input type="hidden" class="short_input" value="1"/></td>
 								<td>
 									{html_options name="type1" class=type options=$type}
-									<input type="hidden" class="short_input" value=""/>
+									<input type="hidden" class="short_input" value="MAX"/>
 								</td>
 								<td>
 									<input class="short_input beginstim" name="beginstim1" type="text" value="" />
@@ -391,11 +474,11 @@
 									<td>{html_options name="testitem{$k+1}" class=testitem options=$testitem selected=$value["testitem"]|default:""}<input type="hidden" class="short_input" value="{$value["testitem"]|default:""}"/></td>
 									<td><input class="long_input statusfile" name="statusfile{$k+1}" type="text" value="{$value["statefile"]|default:""}" /><input type="hidden" class="short_input" value="{$value["statefile"]|default:""}"/></td>
 									<td><input class="short_input ports" name="ports{$k+1}" maxlength="4" type="text" value="{$value["ports"]|default:""}" /><input type="hidden" class="short_input" value="{$value["ports"]|default:""}"/></td>
-									<td style="border-left:1px solid #DDDDDD;">{html_options name="channel{$k+1}" class=channel options=$one_tenArr selected=$value["channel"]|default:""}<input type="hidden" class="short_input" value="{$value["channel"]|default:""}"/></td>
+									<td style="border-left:1px solid #DDDDDD;">{html_options name="channel{$k+1}" class=channel options=$one_tenArr_withNull selected=$value["channel"]|default:""}<input type="hidden" class="short_input" value="{$value["channel"]|default:""}"/></td>
 									<td>{html_options name="trace{$k+1}" class=trace options=$one_tenArr selected=$value["trace"]|default:""}<input type="hidden" class="short_input" value="{$value["trace"]|default:""}"/></td>
 									<td>
 										{html_options name="type{$k+1}" class=type options=$type selected=$value["type"]|default:""}
-										<input type="hidden" class="short_input" value="{$value["type"]|default:""}"/>
+										<input type="hidden" class="short_input" value="{$value["type"]|default:"MAX"}"/>
 									</td>
 									<td>
 										{if $value["beginstim"]|substr:-1 eq '#'}

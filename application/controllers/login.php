@@ -13,14 +13,18 @@ class Login extends CW_Controller
 	public function index()
 	{
 		$this->session->sess_destroy();
-		//取得首页通知内容
-		/*
-		$tmpRes = $this->db->query('SELECT content FROM firstpagenotice');
-		if ($tmpRes)
+		//取得生产厂家名称
+		$producterUrl = base_url()."resource/producter.txt";
+		$producter = @file_get_contents($producterUrl);
+		if($producter == FALSE)
 		{
-			$this->smarty->assign('noticeBody', $tmpRes->first_row()->content);
+			$producter = "未找到配置文件producter.txt";
 		}
-		 */
+		else
+		{
+			$producter = iconv("gbk", "utf-8", $producter);
+		}
+		$this->smarty->assign("producter",$producter);
 		$this->smarty->display('login1.tpl');
 	}
 
@@ -288,11 +292,21 @@ class Login extends CW_Controller
 						xml_add_child($testItem, 'result', 'true');
 						foreach ($tmpTestItemArray as $testItemItem)
 						{
+							//处理channel，为空时XML写入null
+							$channel = "";
+							if($testItemItem['channel'] == "")
+							{
+								$channel = "null";
+							}
+							else
+							{
+								$channel = $testItemItem['channel'];
+							}
 							xml_add_child($testItem, 'id', $testItemItem['testitem']);
 							xml_add_child($testItem, 'name', $testItemItem['testItemName']);
 							xml_add_child($testItem, 'state_file', $testItemItem['statefile']);
 							xml_add_child($testItem, 'port_num', $testItemItem['ports']);
-							xml_add_child($testItem, 'channel', $testItemItem['channel']);
+							xml_add_child($testItem, 'channel', $channel);
 							xml_add_child($testItem, 'trace', $testItemItem['trace']);
 							xml_add_child($testItem, 'type', $testItemItem['type']);
 							xml_add_child($testItem, 'beginstim', str_replace("#", "", $testItemItem['beginstim']));

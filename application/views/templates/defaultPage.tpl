@@ -88,7 +88,8 @@
 	<body class="cldn">
 		<div class="container">
 			<div class="span-64 last defaulttitle">
-				<span class="cldnH2"><b>CAMEL</b>生产管理平台</span>
+				<span class="span-52" style="font-size: 26px;">{$producter}</span>
+				<span style="display:inline-block;padding-top: 15px;">Camel Production System</span>
 				<hr>
 				<div class="span-10">
 					{$CI->session->userdata('username')}，您好

@@ -26,8 +26,8 @@
 			    font-family:Arial;
 			}
 			img{
-				width:55px;
-				height:45px;
+				width:25px;
+				height:20px;
 				vertical-align: -8px;
 			}
 			.locBlue{
@@ -127,8 +127,7 @@
 		<div class="container">
 			<div class="prepend-2 span-60 append-2 last">
 				<div class="logo_appName">
-					<img src="{base_url()}resource/img/gemcycle.png"/>
-					<span class="appName"><b>CAMEL</b>生产管理平台</span>
+					<span class="appName">{$producter}</span>
 				</div>
 				<div class="locSecond prepend-2 span-56 append-2 last">
 					<div class="locBlue span-28 last">
@@ -188,7 +187,8 @@
 					</div>
 				</div>
 				<div class="clear prepend-20 span-21">
-					<span>Gemcycle技术支持，版本：5.0</span>
+					<img src="{base_url()}resource/img/gemcycle.png"/>
+					<span>Camel Production System 5.1,Powered by Gemcycle</span>
 				</div>
 			</div>
 		</div>

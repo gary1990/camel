@@ -43,7 +43,7 @@
 	.packingrecord
 	{
 		display:inline-block;
-		background:blue;
+		background:#E5ECF9;
 		font-weight: bold;
 	}
 	
@@ -86,7 +86,7 @@
 <script type="text/javascript" src="{base_url()}resource/js/calendar/ui.datepicker-zh-CN.js"></script>
 <script type="text/javascript" src="{base_url()}resource/js/jquery.mulitselector.js"></script>
 <script type="text/javascript" src="{base_url()}resource/js/chosen.jquery.js"></script>
-<script src="http://malsup.github.com/jquery.form.js"></script>
+<script type="text/javascript" src="{base_url()}resource/js/jquery.form.js"></script>
 <script type="text/javascript">
 	$(document).ready(function(){
 		//可输入选择的下拉列表

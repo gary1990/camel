@@ -30,7 +30,7 @@
 	}
 	.default_part
 	{
-		background-color:#0066CC;
+		background-color:#E5ECF9;
 	}
 	.default_result
 	{
@@ -85,7 +85,7 @@
 		//两部分的切换
 		$(".parts").click(function(){
 			$(".parts").css("background-color","white");
-			$(this).css("background-color","#0066CC");
+			$(this).css("background-color","#E5ECF9");
 			$(".passStatus").attr("value",$(this).attr("id"));
 			$(".result_div").hide();
 			$("."+$(this).attr("id")).show();

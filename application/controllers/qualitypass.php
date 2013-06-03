@@ -6,6 +6,12 @@ class Qualitypass extends CW_Controller
 	public function __construct()
 	{
 		parent::__construct();
+		//判断当前登录用户
+		$userrole = $this->session->userdata("userrole");
+		if($userrole == 'user')
+		{
+			redirect(base_url().'index.php/login/toIndex');
+		}
 		$this->_init();
 	}
 	
