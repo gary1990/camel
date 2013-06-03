@@ -13,18 +13,14 @@ class Login extends CW_Controller
 	public function index()
 	{
 		$this->session->sess_destroy();
-		//取得生产厂家名称
-		$producterUrl = base_url()."resource/producter.txt";
-		$producter = @file_get_contents($producterUrl);
-		if($producter == FALSE)
+		//取得首页通知内容
+		/*
+		$tmpRes = $this->db->query('SELECT content FROM firstpagenotice');
+		if ($tmpRes)
 		{
-			$producter = "未找到配置文件producter.txt";
+			$this->smarty->assign('noticeBody', $tmpRes->first_row()->content);
 		}
-		else
-		{
-			$producter = iconv("gbk", "utf-8", $producter);
-		}
-		$this->smarty->assign("producter",$producter);
+		 */
 		$this->smarty->display('login1.tpl');
 	}
 
@@ -231,16 +227,35 @@ class Login extends CW_Controller
 										AND et.sn = ?", array($equipmentSn));
 			if ($tmpRes->num_rows() > 0)
 			{
-				$tmpResEquipmentArry = $tmpRes->result_array();
-				$testStation = xml_add_child($dom, 'test_station');
+				$testStation = xml_add_child($dom, 'equipment');
 				xml_add_child($testStation, 'result', 'true');
-				xml_add_child($testStation, 'id', $tmpResEquipmentArry[0]["id"]);
 			}
 			else
 			{
 				//没有查到测试设备
-				$testStation = xml_add_child($dom, 'test_station');
+				$testStation = xml_add_child($dom, 'equipment');
 				xml_add_child($testStation, 'result', 'false');
+			}
+			//取得测试站
+			$testastationRes = $this->db->query("SELECT tn.* FROM teststation tn
+												JOIN status ss ON tn.status = ss.id
+												AND ss.statusname = 'active'");
+			if($testastationRes->num_rows() > 0)
+			{
+				$testastationArr = $testastationRes->result_array();
+				$teststaions = xml_add_child($dom, 'teststations');
+				xml_add_child($teststaions, 'result', 'true');
+				foreach ($testastationArr as $value) 
+				{
+					$teststaion = xml_add_child($teststaions,"teststaion");
+					xml_add_child($teststaion,"name",$value['name']);
+					xml_add_child($teststaion,"id",$value['id']);
+				}
+			}
+			else
+			{
+				$teststaions = xml_add_child($dom, 'teststations');
+				xml_add_child($teststaions, 'result', 'false');
 			}
 			//取得产品类型列表
 			$tmpRes = $this->db->query("SELECT a.* FROM productType a 
@@ -362,7 +377,7 @@ class Login extends CW_Controller
 	{
 		if (PHP_OS == 'WINNT')
 		{
-			$uploadRoot = "E:\\wwwRoot\\camel\\assets\\uploadedSource";
+			$uploadRoot = "D:\\camel\\camel\\assets\\uploadedSource";
 			$slash = "\\";
 		}
 		else if (PHP_OS == 'Darwin')
@@ -738,7 +753,7 @@ class Login extends CW_Controller
 	{
 		if (PHP_OS == 'WINNT')
 		{
-			$uploadRoot = "E:\\wwwRoot\\camel\\assets\\uploadedSource\\pim";
+			$uploadRoot = "D:\\camel\\camel\\assets\\uploadedSource\\pim";
 			$slash = "\\";
 		}
 		else if (PHP_OS == 'Darwin')

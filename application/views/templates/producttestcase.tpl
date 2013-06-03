@@ -6,6 +6,7 @@
 <link rel="stylesheet" type="text/css" href="{base_url()}resource/css/chosen.css" />
 <style>
 	.separate_line{
+		margin-top:20px;
 		height:3px;
 	}
 	.short_input{
@@ -201,8 +202,8 @@
 			e.preventDefault();
 			//取得当前记录条数
 			var tatolcount = $(".addcount").val();
-			//产品型号，测试项，端口数判空判空结果。默认为true，防止页面记录全部删除后无法比较结果
-			var nullResult = true;
+			//产品型号，测试项，端口数判空判空结果
+			var nullResult;
 			//产品型号，测试项，端口数判空
 			for(var i=tatolcount;i >= 1;i--)
 			{
@@ -279,20 +280,6 @@
 				$('#locForm').ajaxSubmit(options);
 			}
 		});
-		
-		//导入按钮点击事件，触发“浏览”文件输入框点击事件
-		$(".importbtn").click(function(e){
-			
-			e.preventDefault();
-			var options = { 
-			        success:function (res){ 
-			        		alert(res); 
-			        	}
-			    }; 
-			$("#importForm").ajaxSubmit(options);
-			
-			//$("#importForm").submit();
-		});
 	});
 </script>
 <!--{block name=subScript}-->
@@ -307,15 +294,14 @@
 			&nbsp;&nbsp;&nbsp;
 			<input class="searchbtn" type="submit" value="查看" />
 		</form>
-		<div style="text-align: right;">
-			<form id="importForm" action="{site_url()}/producttestcase/importCsvFile" method="post" enctype="multipart/form-data">
-				<input type="file" name="file" id="file"/>
-				<input class="importbtn" type="submit" value="导入"/>
-				<input class="exportbtn" type="button" value="导出" />
-			</form>
-		</div>
 		<hr class="separate_line">
 		<div>
+			<div>
+				<div style="width:50%;float:left;">
+					&nbsp;
+				</div>
+				<div style="padding-left:50%;text-align:center;">极限值定义(oiption)</div>
+			</div>
 			<div>
 				<form name="locForm" id="locForm" method="post" action="{site_url('producttestcase/del_ins/')}">
 					<table>
@@ -361,7 +347,7 @@
 								<input type="hidden" class="short_input" value=""/>
 							</td>
 							<td><span class="addbtn" onclick="add_record(selfid)">+</span></td>
-							<td><span class="delbtn" onclick="del_record(selfid)">-</span></td>
+							<td style="border-right:1px solid #DDDDDD"><span class="delbtn" onclick="del_record(selfid)">-</span></td>
 						</tr>
 						{if count($testcaseArr) eq 0}
 							<tr class="per_record" id="1">
@@ -396,7 +382,7 @@
 									<input type="hidden" class="short_input" value=""/>
 								</td>
 								<td><span class="addbtn" onclick="add_record(1)">+</span></td>
-								<td><span class="delbtn">-</span></td>
+								<td style="border-right:1px solid #DDDDDD"><span class="delbtn">-</span></td>
 							</tr>
 						{else}
 							{foreach from=$testcaseArr key=k item=value}
@@ -446,7 +432,7 @@
 										<input type="hidden" class="short_input" value="{$value["endresp"]|default:""}"/>
 									</td>
 									<td><span class="addbtn" onclick="add_record({$k+1})">+</span></td>
-									<td><span class="delbtn" onclick="del_record({$k+1})">-</span></td>
+									<td style="border-right:1px solid #DDDDDD"><span class="delbtn" onclick="del_record({$k+1})">-</span></td>
 								</tr>
 							{/foreach}
 						{/if}

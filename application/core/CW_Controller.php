@@ -43,23 +43,14 @@ class CW_Controller extends CI_Controller
 						 "测试站点"=>"测试站点",
 						 "测试设备"=>"测试设备",
 						 "测试员"=>"测试员",
+						 "高级查询"=>"高级查询",
+						 "报表"=>"报表",
+						 "质量放行"=>"质量放行",
 						 "用户"=>"用户",
-						 "用户组"=>"用户组"
-						 );
+						 "用户组"=>"用户组",
+						 "工厂"=>"工厂",
+						 "车间"=>"车间");
 		$this->smarty->assign('items', $itemArr);
-		
-		//取得生产厂家名称
-		$producterUrl = base_url()."resource/producter.txt";
-		$producter = @file_get_contents($producterUrl);
-		if($producter == FALSE)
-		{
-			$producter = "未找到配置文件producter.txt";
-		}
-		else
-		{
-			$producter = iconv("gbk", "utf-8", $producter);
-		}
-		$this->smarty->assign("producter",$producter);
 		
 		if (!CW_Controller::_checkLogin())
 		{
