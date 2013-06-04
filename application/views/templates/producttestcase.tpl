@@ -150,7 +150,7 @@
     	$("body").delegate(".channel", "change", function(){
 			var channel = $(this).val();
 			var name = $(this).attr("name");
-			var num = name.charAt(name.length-1);
+			var num = name.substring(7);
       		if(channel == "")
       		{
       			$('[name="trace'+num+'"]').attr('disabled','disabled');
@@ -337,7 +337,7 @@
 			        success:function (res){
 			        		//改变要删除的记录的ID
 			        		$(".ids").attr("value",res);
-			        		alert(res); 
+			        		alert("保存成功"); 
 			        	}
 			    };
 				$('#locForm').ajaxSubmit(options);
@@ -355,6 +355,7 @@
 			        	}
 			    }; 
 			$("#importForm").ajaxSubmit(options);
+			//$("#importForm").submit();
 		});
 	});
 </script>
@@ -394,7 +395,7 @@
 							<th width="50px">Ports</th><th style="border-left:1px solid #DDDDDD;">Channel</th>
 							<th>Trace</th><th>Type</th>
 							<th width="90px;">BeginStim (Hz/S)</th>
-							<th width="120px;">EndStim (Hz/S)</th>
+							<th width="150px;">EndStim (Hz/S)</th>
 							<th>Begin Resp</th><th>End Resp</th>
 							<th>&nbsp;</th><th style="border-right:1px solid #DDDDDD">&nbsp;</th>
 						</tr>

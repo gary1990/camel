@@ -106,8 +106,8 @@
         </div>
 		<div class="itemTitle"><b>生产看板</b></div>
 		<div>
-			<span><a href="{site_url()}/advancedsearch">1.高级查询</a></span><br/>
-			<span><a href="{site_url()}/reportform">2.报表</a></span><br/>
+			<span><a href="{site_url()}/advancedsearch">1.高级查询(Beta)</a></span><br/>
+			<span><a href="{site_url()}/reportform">2.报表(Beta)</a></span><br/>
 			<span><a href="{site_url()}/qualitypass">3.质量放行</a></span><br/>
 		</div>
 	</div>

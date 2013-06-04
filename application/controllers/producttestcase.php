@@ -264,8 +264,8 @@ class Producttestcase extends CW_Controller
 								}
 								$row++;
 					    	}
-							$insertValue = substr($insertValue, 0,-1).";";
-							if(strlen($insertValue) == 0)
+							$insertValue = substr($insertValue, 0,-1);
+							if(strlen($insertValue) != 0)
 							{
 								$insertSql .= $insertValue;
 								$this->db->query($insertSql);
