@@ -172,6 +172,7 @@
 				$('[name="endstimunit'+num+'"]').removeAttr('disabled');
 				$('[name="beginresp'+num+'"]').removeAttr('disabled');
 				$('[name="endresp'+num+'"]').removeAttr('disabled');
+				alert("提示：此时BeginStim,EndStim,BeginResp,EndResp必填！");
       		}
     	});
     	//beginstim,endstim,beginresp,endresp输入框是否为数字的判断
@@ -281,15 +282,47 @@
 					var case3 = $('[name="ports'+i+'"]').val() != "";
 					var case4 = $('[name="statusfile'+i+'"]').val() != "";
 					var empty = case1 && case2 && case3 && case4;
-					if(empty)
+					//取得当前channel判断是否为NULL
+					var channel = $('[name="channel'+i+'"]').val();
+					if(channel != "")
 					{
-						nullResult = empty;
+						var beginstim = $('[name="beginstim'+i+'"]').val() != "";
+						var endstim = $('[name="endstim'+i+'"]').val() != "";
+						var beginresp = $('[name="beginresp'+i+'"]').val() != "";
+						var endresp = $('[name="endresp'+i+'"]').val() != "";
+						var limitEmpty = beginstim && endstim && beginresp && endresp;
+						if(limitEmpty)
+						{
+							if(empty)
+							{
+								nullResult = empty;
+							}
+							else
+							{
+								alert("产品型号，测试项，端口数,状态文件不为空！");
+								nullResult = empty;
+								break;
+							}
+						}
+						else
+						{
+							alert("Channel不为NULL时，BeginStim,EndStim,BeginResp,EndResp必填。");
+							nullResult = limitEmpty;
+							break;
+						}
 					}
 					else
 					{
-						alert("产品型号，测试项，端口数,状态文件不为空！");
-						nullResult = empty;
-						break;
+						if(empty)
+						{
+							nullResult = empty;
+						}
+						else
+						{
+							alert("产品型号，测试项，端口数,状态文件不为空！");
+							nullResult = empty;
+							break;
+						}
 					}
 				}
 			}

@@ -188,7 +188,7 @@
 				</div>
 				<div class="clear prepend-20 span-21">
 					<img src="{base_url()}resource/img/gemcycle.png"/>
-					<span>Camel Production System 5.1,Powered by Gemcycle</span>
+					<span>Camel Production System 5.0,Powered by Gemcycle</span>
 				</div>
 			</div>
 		</div>
