@@ -50,8 +50,8 @@ $active_record = TRUE;
 
 $db['default']['hostname'] = '127.0.0.1';
 $db['default']['username'] = 'root';
-$db['default']['password'] = 'G4HengXV1';
-$db['default']['database'] = 'xiong20121204';
+$db['default']['password'] = 'cc19900129';
+$db['default']['database'] = 'camel5.0';
 $db['default']['dbdriver'] = 'mysqli';
 $db['default']['dbprefix'] = '';
 $db['default']['pconnect'] = TRUE;
