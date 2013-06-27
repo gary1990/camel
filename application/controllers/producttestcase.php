@@ -53,7 +53,8 @@ class Producttestcase extends CW_Controller
 			$one_tenArr += $arr;
 		}
 		$one_tenArr_withNull = array(""=>"NULL");
-		for($i=1;$i<=10;$i++)
+
+		for($i=1;$i<=4;$i++)
 		{
 			$arr = array($i => $i);
 			$one_tenArr_withNull += $arr;

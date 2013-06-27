@@ -272,6 +272,7 @@ class Login extends CW_Controller
 				$productTestCase = xml_add_child($dom, 'product_test_case');
 				xml_add_child($productTestCase, 'result', 'true');
 				$tmpProductTypeArray = $tmpRes->result_array();
+				//遍历所有产品型号
 				foreach ($tmpProductTypeArray as $productTypeItem)
 				{
 					$productType = xml_add_child($productTestCase, 'product_type');
@@ -284,6 +285,7 @@ class Login extends CW_Controller
 												JOIN status c ON b.status = c.id
 								   				AND c.statusname = 'active'
 												AND a.productType = ? 
+												GROUP BY a.testitem,a.statefile,a.channel,a.trace,a.type,a.beginstim,a.endstim,a.beginresp,a.endresp
 												ORDER BY a.testItem", array($productTypeItem['id']));
 					if ($tmpRes->num_rows() > 0)
 					{
@@ -292,27 +294,40 @@ class Login extends CW_Controller
 						xml_add_child($testItem, 'result', 'true');
 						foreach ($tmpTestItemArray as $testItemItem)
 						{
-							//处理channel，为空时XML写入null
-							$channel = "";
-							if($testItemItem['channel'] == "")
-							{
-								$channel = "null";
-							}
-							else
-							{
-								$channel = $testItemItem['channel'];
-							}
 							xml_add_child($testItem, 'id', $testItemItem['testitem']);
 							xml_add_child($testItem, 'name', $testItemItem['testItemName']);
 							xml_add_child($testItem, 'state_file', $testItemItem['statefile']);
 							xml_add_child($testItem, 'port_num', $testItemItem['ports']);
-							xml_add_child($testItem, 'channel', $channel);
-							xml_add_child($testItem, 'trace', $testItemItem['trace']);
-							xml_add_child($testItem, 'type', $testItemItem['type']);
-							xml_add_child($testItem, 'beginstim', str_replace("#", "", $testItemItem['beginstim']));
-							xml_add_child($testItem, 'endstim', str_replace("#", "", $testItemItem['endstim']));
-							xml_add_child($testItem, 'beginresp', $testItemItem['beginresp']);
-							xml_add_child($testItem, 'endresp', $testItemItem['endresp']);
+							//处理channel，不为空时写入XML
+							$channel = "";
+							if($testItemItem['channel'] == "")
+							{
+								xml_add_child($testItem, 'limitline', 'null');
+							}
+							else
+							{
+								$channel = $testItemItem['channel'];
+								$trace = $testItemItem['trace'];
+								$type = $testItemItem['type'];
+								if($type == "MAX")
+								{
+									$type = 1;
+								}
+								else if($type == "MIN")
+								{
+									$type = 2;
+								}
+								else
+								{
+									$type = 0;
+								}
+								$beginStim = $this->getBeginOrEndStim($testItemItem['beginstim']);
+								$endStim = $this->getBeginOrEndStim($testItemItem['endstim']);
+								$beginResp = $testItemItem['beginresp'];
+								$endResp = $testItemItem['endresp'];
+								$limitLine = $channel.",".$trace.";".$type.",".$beginStim.",".$endStim.",".$beginResp.",".$endResp;
+								xml_add_child($testItem, 'limitline', $limitLine);
+							}
 						}
 					}
 					else
@@ -335,6 +350,37 @@ class Login extends CW_Controller
 		}
 		xml_print($root);
 	}
+	//处理测试方案中BeginStim和EndStim
+	private function getBeginOrEndStim($val)
+	{
+		$value = substr($val, 0, strpos($val, "#"));
+		$unit = substr($val, strpos($val, "#")+1);
+		switch ($unit) {
+			case 'n':
+				$unit = "E-9";
+				break;
+			case 'u':
+				$unit = "E-6";
+				break;
+			case 'm':
+				$unit = "E-3";
+				break;
+			case 'k':
+				$unit = "E3";
+				break;
+			case 'M':
+				$unit = "E6";
+				break;
+			case 'G':
+				$unit = "E9";
+				break;
+			default:
+				$unit = "";
+				break;
+		}
+		return $value.$unit;
+	}
+
 	//pim客户端登陆
 	public function pimClientLogin($username = null, $password = null)
 	{

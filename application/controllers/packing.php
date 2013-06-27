@@ -344,7 +344,7 @@ class Packing extends CW_Controller
 		{
 			$producter = iconv("gbk", "utf-8", $producter);
 		}
-		$producter = iconv("gbk", "utf-8", $producter);
+		
 		$this->smarty->assign("producter",$producter);
 		$productsnObj = $this->db->query("SELECT sn ,tag1 FROM producttestinfo WHERE id = $var");
 		$productsn = $productsnObj->first_row()->sn;
@@ -513,7 +513,7 @@ class Packing extends CW_Controller
 		{
 			$producter = iconv("gbk", "utf-8", $producter);
 		}
-		$producter = iconv("gbk", "utf-8", $producter);
+
 		$this->smarty->assign("producter",$producter);
 		
 		//取得序列号
