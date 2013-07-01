@@ -41,6 +41,7 @@ class Vna_pim extends CW_Controller
 		$teststationArray = $teststationObject->result_array();
 		$teststation = $this->array_switch($teststationArray, "name", "(ALL)");
 		$this->smarty->assign("teststation",$teststation);
+		/*
 		//取得测试设备
 		$equipmentObject = $this->db->query("SELECT et.id,et.sn FROM equipment et 
 											   JOIN status ss ON et.status = ss.id
@@ -48,6 +49,12 @@ class Vna_pim extends CW_Controller
 		$equipmentArray = $equipmentObject->result_array();
 		$equipment = $this->array_switch($equipmentArray, "sn", "(ALL)");
 		$this->smarty->assign("equipment",$equipment);
+		 */
+		//取得机台号
+		$vnaLatheObject = $this->db->query("SELECT DISTINCT lathe FROM producttestinfo");
+		$vnaLatheArray = $vnaLatheObject->result_array();
+		$vnaLathe = $this->array_switch1($vnaLatheArray, "lathe", "(ALL)");
+		$this->smarty->assign("vnalathe",$vnaLathe);
 		//取得测试者
 		$vnatesterObject = $this->db->query("SELECT tr.id,tr.employeeid FROM tester tr 
 											   JOIN status ss ON tr.status = ss.id
@@ -119,7 +126,7 @@ class Vna_pim extends CW_Controller
 		$testResult = emptyToNull($this->input->post('testResult'));
 		$sn = emptyToNull($this->input->post('sn'));
 		$teststation = emptyToNull($this->input->post('teststation'));
-		$equipment = emptyToNull($this->input->post('equipment'));
+		$vnalathe = emptyToNull($this->input->post('vnalathe'));
 		$labelnum = emptyToNull($this->input->post('labelnum'));
 		$producttype = emptyToNull($this->input->post('producttype'));
 		$ordernum = emptyToNull($this->input->post('ordernum'));
@@ -131,7 +138,7 @@ class Vna_pim extends CW_Controller
 		$testResultSql = "";
 		$snSql = "";
 		$teststationSql = "";
-		$equipmentSql = "";
+		$latheSql = "";
 		$labelnumSql = "";
 		$producttypeSql = "";
 		$testerSql = "";
@@ -183,11 +190,9 @@ class Vna_pim extends CW_Controller
 			}
 			
 		}
-		if($equipment != null)
+		if($vnalathe != null)
 		{
-			$equipmentSnObj = $this->db->query("SELECT sn FROM equipment WHERE id = '".$equipment."'");
-			$equipmentSn = $equipmentSnObj->first_row()->sn;
-			$equipmentSql = " AND po.equipmentSn = '".$equipmentSn."' ";
+			$latheSql = " AND po.lathe = '".$vnalathe."' ";
 		}
 		if($teststation != null)
 		{
@@ -216,7 +221,7 @@ class Vna_pim extends CW_Controller
 						 JOIN teststation tn ON po.testStation = tn.id
 						 JOIN tester tr ON po.tester = tr.id
 						 JOIN producttype pe ON po.productType = pe.id
-						 ".$timeFromSql.$timeToSql.$testResultSql.$snSql.$teststationSql.$equipmentSql.$producttypeSql.$testerSql.$platenumSql.$labelnumSql."
+						 ".$timeFromSql.$timeToSql.$testResultSql.$snSql.$teststationSql.$latheSql.$producttypeSql.$testerSql.$platenumSql.$labelnumSql."
 						 ORDER BY po.testTime DESC";
 		
 		$vnaResultObject = $this->db->query($vnaResultSql);
@@ -629,7 +634,17 @@ class Vna_pim extends CW_Controller
 		$arr = array(""=>$var3);
 		foreach($var1 as $value)
 		{
-			$arr = $arr+array($value['id']=>$value[$var2]);
+			$arr = $arr + array($value['id'] => $value[$var2]);
+		}
+		return $arr;
+	}
+	
+	protected function array_switch1($var1, $var2, $var3)
+	{
+		$arr = array("" => $var3);
+		foreach ($var1 as $value) 
+		{
+			$arr = $arr + array($value[$var2] => $value[$var2]);
 		}
 		return $arr;
 	}

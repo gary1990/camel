@@ -84,7 +84,7 @@
 		$(".ui-autocomplete-input").attr("value","");
 		//具有搜索功能的下拉列表
 		$(".teststation").chosen();
-		$(".equipment").chosen();
+		$(".vnalathe").chosen();
 		$(".tester").chosen();
 		$(".producttype").chosen();
 		$(".testitem").chosen();
@@ -137,8 +137,8 @@
 					{html_options class="option_codition teststation" name=teststation options=$teststation selected=$smarty.post.teststation|default:''}
 				</div>
 				<div class="subCondition">
-					<span class="span-block"> 测试设备: </span>
-					{html_options class="option_codition equipment" name=equipment options=$equipment selected=$smarty.post.equipment|default:''}
+					<span class="span-block"> 机台: </span>
+					{html_options class="option_codition vnalathe" name=vnalathe options=$vnalathe selected=$smarty.post.vnalathe|default:''}
 				</div>
 				<div class="subCondition">
 					<span class="span-block"> 测试员: </span>

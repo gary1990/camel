@@ -400,7 +400,7 @@
 	<div class="prepend-1 span-63">
 		<form method="post" id="searchForm" action="{site_url()}/producttestcase/index">
 			产品型号：
-			{html_options name=producttypesearch class="producttypeCondition" options=$producttypeSearch selected=$smarty.post.producttypesearch|default:''}
+			{html_options name=producttypesearch class="producttypeCondition" options=$producttypeSearch selected=$smarty.post.producttypesearch|default:$curProduct}
 			&nbsp;&nbsp;&nbsp;
 			<input class="searchbtn" type="submit" value="查看" />
 		</form>

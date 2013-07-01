@@ -40,6 +40,7 @@ class Advancedsearch extends CW_Controller
 		$teststation = $this->array_switch($teststationArray, "name", "(ALL)");
 
 		$this->smarty->assign("teststation",$teststation);
+		/*
 		//取得测试设备
 		$equipmentObject = $this->db->query("SELECT et.id,et.sn FROM equipment et 
 											   JOIN status ss ON et.status = ss.id
@@ -48,6 +49,14 @@ class Advancedsearch extends CW_Controller
 		$equipmentArray = $equipmentObject->result_array();
 		$equipment = $this->array_switch($equipmentArray, "sn", "(ALL)");
 		$this->smarty->assign("equipment",$equipment);
+		 * 
+		 */
+		//取得机台号
+		$vnaLatheObject = $this->db->query("SELECT DISTINCT lathe FROM producttestinfo");
+		$vnaLatheArray = $vnaLatheObject->result_array();
+		$vnaLathe = $this->array_switch1($vnaLatheArray, "lathe", "(ALL)");
+		$this->smarty->assign("vnalathe",$vnaLathe);
+		
 		//取得测试者
 		$testerObject = $this->db->query("SELECT tr.id,tr.employeeid FROM tester tr 
 											   JOIN status ss ON tr.status = ss.id
@@ -83,7 +92,7 @@ class Advancedsearch extends CW_Controller
 		$timeTo2 = $this->input->post("timeTo2");
 		$timeTo3 = $this->input->post("timeTo3");
 		$teststation = emptyToNull($this->input->post("teststation"));
-		$equipment = emptyToNull($this->input->post("equipment"));
+		$vnalathe = emptyToNull($this->input->post("vnalathe"));
 		$tester = emptyToNull($this->input->post("tester"));
 		$producttype = emptyToNull($this->input->post("producttype"));
 		$testResult = emptyToNull($this->input->post("testResult"));
@@ -126,7 +135,7 @@ class Advancedsearch extends CW_Controller
 		$timeFromSql=" AND po.testTime >= '".$timeFrom."'";
 		$timeToSql = " AND po.testTime <= '".$timeTo."'";
 		$teststationSql = "";
-		$equipmentSql = "";
+		$vnalatheSql = "";
 		$testerSql = "";
 		$producttypeSql = "";
 		$testResultSql = "";
@@ -166,11 +175,9 @@ class Advancedsearch extends CW_Controller
 				}
 			}
 		}
-		if($equipment != null)
+		if($vnalathe != null)
 		{
-			$equipmentSnObj = $this->db->query("SELECT sn FROM equipment WHERE id = '".$equipment."'");
-			$equipmentSn = $equipmentSnObj->first_row()->sn;
-			$equipmentSql = " AND po.equipmentSn = '".$equipmentSn."' ";
+			$vnalatheSql = " AND po.lathe = '".$vnalathe."' ";
 		}
 		if($teststation != null)
 		{
@@ -264,7 +271,7 @@ class Advancedsearch extends CW_Controller
 						            	FROM producttestinfo po
 						            	JOIN testitemresult tt ON tt.productTestInfo = po.id
 						            	JOIN testitemmarkvalue te ON te.testItemResult = tt.id
-						            	".$snSql.$timeFromSql.$timeToSql.$teststationSql.$equipmentSql.$testerSql.$producttypeSql.$testResultSql.$platenumSql.$labelnumSql."
+						            	".$snSql.$timeFromSql.$timeToSql.$teststationSql.$vnalatheSql.$testerSql.$producttypeSql.$testResultSql.$platenumSql.$labelnumSql."
             							)a
             							GROUP BY a.sn, a.testItem, a.testTime
             							ORDER BY a.testTime DESC
@@ -304,6 +311,16 @@ class Advancedsearch extends CW_Controller
 		foreach($var1 as $value)
 		{
 			$arr = $arr+array($value['id']=>$value[$var2]);
+		}
+		return $arr;
+	}
+	
+	protected function array_switch1($var1, $var2, $var3)
+	{
+		$arr = array("" => $var3);
+		foreach ($var1 as $value) 
+		{
+			$arr = $arr + array($value[$var2] => $value[$var2]);
 		}
 		return $arr;
 	}

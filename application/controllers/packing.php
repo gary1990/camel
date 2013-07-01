@@ -184,7 +184,7 @@ class Packing extends CW_Controller
 		$this->smarty->assign("productsn",$productsn);
 		
 		//获取vna基本信息
-		$basicInfoObject = $this->db->query("SELECT DISTINCT po.tag1,po.testTime,tn.name as teststationname,po.equipmentSn,pe.name,tr.fullname AS tester,po.result
+		$basicInfoObject = $this->db->query("SELECT DISTINCT po.lathe,po.innermeter,po.outmeter,po.platenum,po.tag1,po.testTime,tn.name as teststationname,po.equipmentSn,pe.name,tr.fullname AS tester,po.result
 											FROM producttestinfo po 
 											JOIN testitemresult tt ON tt.productTestInfo = po.id 
 											JOIN testitemmarkvalue te ON te.testItemResult = tt.id
@@ -353,7 +353,7 @@ class Packing extends CW_Controller
 		$this->smarty->assign("productsn",$productsn);
 		
 		//获取vna基本信息
-		$basicInfoObject = $this->db->query("SELECT DISTINCT po.testTime,tn.name as teststationname,po.equipmentSn,pe.name,tr.fullname AS tester,po.result,po.tag1
+		$basicInfoObject = $this->db->query("SELECT DISTINCT po.lathe,po.innermeter,po.outmeter,po.platenum,po.testTime,tn.name as teststationname,po.equipmentSn,pe.name,tr.fullname AS tester,po.result,po.tag1
 											FROM producttestinfo po 
 											JOIN testitemresult tt ON tt.productTestInfo = po.id 
 											JOIN testitemmarkvalue te ON te.testItemResult = tt.id
@@ -523,7 +523,7 @@ class Packing extends CW_Controller
 		$this->smarty->assign("productsn",$productsn);
 		
 		//获取vna基本信息
-		$basicInfoObject = $this->db->query("SELECT DISTINCT po.tag1,po.testTime,tn.name as teststationname,po.equipmentSn,pe.name,tr.fullname AS tester,po.result
+		$basicInfoObject = $this->db->query("SELECT DISTINCT po.lathe,po.innermeter,po.outmeter,po.platenum,po.tag1,po.testTime,tn.name as teststationname,po.equipmentSn,pe.name,tr.fullname AS tester,po.result
 											FROM producttestinfo po 
 											JOIN testitemresult tt ON tt.productTestInfo = po.id 
 											JOIN testitemmarkvalue te ON te.testItemResult = tt.id

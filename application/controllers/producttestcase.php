@@ -13,16 +13,6 @@ class Producttestcase extends CW_Controller
 		{
 			redirect(base_url().'index.php/login/toIndex');
 		}
-		//获得所有产品型号
-		$producttypeObj = $this->db->query("SELECT pe.id,pe.name FROM producttype pe
-											JOIN status ss ON pe.status = ss.id
-											AND ss.statusname = 'active'
-											ORDER BY pe.name");
-		$producttypeArr = $producttypeObj->result_array();
-		$producttype = $this->array_switch($producttypeArr, 'name', "");
-		$producttypeSearch = $this->array_switch($producttypeArr, 'name', "(ALL)");
-		$this->smarty->assign("producttype",$producttype);
-		$this->smarty->assign("producttypeSearch",$producttypeSearch);
 		//获得所有测试项
 		$testitemObj = $this->db->query("SELECT tm.id,tm.name FROM testitem tm
 											JOIN status ss ON tm.status = ss.id
@@ -65,12 +55,41 @@ class Producttestcase extends CW_Controller
 	
 	public function index($offset = 0, $limit = 30,$search_export = "")
 	{
+		//获得所有产品型号
+		$producttypeObj = $this->db->query("SELECT pe.id,pe.name FROM producttype pe
+											JOIN status ss ON pe.status = ss.id
+											AND ss.statusname = 'active'
+											ORDER BY pe.name");
+		$producttypeArr = $producttypeObj->result_array();
+		$producttype = $this->array_switch($producttypeArr, 'name', "");
+		$producttypeSearch = $this->array_switch1($producttypeArr, 'name', "(ALL)");
+		$this->smarty->assign("producttype",$producttype);
+		$this->smarty->assign("producttypeSearch",$producttypeSearch);
+		
 		$producttype = $this->input->post("producttypesearch");
 		$producttypeSql = "";
-		if($producttype != "")
+		//判断查询还是第一次进入页面
+		if(isset($_POST['producttypesearch']))
 		{
-			$producttypeSql = " AND tn.producttype = '".$producttype."'";
+			if($producttype != "")
+			{
+				$producttypeSql = " AND tn.producttype = '".$producttype."'";
+			}
+			else
+			{
+				$this->smarty->assign("curProduct","");
+			}
 		}
+		else
+		{
+			if(count($producttypeArr) > 0)
+			{
+				$producttypeSql = " AND tn.producttype = '".$producttypeArr[0]['id']."'";
+				$curProduct = $producttypeArr[0]['id'];
+				$this->smarty->assign("curProduct",$curProduct);
+			}
+		}
+		
 		if($search_export == "")
 		{
 			$producttestcaseSql = "SELECT tn.* FROM test_configuration tn
@@ -414,6 +433,17 @@ class Producttestcase extends CW_Controller
 		{
 			$arr = $arr+array($value['id']=>$value[$var2]);
 		}
+		return $arr;
+	}
+	
+	protected function array_switch1($var1,$var2,$var3)
+	{
+		$arr = array();
+		foreach($var1 as $value)
+		{
+			$arr = $arr + array($value['id']=>$value[$var2]);
+		}
+		$arr = $arr + array(""=>$var3);
 		return $arr;
 	}
 }

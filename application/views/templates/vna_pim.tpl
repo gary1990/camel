@@ -72,14 +72,14 @@
 	$(function(){
 		//具有搜索功能的下拉列表
 		$(".teststation").chosen();
-		$(".equipment").chosen();
+		$(".vnalathe").chosen();
 		$(".vnatester").chosen();
 		$(".producttype").chosen();
 		var current_item = $(".current_item").attr("value");
 		if(current_item == "PIM")
 		{
 			$(".teststationCn").hide(); 
-			$(".equipmentCn").hide();
+			$(".vnalatheCn").hide();
 			$(".testerCn").hide();
 			$(".producttypeCn").hide();
 			$(".platenumCn").hide();
@@ -107,7 +107,7 @@
 			if(current_item == "PIM")
 			{
 				$(".teststationCn").hide(); 
-				$(".equipmentCn").hide();
+				$(".vnalatheCn").hide();
 				$(".testerCn").hide();
 				$(".producttypeCn").hide();
 				$(".platenumCn").hide();
@@ -115,7 +115,7 @@
 			else
 			{
 				$(".teststationCn").show(); 
-				$(".equipmentCn").show();
+				$(".vnalatheCn").show();
 				$(".testerCn").show();
 				$(".producttypeCn").show();
 				$(".platenumCn").show();
@@ -197,11 +197,11 @@
 					</div>
 					{html_options class="option_codition teststation" name=teststation options=$teststation selected=$smarty.post.teststation|default:''}
 				</div>
-				<div class="subCondition equipmentCn">
+				<div class="subCondition vnalatheCn">
 					<div class="span-5 spanStyle">
-						测试设备:
+						机台:
 					</div>
-					{html_options class="option_codition equipment" name=equipment options=$equipment selected=$smarty.post.equipment|default:''}
+					{html_options class="option_codition vnalathe" name=vnalathe options=$vnalathe selected=$smarty.post.vnalathe|default:''}
 				</div>
 				<div class="subCondition testerCn">
 					<div class="span-5 spanStyle">
