@@ -435,6 +435,7 @@ class Login extends CW_Controller
 
 	public function uploadFile($username = null, $password = null)
 	{
+		set_time_limit(0);
 		if (PHP_OS == 'WINNT')
 		{
 			$uploadRoot = "E:\\wwwRoot\\camel\\assets\\uploadedSource";
@@ -458,7 +459,12 @@ class Login extends CW_Controller
 		else
 		{
 			//保存上传文件
-			$file_temp = $_FILES['file']['tmp_name'];
+			$file_temp = @$_FILES['file']['tmp_name'];
+			if($file_temp == '')
+			{
+				$this->_returnUploadFailed("文件上传失败");
+				return;
+			}
 			date_default_timezone_set('Asia/Shanghai');
 			$dateStamp = date("Y_m_d");
 			$dateStampFolder = $uploadRoot.$slash.$dateStamp;
@@ -483,7 +489,7 @@ class Login extends CW_Controller
 			$filestatus = move_uploaded_file($file_temp, $uploadRoot.$slash.$file_name);
 			if (!$filestatus)
 			{
-				$this->_returnUploadFailed("文件:".$_FILES['file']['name']."上传失败");
+				$this->_returnUploadFailed("文件:保存失败");
 				return;
 			}
 			//解压缩文件
