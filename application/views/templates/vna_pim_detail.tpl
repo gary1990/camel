@@ -81,7 +81,7 @@
 			.inlineBlock
 			{
 				display: inline-block;
-				width: 150px;
+				width: 200px;
 			}
 		</style>
 	</head>
@@ -101,12 +101,12 @@
 					产品型号：{$basicInfoArray['name']|default:''}
 				</span>
 				<span class="inlineBlock">
-					盘&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;号：{$basicInfoArray['platenum']|default:''}
+					序列号：{$productsn|default:''}
 				</span>
 			</div>
 			<div>
 				<span class="inlineBlock">
-					制造长度：{abs($basicInfoArray['innermeter'] - $basicInfoArray['outmeter'])|default:''}
+					盘&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;号：{$basicInfoArray['platenum']|default:''}
 				</span>
 				<span class="inlineBlock">
 					测试结果：
@@ -119,6 +119,11 @@
 					{/if}
 				</span>
 			</div>
+			<div style="margin-top: 10px;">
+				<span class="inlineBlock">
+					制造长度：{abs($basicInfoArray['innermeter'] - $basicInfoArray['outmeter'])|default:''}
+				</span>
+			</div>
 			<hr class="hr_line">
 			{if count($basicInfoArray) != 0}
 				<span class="testitem">VNA测试</span>
@@ -126,7 +131,7 @@
 					<table class="basictable">
 						<tr>
 							<th>测试时间</th>
-							<th>机台</th>
+							<th>车台</th>
 							<th>测试员</th>
 							<th>测试结果</th>
 						</tr>

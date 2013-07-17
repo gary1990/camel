@@ -199,7 +199,7 @@
 				</div>
 				<div class="subCondition vnalatheCn">
 					<div class="span-5 spanStyle">
-						机台:
+						车台:
 					</div>
 					{html_options class="option_codition vnalathe" name=vnalathe options=$vnalathe selected=$smarty.post.vnalathe|default:''}
 				</div>

@@ -137,7 +137,7 @@
 					{html_options class="option_codition teststation" name=teststation options=$teststation selected=$smarty.post.teststation|default:''}
 				</div>
 				<div class="subCondition">
-					<span class="span-block"> 机台: </span>
+					<span class="span-block"> 车台: </span>
 					{html_options class="option_codition vnalathe" name=vnalathe options=$vnalathe selected=$smarty.post.vnalathe|default:''}
 				</div>
 				<div class="subCondition">
