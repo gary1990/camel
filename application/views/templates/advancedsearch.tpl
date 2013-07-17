@@ -204,9 +204,11 @@
 	<div>
 		<table>
 			<tr>
-				<th>序号</th><th>时间</th><th>序列号</th>
+				<th>序号</th>
+				<th>时间</th>
+				<th>序列号</th>
 				{foreach from=$testitemLimitArr key=k item=value}
-				<th>{$k|default:""}</th>
+					<th>{$k|default:""}</th>
 				{/foreach}
 			</tr>
 			{counter name=advancesearch start=$count+1 skip=-1 print=FALSE}
@@ -216,9 +218,9 @@
 					<td>{$value['testTime']}</td>
 					<td>
 						{if $value['tag1'] eq 2}
-							<span style="color:red;">{$value['sn']}</span>
+							<a href="{site_url('/packing/detail_vna')}/{$value['id']}" target="_blank"><span style="color:red;">{$value['sn']}</span></a>
 						{else}
-							{$value['sn']}
+							<a href="{site_url('/packing/detail_vna')}/{$value['id']}" target="_blank">{$value['sn']}</a>
 						{/if}
 					</td>
 					{foreach from=$testitemLimitArr key=k item=val}

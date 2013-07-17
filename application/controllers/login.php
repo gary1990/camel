@@ -59,11 +59,15 @@ class Login extends CW_Controller
 		}
 	}
 	
-	public function toIndex()
+	public function toIndex($err = null)
 	{
 		$today = date("Y年m月d日");
 		$this->session->set_userdata("today",$today);
 		//redirect(base_url().'index.php/sckb');
+		if($err != null)
+		{
+			$this->smarty->assign('nopermissionErr','无此权限！');
+		}
 		$this->smarty->display("index.tpl");
 	}
 	
@@ -170,7 +174,7 @@ class Login extends CW_Controller
 								$this->session->set_userdata('userId', $tmpArr['id']);
 								$userRoleObj = $this->db->query("SELECT name FROM team WHERE id = '".$tmpArr['team']."'");
 								$userRoleArr = $userRoleObj->result_array();
-								$this->session->set_userdata('userrole', $userRoleArr[0]['name']);
+								$this->session->set_userdata('team', $userRoleArr[0]['name']);
 								return TRUE;
 							}
 							else
@@ -438,7 +442,7 @@ class Login extends CW_Controller
 		set_time_limit(0);
 		if (PHP_OS == 'WINNT')
 		{
-			$uploadRoot = "E:\\wwwRoot\\camel\\assets\\uploadedSource";
+			$uploadRoot = "D:\\camel\\camel5.0.6.0\\assets\\uploadedSource";
 			$slash = "\\";
 		}
 		else if (PHP_OS == 'Darwin')
@@ -629,8 +633,8 @@ class Login extends CW_Controller
 						}
 					}
 					//插入producttestinfo
-					$tmpSql = "INSERT INTO `producttestinfo`(`sn`, `equipmentSn`, `testTime`, `testStation`, `tester`, `productType`, `result`, `temp`, `platenum`, `lathe`, `innermeter`, `outmeter`, `workorder`, `tag`, `tag1`, `column9`, `column10`) ";
-					$tmpSql .= "VALUES ('$sn','$equipmentSn','$testTime'+ INTERVAL 0 SECOND,$testStation,$tester,$productType,$testResult,'$temp','$platenum','$lathe','$innermeter','$outmeter','$workorder','$tag','$tag1',null,null)";
+					$tmpSql = "INSERT INTO `producttestinfo`(`sn`, `equipmentSn`, `testTime`, `testStation`, `tester`, `productType`, `result`, `temp`, `platenum`, `lathe`, `innermeter`, `outmeter`, `workorder`, `tag`, `tag1`) ";
+					$tmpSql .= "VALUES ('$sn','$equipmentSn','$testTime'+ INTERVAL 0 SECOND,$testStation,$tester,$productType,$testResult,'$temp','$platenum','$lathe','$innermeter','$outmeter','$workorder','$tag','$tag1')";
 					$tmpRes = $this->db->query($tmpSql);
 					
 					if ($tmpRes === TRUE)
@@ -704,12 +708,23 @@ class Login extends CW_Controller
 										$singleTextChannel = $tmpArray2[2];
 										//取得trace
 										$singleTextTrace = $tmpArray2[3];
-										$tmpRes = $this->db->query("INSERT INTO `testitemmarkvalue`(`testItemResult`, `value`, `mark`, `channel`, `trace`) VALUES (?, ?, ?, ?, ?)", array(
+										//取得结果
+										$singleResult = trim($tmpArray2[4]);
+										if (strtolower($singleResult) == 'pass')
+										{
+											$singleResult = 1;
+										}
+										else
+										{
+											$singleResult = 0;
+										}
+										$tmpRes = $this->db->query("INSERT INTO `testitemmarkvalue`(`testItemResult`, `value`, `mark`, `channel`, `trace`, `result`) VALUES (?, ?, ?, ?, ?, ?)", array(
 											$testItemResult,
 											$singleTestResult,
 											$singleTextMark,
 											$singleTextChannel,
-											$singleTextTrace
+											$singleTextTrace,
+											$singleResult
 										));
 										if ($tmpRes === TRUE)
 										{
@@ -819,7 +834,7 @@ class Login extends CW_Controller
 	{
 		if (PHP_OS == 'WINNT')
 		{
-			$uploadRoot = "D:\\camel\\camel\\assets\\uploadedSource\\pim";
+			$uploadRoot = "D:\\camel\\camel5.0.6.0\\assets\\uploadedSource\\pim";
 			$slash = "\\";
 		}
 		else if (PHP_OS == 'Darwin')

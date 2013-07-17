@@ -205,6 +205,8 @@ class Advancedsearch extends CW_Controller
 		$testItemsSql = " AND tt.testItem IN (";
 		$maxSql = "";
 		$caseSql = "";
+		$filterSql = "";
+		$notnullSql = "";
 		//保存用户所选测试项及范围的数组
 		$testitemLimitArr = array();
 		$itemcount = $this->input->post("testitemcount");
@@ -248,37 +250,56 @@ class Advancedsearch extends CW_Controller
 				$testItemsSql .= $value['0'].",";
 				$maxSql .= " MAX(aaa.$key) AS '$key' ,";
 				$caseSql .= " CASE aa.testItem WHEN '".$value[0]."' THEN aa.value END AS '$key',";
+				if(trim($value[1]) != '' && trim($value[2]) != '')
+				{
+					$filterSql .= " aaaa.$key > '".trim($value[1])."' AND aaaa.$key < '".trim($value[2])."' AND";
+				}
+				$notnullSql .= " aaaa.$key IS NOT NULL";
 			}
 			//截去最后一个","号
 			$testItemsSql = substr($testItemsSql, 0 ,-1);
 			$testItemsSql .= ") ";
 			$maxSql = substr($maxSql, 0 ,-1);
 			$caseSql = substr($caseSql, 0 ,-1);
-			$advanceSearchSql = "SELECT
-    							aaa.tag1,aaa.testTime,aaa.sn,
-								$maxSql
-								FROM
-    							(
-    								SELECT
-        							aa.tag1,aa.testTime,aa.sn,
-        							$caseSql
-    								FROM
-    								(
-    									SELECT a.tag1,a.testTime, a.sn, a.testItem,MAX(cast(a.value as DECIMAL(10,4))) as value
-          							 	FROM 
-          								(
-            							SELECT po.tag1,po.id, po.sn, po.equipmentSn, po.testTime, po.testStation, po.tester, po.productType, po.result, po.platenum,
-            								 po.workorder, tt.testItem, tt.testResult, tt.img, te.value, te.mark
-						            	FROM producttestinfo po
-						            	JOIN testitemresult tt ON tt.productTestInfo = po.id
-						            	JOIN testitemmarkvalue te ON te.testItemResult = tt.id
-						            	".$snSql.$timeFromSql.$timeToSql.$teststationSql.$vnalatheSql.$testerSql.$producttypeSql.$testResultSql.$platenumSql.$labelnumSql."
-            							)a
-            							GROUP BY a.sn, a.testItem, a.testTime
-            							ORDER BY a.testTime DESC
-              						) aa
-    							) AS aaa
-								GROUP BY aaa.testTime,aaa.sn";
+			if(strlen($filterSql) > 0)
+			{
+				$filterSql = " WHERE ".substr($filterSql, 0 ,-3);
+				$notnullSql = " AND ".$notnullSql;
+			}
+			else
+			{
+				$notnullSql = " WHERE ".$notnullSql;
+			}
+			$advanceSearchSql = "SELECT aaaa.* FROM
+								(
+									SELECT
+	    							aaa.id,aaa.tag1,aaa.testTime,aaa.sn,
+									$maxSql
+									FROM
+	    							(
+	    								SELECT
+	        							aa.id,aa.tag1,aa.testTime,aa.sn,
+	        							$caseSql
+	    								FROM
+	    								(
+	    									SELECT a.id,a.tag1,a.testTime, a.sn, a.testItem,MAX(cast(a.value as DECIMAL(10,4))) as value
+	          							 	FROM 
+	          								(
+	            							SELECT po.tag1,po.id, po.sn, po.equipmentSn, po.testTime, po.testStation, po.tester, po.productType, po.result, po.platenum,
+	            								 po.workorder, tt.testItem, tt.testResult, tt.img, te.value, te.mark
+							            	FROM producttestinfo po
+							            	JOIN testitemresult tt ON tt.productTestInfo = po.id
+							            	JOIN testitemmarkvalue te ON te.testItemResult = tt.id
+							            	".$snSql.$timeFromSql.$timeToSql.$teststationSql.$vnalatheSql.$testerSql.$producttypeSql.$testResultSql.$platenumSql.$labelnumSql."
+	            							)a
+	            							GROUP BY a.sn, a.testItem, a.testTime
+	            							ORDER BY a.testTime DESC
+	              						) aa
+	    							) AS aaa
+									GROUP BY aaa.testTime,aaa.sn
+								) aaaa 
+								".$filterSql.$notnullSql."
+								";
 			$advanceSearchObj = $this->db->query($advanceSearchSql);
 			$advanceSearchArr = $advanceSearchObj->result_array();
 			//总记录数，供advancesearch.tpl中序号用

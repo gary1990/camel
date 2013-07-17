@@ -9,7 +9,7 @@
 		<!--{block name=title}-->
 		<!--{/block}-->
 		<style>
-			.span-10,.span-40,.span-4,.span-2{
+			.span-8,.span-40,.span-4,.span-2{
 				margin-top:8px;			
 			}
 			.defaulttitle{
@@ -59,8 +59,17 @@
 						case "报表":
 							window.location.href = baseurl+"index.php/reportform";
 							break;
-						case "质量放行":
+						case "质量放行-同轴":
+							window.location.href = baseurl+"index.php/qualitypassTongzhou";
+							break;
+						case "质量放行-跳线":
 							window.location.href = baseurl+"index.php/qualitypass";
+							break;
+						case "质量统计":
+							window.location.href = baseurl+"index.php/qualityStat";
+							break;
+						case "产品指标统计":
+							window.location.href = baseurl+"index.php/productQualityIndex";
 							break;
 						case "用户":
 							window.location.href = baseurl+"index.php/firstPage/user";
@@ -73,6 +82,9 @@
 							break;
 						case "车间":
 							window.location.href = baseurl+"index.php/firstPage/department";
+							break;
+						case "质量损失费用比例":
+							window.location.href = baseurl+"index.php/qualitylosspercent";
 							break;
 						default:
 							window.location.href = baseurl+"index.php/login/toIndex";
@@ -91,13 +103,13 @@
 				<span class="span-52" style="font-size: 26px;">{$producter}</span>
 				<span style="display:inline-block;padding-top: 15px;">Camel Production System</span>
 				<hr>
-				<div class="span-10">
+				<div class="span-8">
 					{$CI->session->userdata('username')}，您好
 				</div>
 				<div class="span-40">
 					{$CI->session->userdata('today')}，工作愉快
 				</div>
-				<div class="span-8">
+				<div class="span-10">
 					{html_options class=items name=items options=$items selected=$item|default:''}
 				</div>
 				<div class="span-4 last">

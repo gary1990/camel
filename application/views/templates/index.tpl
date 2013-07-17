@@ -60,6 +60,7 @@
 <!--{/block}-->
 <!--{block name=body}-->
 <div class="span-64 last subitems">
+	<div style="color:red;text-align: center;">{$nopermissionErr|default:''}</div>
 	<div class="span-11 subitem">
 		<div class="lt" style="background: url({base_url()}resource/img/top-left.bmp) no-repeat;">
 		</div>
@@ -108,7 +109,10 @@
 		<div>
 			<span><a href="{site_url()}/advancedsearch">1.高级查询(Beta)</a></span><br/>
 			<span><a href="{site_url()}/reportform">2.报表(Beta)</a></span><br/>
-			<span><a href="{site_url()}/qualitypass">3.质量放行</a></span><br/>
+			<span><a href="{site_url()}/qualitypassTongzhou">3.质量放行-同轴</a></span><br/>
+			<span><a href="{site_url()}/qualitypass">4.质量放行-跳线</a></span><br/>
+			<span><a href="{site_url()}/qualityStat">5.质量统计</a></span><br/>
+			<span><a href="{site_url()}/productQualityIndex">6.产品指标统计</a></span><br/>
 		</div>
 	</div>
 	<div class="span-11 subitem">
@@ -126,6 +130,7 @@
 			<span><a href="{site_url()}/firstPage/team">2.用户组</a></span><br/>
 			<span><a href="{site_url()}/firstPage/factory">3.工厂</a></span><br/>
 			<span><a href="{site_url()}/firstPage/department">4.车间</a></span><br/>
+			<span><a href="{site_url()}/qualitylosspercent">5.质量损失费用比例</a></span><br/>
 		</div>
 	</div>
 </div>

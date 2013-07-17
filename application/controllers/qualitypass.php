@@ -6,12 +6,6 @@ class Qualitypass extends CW_Controller
 	public function __construct()
 	{
 		parent::__construct();
-		//判断当前登录用户
-		$userrole = $this->session->userdata("userrole");
-		if($userrole == 'user')
-		{
-			redirect(base_url().'index.php/login/toIndex');
-		}
 		$this->_init();
 	}
 	
@@ -23,6 +17,8 @@ class Qualitypass extends CW_Controller
 											FROM 
 											teststation tn 
 											JOIN status ss ON tn.status = ss.id
+											JOIN process ps ON tn.process = ps.id
+											AND ps.name = '跳线'
 											AND ss.statusname = 'active'
 											ORDER BY tn.name");
 		if($teststationObj->num_rows() != 0)
@@ -111,6 +107,31 @@ class Qualitypass extends CW_Controller
 		{
 			$teststationSql = " AND po.testStation = '".$teststation."' ";
 		}
+		else
+		{
+			$teststationObj = $this->db->query("SELECT tn.id
+											FROM 
+											teststation tn 
+											JOIN status ss ON tn.status = ss.id
+											JOIN process ps ON tn.process = ps.id
+											AND ps.name = '跳线'
+											AND ss.statusname = 'active'
+											ORDER BY tn.name");
+			$teststationArr = $teststationObj->result_array();
+			if(count($teststationArr) != 0)
+			{
+				$teststationSql = " AND po.testStation IN (";
+				foreach ($teststationArr as $value) 
+				{
+					$teststationSql .= $value['id'].",";
+				}
+				$teststationSql = substr($teststationSql, 0, -1).")";
+			}
+			else
+			{
+				$teststationSql = " AND po.testStation = null ";
+			}
+		}
 		if($producttype != "")
 		{
 			$producttypeSql = " AND po.productType = '".$producttype."' ";
@@ -191,7 +212,7 @@ class Qualitypass extends CW_Controller
 		$this->smarty->assign('passedTotalcount', $passedTotalcount-$passedOffset);
 
 		//assign页面筛选条件
-		$this->smarty->assign('conditionTime', $testtime);
+		$this->smarty->assign('conditionTime', $date);
 		$this->smarty->assign('conditionTestStation', $teststation);
 		$this->smarty->assign('conditionProducttype', $producttype);
 		//assign当前页面
@@ -199,8 +220,8 @@ class Qualitypass extends CW_Controller
 		
 		$this->smarty->assign('qualitypassArr', $qualitypassArr);
 		$this->smarty->assign('passedArr', $passedArr);
-		$this->smarty->assign('item', '质量放行');
-		$this->smarty->assign('title', '质量放行');
+		$this->smarty->assign('item', '质量放行-跳线');
+		$this->smarty->assign('title', '质量放行-跳线');
 		$this->smarty->display("qualitypass.tpl");
 	}
 	

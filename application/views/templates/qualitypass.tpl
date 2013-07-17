@@ -44,6 +44,7 @@
 	{
 		border-top:1px solid #DDDDDD;
 	}
+
 </style>
 <!--{/block}-->
 <!--{block name=script}-->
@@ -206,7 +207,10 @@
 				<input type="hidden" class="pe" name="producttype" value=""/>
 				{$pagenation1}
 				<div style="text-align:right;">
-					<input class="saveBtn1" type="submit" value="保存"/>
+					{if $CI->session->userdata('team') eq '技术员' || $CI->session->userdata('team') eq '测试员及其他人员'}	
+					{else}
+						<input class="saveBtn1" type="submit" value="保存"/>
+					{/if}
 				</div>
 			</form>
 		</div>
@@ -266,7 +270,10 @@
 				<input type="hidden" class="pe" name="producttype" value=""/>
 				{$pagenation2}
 				<div style="text-align:right;">
-					<input class="saveBtn2" type="submit" value="保存"/>
+					{if $CI->session->userdata('team') eq '技术员' || $CI->session->userdata('team') eq '测试员及其他人员'}	
+					{else}
+						<input class="saveBtn2" type="submit" value="保存"/>
+					{/if}
 				</div>
 			</form>
 		</div>

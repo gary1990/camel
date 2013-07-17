@@ -7,11 +7,10 @@ class Producttestcase extends CW_Controller
 	{
 		//
 		parent::__construct();
-		//判断当前登录用户
-		$userrole = $this->session->userdata("userrole");
-		if($userrole == 'user')
+		$userrole = $this->session->userdata("team");
+		if($userrole == '测试员及其他人员')
 		{
-			redirect(base_url().'index.php/login/toIndex');
+			redirect(base_url().'index.php/login/toIndex/error');
 		}
 		//获得所有测试项
 		$testitemObj = $this->db->query("SELECT tm.id,tm.name FROM testitem tm
@@ -87,6 +86,10 @@ class Producttestcase extends CW_Controller
 				$producttypeSql = " AND tn.producttype = '".$producttypeArr[0]['id']."'";
 				$curProduct = $producttypeArr[0]['id'];
 				$this->smarty->assign("curProduct",$curProduct);
+			}
+			else
+			{
+				$this->smarty->assign("curProduct",'');
 			}
 		}
 		

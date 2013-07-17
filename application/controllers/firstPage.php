@@ -6,12 +6,6 @@ class firstPage extends CW_Controller
 	function __construct()
 	{
 		parent::__construct();
-		//判断当前登录用户
-		$userrole = $this->session->userdata("userrole");
-		if($userrole == 'user')
-		{
-			redirect(base_url().'index.php/login/toIndex');
-		}
 		$this->load->library('grocery_CRUD');
 	}
 	
@@ -34,6 +28,11 @@ class firstPage extends CW_Controller
 	
 	public function producttype()
 	{
+		$userrole = $this->session->userdata("team");
+		if($userrole == '测试员及其他人员')
+		{
+			redirect(base_url().'index.php/login/toIndex/error');
+		}
 		$crud = new grocery_CRUD();
 		$crud->set_theme('datatables');
 		$crud->required_fields('status');
@@ -138,6 +137,11 @@ class firstPage extends CW_Controller
 
 	public function team()
 	{
+		$userrole = $this->session->userdata("team");
+		if($userrole != '管理员')
+		{
+			redirect(base_url().'index.php/login/toIndex/error');
+		}
 		$crud = new grocery_CRUD();
 		$crud->set_theme('datatables');
 		$crud->required_fields('name');
@@ -157,6 +161,12 @@ class firstPage extends CW_Controller
 
 	public function tester()
 	{
+		$userrole = $this->session->userdata("team");
+		if($userrole == '测试员及其他人员')
+		{
+			redirect(base_url().'index.php/login/toIndex/error');
+		}
+		
 		$crud = new grocery_CRUD();
 		$crud->set_theme('datatables');
 		$crud->display_as('fullname', '姓名')->display_as('password', '密码')->display_as('employeeid', '工号')->display_as('tester_section', '工段')->display_as('status', '状态');
@@ -256,11 +266,18 @@ class firstPage extends CW_Controller
 	
 	public function testitem()
 	{
+		$userrole = $this->session->userdata("team");
+		if($userrole == '测试员及其他人员')
+		{
+			redirect(base_url().'index.php/login/toIndex/error');
+		}
 		$crud = new grocery_CRUD();
 		$crud->set_theme('datatables');
 		$crud->required_fields('status');
-		$crud->display_as('name', '名称')->display_as('status','状态');
+		$crud->display_as('name', '名称')->display_as('qualitylosspercent','质量损失费用比例')
+			 ->display_as('status','状态');
 		$crud->set_relation("status","status","statusname");
+		$crud->set_rules('qualitylosspercent','qualitylosspercent','callback_qualitylosspercent');
 		$crud->unset_delete();
 		//新增，编辑时对测试项的判断
 		$postUrl = $this->uri->uri_string();
@@ -341,6 +358,28 @@ class firstPage extends CW_Controller
 			}
 		}
 	}
+	//质量损失比例计算
+	public function qualitylosspercent($str)
+	{
+		if(preg_match("/^((([0-9]+)([\.]([0-9]+))([%]))?|(([0-9]+)([%]))?)$/", $str))
+		{
+			if(substr(trim($str), 0, -1) > 100 || substr(trim($str), 0, -1) < 0)
+			{
+				$this->form_validation->set_message('qualitylosspercent', '质量损失费用比为0~100之间的数字！');
+				return FALSE;
+			}
+			else
+			{
+				return TRUE;
+			}
+		}
+		else
+		{
+			$this->form_validation->set_message('qualitylosspercent', '质量损失费用比格式不正确！');
+			return FALSE;
+		}
+	}
+	
 	
 	public function testright()
 	{
@@ -359,6 +398,11 @@ class firstPage extends CW_Controller
 	
 	public function factory()
 	{
+		$userrole = $this->session->userdata("team");
+		if($userrole != '管理员')
+		{
+			redirect(base_url().'index.php/login/toIndex/error');
+		}
 		$crud = new grocery_CRUD();
 		$crud->set_theme('datatables');
 		$crud->required_fields('status');
@@ -438,6 +482,11 @@ class firstPage extends CW_Controller
 	
 	public function department()
 	{
+		$userrole = $this->session->userdata("team");
+		if($userrole != '管理员')
+		{
+			redirect(base_url().'index.php/login/toIndex/error');
+		}
 		$crud = new grocery_CRUD();
 		$crud->set_theme('datatables');
 		$crud->required_fields('status','factory');
@@ -518,13 +567,20 @@ class firstPage extends CW_Controller
 	
 	public function teststation()
 	{
+		$userrole = $this->session->userdata("team");
+		if($userrole == '测试员及其他人员')
+		{
+			redirect(base_url().'index.php/login/toIndex/error');
+		}
 		$crud = new grocery_CRUD();
 		$crud->set_theme('datatables');
-		$crud->required_fields('status','department');
+		$crud->required_fields('status','department','process');
 		$crud->display_as('name', '名称')->display_as('department', '车间')
-			 ->display_as('status','状态');
+			 ->display_as('process','工序')->display_as('status','状态');
 		$crud->set_relation('status','status','statusname')
+			 ->set_relation('process','process','name')
 			 ->set_relation('department','department','name');
+		$crud->edit_fields('name','department','status');
 		$crud->unset_delete();
 		//新增，编辑时对测试站名称的判断
 		$postUrl = $this->uri->uri_string();
@@ -616,6 +672,11 @@ class firstPage extends CW_Controller
 	
 	public function equipment()
 	{
+		$userrole = $this->session->userdata("team");
+		if($userrole == '测试员及其他人员')
+		{
+			redirect(base_url().'index.php/login/toIndex/error');
+		}
 		$crud = new grocery_CRUD();
 		$crud->set_theme('datatables');
 		$crud->display_as('partnumber', '型号')->display_as('sn', '序列号')->display_as('status','状态');
@@ -736,6 +797,11 @@ class firstPage extends CW_Controller
 
 	public function user()
 	{
+		$userrole = $this->session->userdata("team");
+		if($userrole != '管理员')
+		{
+			redirect(base_url().'index.php/login/toIndex/error');
+		}
 		$crud = new grocery_CRUD();
 		$crud->set_theme('datatables');
 		$crud->columns('fullname','username','password','status','team');
