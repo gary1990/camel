@@ -185,7 +185,9 @@
 						<div class="inline span-5">
 							<input id="loginButton" class="button1" type="submit" value="登录"/>
 						</div>
-						<div class="span-10 locGeneralErrorInfo">
+					</div>
+					<div class="clear prepend-6">
+						<div class="locGeneralErrorInfo">
 							<span class="error1">{$loginErrorInfo|default:''}</span>
 						</div>
 					</div>

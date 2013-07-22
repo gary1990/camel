@@ -161,16 +161,11 @@
 							</div>
 							<div class="clear prepend-1">
 								<div class="inline span-5">
-									<button id="loginButton" class="button1" type="submit">
-										登录
-									</button>
+									<input id="loginButton" class="button1" type="submit" value="登录"/>
 								</div>
 								<div class="span-10 locGeneralErrorInfo">
 									<span class="error1">{$loginErrorInfo|default:''}</span>
 								</div>
-							</div>
-							<div class="clear span-1">
-								&nbsp;
 							</div>
 						</form>
 					</div>

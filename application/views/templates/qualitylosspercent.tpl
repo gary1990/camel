@@ -23,7 +23,7 @@
 		text-align:center;
 	}
 	.shortinput{
-		width:30px;
+		width:45px;
 	}
 </style>
 <!--{/block}-->

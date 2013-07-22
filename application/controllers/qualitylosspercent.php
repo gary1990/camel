@@ -80,12 +80,9 @@ class Qualitylosspercent extends CW_Controller
 		{
 			for($i = 1;$i <= 13;$i++)
 			{
-				/*
 				$this->db->query("UPDATE qualitylosspercent a 
 					  			  SET a.qualitylosspercentval = '".$qualitylossPost['general'.$i]."%'
 					              WHERE id = ".$i);
-				 * 
-				 */
 			}
 			for($i = 1;$i <= 13;$i++)
 			{
@@ -97,6 +94,7 @@ class Qualitylosspercent extends CW_Controller
 					  			  SET a.qualitylosspercent = '".$value."%'
 					              WHERE id = ".$key);
 			}
+			$this->index();
 		}
 	}
 	//质量损失比例计算

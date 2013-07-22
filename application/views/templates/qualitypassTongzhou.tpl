@@ -197,7 +197,7 @@
 							{else}	
 							{/if}
 							{if isset($value['回波损耗1'][2]['mark'])}
-								{if $value['回波损耗1'][2]['result']}
+								{if $value['回波损耗1'][2]['result'] eq 0}
 									<span style="color: red;">{$value['回波损耗1'][2]['mark']|default:''}/{$value['回波损耗1'][2]['value']|default:''}</span>
 								{else}
 									{$value['回波损耗1'][2]['mark']|default:''}/{$value['回波损耗1'][2]['value']|default:''}
@@ -218,9 +218,17 @@
 							{else}
 								{foreach from=$value['时域阻抗'] item=val name=shuyuzukangforeach}
 									{if $smarty.foreach.shuyuzukangforeach.index > 0}
-										/{$val['value']}
+										{if $val['result'] eq 0}
+											<span style="color: red;">/{$val['value']}</span>
+										{else}
+											/{$val['value']}
+										{/if}
 									{else}
-										{$val['value']}
+										{if $val['result'] eq 0}
+											<span style="color: red;">{$val['value']}</span>
+										{else}
+											{$val['value']}
+										{/if}
 									{/if}
 								{/foreach}
 							{/if}
@@ -230,9 +238,17 @@
 							{else}
 								{foreach from=$value['TDR电长度'] item=val name=tdrforeach}
 									{if $smarty.foreach.tdrforeach.index > 0}
-										/{$val['value']}
+										{if $val['result'] eq 0}
+											<span style="color: red;">/{$val['value']}</span>
+										{else}
+											/{$val['value']}
+										{/if}
 									{else}
-										{$val['value']}
+										{if $val['result'] eq 0}
+											<span style="color: red;">{$val['value']}</span>
+										{else}
+											{$val['value']}
+										{/if}
 									{/if}
 								{/foreach}
 							{/if}

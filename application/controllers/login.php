@@ -172,6 +172,7 @@ class Login extends CW_Controller
 							{
 								$this->session->set_userdata('username', strtolower($this->input->post('userName')));
 								$this->session->set_userdata('userId', $tmpArr['id']);
+								$this->session->set_userdata('fullname', $tmpArr['fullname']);
 								$userRoleObj = $this->db->query("SELECT name FROM team WHERE id = '".$tmpArr['team']."'");
 								$userRoleArr = $userRoleObj->result_array();
 								$this->session->set_userdata('team', $userRoleArr[0]['name']);
