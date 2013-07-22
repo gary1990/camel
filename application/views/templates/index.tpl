@@ -109,10 +109,10 @@
 		<div>
 			<span><a href="{site_url()}/advancedsearch">1.高级查询(Beta)</a></span><br/>
 			<span><a href="{site_url()}/reportform">2.报表(Beta)</a></span><br/>
-			<span><a href="{site_url()}/qualitypassTongzhou">3.质量放行-同轴</a></span><br/>
-			<span><a href="{site_url()}/qualitypass">4.质量放行-跳线</a></span><br/>
-			<span><a href="{site_url()}/qualityStat">5.质量统计</a></span><br/>
-			<span><a href="{site_url()}/productQualityIndex">6.产品指标统计</a></span><br/>
+			<span><a href="{site_url()}/qualitypassTongzhou">3.同轴质量放行记录表</a></span><br/>
+			<span><a href="{site_url()}/qualitypass">4.跳线质量放行记录表</a></span><br/>
+			<span><a href="{site_url()}/qualityStat">5.同轴不合格质量统计表</a></span><br/>
+			<span><a href="{site_url()}/productQualityIndex">6.同轴产品指标统计表</a></span><br/>
 		</div>
 	</div>
 	<div class="span-11 subitem">

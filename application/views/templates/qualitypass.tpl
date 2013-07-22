@@ -116,11 +116,7 @@
 <!--{block name=body}-->
 <div class="span-64 last subitems">
 	<div class="prepend-1 top_title">
-		{if $passStatus eq 'unpass'}
-			待放行产品记录
-		{else}
-			已放行产品记录
-		{/if}
+		跳线质量放行记录表
 	</div>
 	<div>
 		<div>筛选条件</div>

@@ -6,6 +6,11 @@
 <link rel="stylesheet" type="text/css" href="{base_url()}resource/css/ui.datepicker.css" />
 <link rel="stylesheet" type="text/css" href="{base_url()}resource/css/chosen.css" />
 <style>
+	.seprateline
+	{
+		height:5px;
+		margin:1em 0 1em 0;
+	}
 	.top_title
 	{
 		width:900px;
@@ -21,7 +26,7 @@
 	{
 		border:1px solid #DDDDDD;
 	}
-	th{
+	th,td{
 		text-align:center;
 	}
 	/*
@@ -75,7 +80,7 @@
 <!--{block name=body}-->
 <div class="span-64 last subitems">
 	<div class="prepend-1 top_title">
-		产品指标统计-同轴
+		同轴产品指标统计表
 	</div>
 	<div>
 		<form id="locForm" method="post" action="{site_url()}/productQualityIndex">
@@ -92,42 +97,73 @@
 			<input class="searchBtn" type="submit" value="查询" />
 		</form>
 	</div>
+	<hr class="seprateline">
 	<div style="margin-bottom: 50px;">
 		<div style="width: 960px; overflow: auto;">
 			<table border="1" cellspacing="1" cellpadding="1">
 				<tr>
-					<th rowspan="2">序列号</th>
-					<th rowspan="2" colspan="3">驻波1</th>
-					<th rowspan="2" colspan="3">驻波2</th>
-					<th colspan="15">衰减</th>
-					<th rowspan="2">阻抗</th>
+					<th rowspan="2"><div class="th3">序列号</div></th>
+					<th rowspan="2" colspan="3"><div class="th3">驻波1</div></th>
+					<th rowspan="2" colspan="3"><div class="th3">驻波2</div></th>
+					<th colspan="15"><div class="th2">衰减</div></th>
+					<th rowspan="2"><div class="th2">阻抗</div></th>
 				</tr>
 				<tr>
-					<th>100M</th>
-					<th>150M</th>
-					<th>200M</th>
-					<th>280M</th>
-					<th>450M</th>
-					<th>800M</th>
-					<th>900M</th>
-					<th>1G</th>
-					<th>1.5G</th>
-					<th>1.8G</th>
-					<th>2G</th>
-					<th>2.2G</th>
-					<th>2.4G</th>
-					<th>2.5G</th>
-					<th>3G</th>
+					<th><div class="th2">100M</div></th>
+					<th><div class="th2">150M</div></th>
+					<th><div class="th2">200M</div></th>
+					<th><div class="th2">280M</div></th>
+					<th><div class="th2">450M</div></th>
+					<th><div class="th2">800M</div></th>
+					<th><div class="th2">900M</div></th>
+					<th><div class="th1">1G</div></th>
+					<th><div class="th2">1.5G</div></th>
+					<th><div class="th2">1.8G</div></th>
+					<th><div class="th1">2G</div></th>
+					<th><div class="th2">2.2G</div></th>
+					<th><div class="th2">2.4G</div></th>
+					<th><div class="th2">2.5G</div></th>
+					<th><div class="th1">3G</div></th>
 				</tr>
 				{foreach from=$resultArr item=value}
 					<tr>
 						<td>{$value['sn']|default:''}</td>
-						<td>{$value['zhubo11']|default:''}</td>
-						<td>{$value['zhubo12']|default:''}</td>
-						<td>{$value['zhubo13']|default:''}</td>
-						<td>{$value['zhubo21']|default:''}</td>
-						<td>{$value['zhubo22']|default:''}</td>
-						<td>{$value['zhubo23']|default:''}</td>
+						<td>
+							{if isset($value['zhubo11']['value'])}
+								{$value['zhubo11']['value']|default:''}/{$value['zhubo11']['mark']|default:''}
+							{else}
+							{/if}
+						</td>
+						<td>
+							{if isset($value['zhubo12']['value'])}
+								{$value['zhubo12']['value']|default:''}/{$value['zhubo12']['mark']|default:''}
+							{else}
+							{/if}
+						</td>
+						<td>
+							{if isset($value['zhubo13']['value'])}
+								{$value['zhubo13']['value']|default:''}/{$value['zhubo13']['mark']|default:''}
+							{else}
+							{/if}
+						</td>
+						<td>
+							{if isset($value['zhubo21']['value'])}
+								{$value['zhubo21']['value']|default:''}/{$value['zhubo21']['mark']|default:''}
+							{else}
+							{/if}
+						</td>
+						<td>
+							{if isset($value['zhubo22']['value'])}
+								{$value['zhubo22']['value']|default:''}/{$value['zhubo22']['mark']|default:''}
+							{else}
+							{/if}
+						</td>
+						<td>
+							{if isset($value['zhubo23']['value'])}
+								{$value['zhubo23']['value']|default:''}/{$value['zhubo23']['mark']|default:''}
+							{else}
+							{/if}
+						</td>
 						<td>{$value['shuaijian100']|default:''}</td>
 						<td>{$value['shuaijian150']|default:''}</td>
 						<td>{$value['shuaijian200']|default:''}</td>
@@ -188,6 +224,9 @@
 			</table>
 		</div>
 		{$CI->pagination->create_links()}
+		<div style="font-size: 10px;">
+			注：本页面为江苏亨鑫科技有限公司订制版报表。只列出驻波1、驻波2、衰减、时域阻抗四项指标信息。
+		</div>
 	</div>
 </div>
 <!--{/block}-->

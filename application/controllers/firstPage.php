@@ -273,34 +273,55 @@ class firstPage extends CW_Controller
 		}
 		$crud = new grocery_CRUD();
 		$crud->set_theme('datatables');
-		$crud->required_fields('status');
+		$crud->required_fields('testitemsection','status');
+		$crud->columns('name','testitemsection','status');
+    	$crud->edit_fields('name','testitemsection','status');
 		$crud->display_as('name', '名称')->display_as('qualitylosspercent','质量损失费用比例')
-			 ->display_as('status','状态');
+			 ->display_as('testitemsection','类型')->display_as('status','状态');
 		$crud->set_relation("status","status","statusname");
-		$crud->set_rules('qualitylosspercent','qualitylosspercent','callback_qualitylosspercent');
+		$crud->set_relation("testitemsection","testitemsection","sectionname");
 		$crud->unset_delete();
+		$crud->callback_column('name',array($this,'unset_edit'));
 		//新增，编辑时对测试项的判断
 		$postUrl = $this->uri->uri_string();
 		if(strpos($postUrl, "insert_validation") != FALSE)
 		{
 			$crud->set_rules('name','testitem','callback_add_testitem');
+			$crud->set_rules('qualitylosspercent','qualitylosspercent','callback_add_qualitylosspercent');
 		}
 		else if(strpos($postUrl, "update_validation") != FALSE)
 		{
 			$crud->set_rules('name','testitem','callback_edit_testitem');
+			$crud->set_rules('qualitylosspercent','qualitylosspercent','callback_edit_qualitylosspercent');
 		}
 		else
 		{
 			//
 		}
 		$output = $crud->render();
+		$state = $crud->getState();
+    	$state_info = $crud->getStateInfo();
+		
 		foreach ($output as $key=>$value)
 		{
 			$this->smarty->assign($key, $value);
 		}
 		$this->smarty->assign('item', '测试项');
 		$this->smarty->assign('title', '测试项');
-		$this->smarty->display('firstPage.tpl');
+		$this->smarty->display('testitem.tpl');
+	}
+	//给特殊名称的测试项加<span>,供页面jquery处理去掉edit操作
+	public function unset_edit($value, $row)
+	{
+		$specailtestitem = array('驻波1','驻波2','跳线测试','衰减','时域阻抗','回波损耗2','回波损耗1','TDR电长度','TDR故障点');
+ 		if(in_array($value, $specailtestitem))
+ 		{
+ 			return "<span class='specialitem'>".$value."</span>";
+ 		}
+		else
+		{
+			return $value;
+		}
 	}
 	//测试项新增时的校验
 	public function add_testitem($str)
@@ -359,27 +380,127 @@ class firstPage extends CW_Controller
 		}
 	}
 	//质量损失比例计算
-	public function qualitylosspercent($str)
+	public function add_qualitylosspercent($str)
 	{
+		$testitemsectionIdObj = $this->db->query("SELECT a.id FROM testitemsection a WHERE a.sectionname = '同轴'");
+		$testitemsectionIdArr = $testitemsectionIdObj->result_array();
+		$testitemsectionId = 100;
+		if(count($testitemsectionIdArr) != 0)
+		{
+			$testitemsectionId = $testitemsectionIdArr[0]['id'];
+		}
+		$testitemsectionId_post = $_POST['testitemsection'];
+
 		if(preg_match("/^((([0-9]+)([\.]([0-9]+))([%]))?|(([0-9]+)([%]))?)$/", $str))
 		{
 			if(substr(trim($str), 0, -1) > 100 || substr(trim($str), 0, -1) < 0)
 			{
-				$this->form_validation->set_message('qualitylosspercent', '质量损失费用比为0~100之间的数字！');
+				$this->form_validation->set_message('add_qualitylosspercent', '质量损失费用比为0~100之间的数字！');
 				return FALSE;
 			}
 			else
 			{
-				return TRUE;
+				if($str == '')
+				{
+					if($testitemsectionId_post == $testitemsectionId)
+					{
+						$this->form_validation->set_message('add_qualitylosspercent', '类型为同轴时质量损失比例必填！');
+						return FALSE;
+					}
+					else
+					{
+						return TRUE;
+					}
+				}
+				else
+				{
+					$qualitylosspercentObj1 = $this->db->query("SELECT tm.name 
+																FROM testitem tm
+																JOIN testitemsection b ON tm.testitemsection = b.id
+																AND tm.qualitylosspercent = '$str'
+																AND b.sectionname = '同轴'");
+					$qualitylosspercentObj2 = $this->db->query("SELECT a.qualitylosspercentval FROM qualitylosspercent a WHERE a.qualitylosspercentval = '$str'");
+					if($qualitylosspercentObj1->num_rows() != 0 || $qualitylosspercentObj2->num_rows() != 0)
+					{
+						$this->form_validation->set_message('add_qualitylosspercent', '质量损失费用比已存在！');
+						return FALSE;
+					}
+					else
+					{
+						return TRUE;
+					}
+				}
 			}
 		}
 		else
 		{
-			$this->form_validation->set_message('qualitylosspercent', '质量损失费用比格式不正确！');
+			$this->form_validation->set_message('add_qualitylosspercent', '质量损失费用比格式不正确！');
 			return FALSE;
 		}
 	}
-	
+	//质量损失比例计算
+	public function edit_qualitylosspercent($str)
+	{
+		$testitemsectionIdObj = $this->db->query("SELECT a.id FROM testitemsection a WHERE a.sectionname = '同轴'");
+		$testitemsectionIdArr = $testitemsectionIdObj->result_array();
+		$testitemsectionId = 100;
+		if(count($testitemsectionIdArr) != 0)
+		{
+			$testitemsectionId = $testitemsectionIdArr[0]['id'];
+		}
+		$testitemsectionId_post = $_POST['testitemsection'];
+		
+		if(preg_match("/^((([0-9]+)([\.]([0-9]+))([%]))?|(([0-9]+)([%]))?)$/", $str))
+		{
+			if(substr(trim($str), 0, -1) > 100 || substr(trim($str), 0, -1) < 0)
+			{
+				$this->form_validation->set_message('edit_qualitylosspercent', '质量损失费用比为0~100之间的数字！');
+				return FALSE;
+			}
+			else
+			{
+				if($str == '')
+				{
+					if($testitemsectionId_post == $testitemsectionId)
+					{
+						$this->form_validation->set_message('edit_qualitylosspercent', '类型为同轴时质量损失比例必填！');
+						return FALSE;
+					}
+					else
+					{
+						return TRUE;
+					}
+				}
+				else
+				{
+					//取得当前id
+					$postUrl = $this->uri->uri_string();
+					$id = substr($postUrl, strripos($postUrl, "/")+1);
+					$numObj = $this->db->query("SELECT COUNT(*) AS num
+												FROM testitem tm 
+												JOIN testitemsection b ON tm.testitemsection = b.id
+												AND tm.qualitylosspercent = '$str' AND tm.id != '$id'
+												AND b.sectionname = '同轴'");
+					$num = $numObj->first_row()->num;
+					$qualitylosspercentObj2 = $this->db->query("SELECT a.qualitylosspercentval FROM qualitylosspercent a WHERE a.qualitylosspercentval = '$str'");
+					if($num != 0 || $qualitylosspercentObj2->num_rows() != 0)
+					{
+						$this->form_validation->set_message('edit_qualitylosspercent', '质量损失费用比已存在！');
+						return FALSE;
+					}
+					else
+					{
+						return TRUE;
+					}
+				}
+			}
+		}
+		else
+		{
+			$this->form_validation->set_message('edit_qualitylosspercent', '质量损失费用比格式不正确！');
+			return FALSE;
+		}
+	}
 	
 	public function testright()
 	{

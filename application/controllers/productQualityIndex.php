@@ -161,9 +161,9 @@ class ProductQualityIndex extends CW_Controller
 			$zhubo1Arr = $zhubo1Obj->result_array();
 			if(count($zhubo1Arr) != 0)
 			{
-				$resultArr[$key]['zhubo11'] =  $zhubo1Arr[0]['value'];
-				$resultArr[$key]['zhubo12'] =  $zhubo1Arr[1]['value'];
-				$resultArr[$key]['zhubo13'] =  $zhubo1Arr[2]['value'];
+				$resultArr[$key]['zhubo11'] =  array('value' => $zhubo1Arr[0]['value'],'mark' => $zhubo1Arr[0]['mark']);
+				$resultArr[$key]['zhubo12'] =  array('value' => $zhubo1Arr[1]['value'],'mark' => $zhubo1Arr[1]['mark']);
+				$resultArr[$key]['zhubo13'] =  array('value' => $zhubo1Arr[2]['value'],'mark' => $zhubo1Arr[2]['mark']);
 				array_push($zhubo11,$zhubo1Arr[0]['value']);
 				array_push($zhubo12,$zhubo1Arr[1]['value']);
 				array_push($zhubo13,$zhubo1Arr[2]['value']);
@@ -186,9 +186,9 @@ class ProductQualityIndex extends CW_Controller
 			$zhubo2Arr = $zhubo2Obj->result_array();
 			if(count($zhubo2Arr) != 0)
 			{
-				$resultArr[$key]['zhubo21'] =  $zhubo2Arr[0]['value'];
-				$resultArr[$key]['zhubo22'] =  $zhubo2Arr[1]['value'];
-				$resultArr[$key]['zhubo23'] =  $zhubo2Arr[2]['value'];
+				$resultArr[$key]['zhubo21'] =  array('value' => $zhubo2Arr[0]['value'], 'mark' => $zhubo2Arr[0]['mark']);
+				$resultArr[$key]['zhubo22'] =  array('value' => $zhubo2Arr[1]['value'], 'mark' => $zhubo2Arr[1]['mark']);
+				$resultArr[$key]['zhubo23'] =  array('value' => $zhubo2Arr[2]['value'], 'mark' => $zhubo2Arr[2]['mark']);
 				array_push($zhubo21,$zhubo2Arr[0]['value']);
 				array_push($zhubo22,$zhubo2Arr[1]['value']);
 				array_push($zhubo23,$zhubo2Arr[2]['value']);
@@ -421,8 +421,8 @@ class ProductQualityIndex extends CW_Controller
 		
 		$this->smarty->assign('startTime', $startTime);
 		$this->smarty->assign('endTime', $endTime);
-		$this->smarty->assign('item', '产品指标统计');
-		$this->smarty->assign('title', '产品指标统计');
+		$this->smarty->assign('item', '同轴产品指标统计表');
+		$this->smarty->assign('title', '同轴产品指标统计表');
 		$this->smarty->display("productQualityIndex.tpl");
 	}
 	

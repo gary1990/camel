@@ -6,6 +6,11 @@
 <link rel="stylesheet" type="text/css" href="{base_url()}resource/css/ui.datepicker.css" />
 <link rel="stylesheet" type="text/css" href="{base_url()}resource/css/chosen.css" />
 <style>
+	.seprateline
+	{
+		height:5px;
+		margin:1em 0 1em 0;
+	}
 	.top_title
 	{
 		width:900px;
@@ -20,6 +25,9 @@
 	th,td
 	{
 		border:1px solid #DDDDDD;
+	}
+	th,td{
+		text-align:center;
 	}
 	/*
     table td
@@ -76,7 +84,7 @@
 <!--{block name=body}-->
 <div class="span-64 last subitems">
 	<div class="prepend-1 top_title">
-		质量放行-同轴
+		同轴质量放行记录表
 	</div>
 	<div>
 		<form id="locForm" method="post" action="{site_url()}/qualitypassTongzhou">
@@ -88,32 +96,33 @@
 			{html_options class=produdttype name=produdttype options=$producttypeArr selected=$smarty.post.produdttype|default:''}
 			<span>放行状态：</span>
 			{html_options class=passstatus name=passstatus options=$passStatusArr selected=$smarty.post.passstatus|default:''}
-			<input class="searchBtn" type="submit" value="查询" />
+			<input style="width:65px;height:25px;" class="searchBtn" type="submit" value="查询" />
 		</form>
 	</div>
+	<hr class="seprateline">
 	<div style="margin-bottom: 50px;">
 		<form method="post" action="{site_url()}/qualitypassTongzhou/saveQualityPass">
-			<div style="width: 960px; overflow: auto;">
+			<div style="width: 960px; overflow: auto; margin-bottom: 10px;">
 				<table border="1" cellspacing="1" cellpadding="1">
 					<tr>
-						<th>序号</th>
-						<th>车台</th>
-						<th>产品型号</th>
-						<th>盘号</th>
-						<th>长度(km)</th>
-						<th>序列号</th>
-						<th>内外端</th>
-						<th colspan="3">驻波/回波损耗</th>
-						<th>衰减</th>
-						<th>时域阻抗</th>
-						<th>TDR电长度</th>
-						<th>外观及其他</th>
-						<th>客户</th>
-						<th>质量工程师/技术部意见</th>
-						<th>责任部门</th>
-						<th>质量经理审核</th>
-						<th>总工审核</th>
-						<th>放行</th>
+						<th><div class="th2">序号</div></th>
+						<th><div class="th2">车台</div></th>
+						<th><div class="th4">产品型号</div></th>
+						<th><div class="th2">盘号</div></th>
+						<th><div class="th5">长度(千米)</div></th>
+						<th><div class="th3">序列号</div></th>
+						<th><div class="th3">内外端</div></th>
+						<th colspan="3"><div class="th7">驻波/回波损耗</div></th>
+						<th><div class="th2">衰减</div></th>
+						<th><div class="th4">时域阻抗</div></th>
+						<th><div class="th5">TDR电长度</div></th>
+						<th><div class="th5">外观及其他</div></th>
+						<th><div class="th2">客户</div></th>
+						<th><div class="th10">质量工程师/技术部意见</div></th>
+						<th><div class="th4">责任部门</div></th>
+						<th><div class="th6">质量经理审核</div></th>
+						<th><div class="th4">总工审核</div></th>
+						<th><div class="th2">放行</div></th>
 					</tr>
 					{foreach from=$infoArr key=k item=value}
 					<tr>
@@ -143,38 +152,88 @@
 						</td>
 						<td>内端</td>
 						<td>
-							{$value['驻波1'][0]['mark']|default:''}/{$value['驻波1'][0]['value']|default:''}
-							{$value['回波损耗1'][0]['mark']|default:''}/{$value['回波损耗1'][0]['value']|default:''}
+							{if isset($value['驻波1'][0]['mark'])}
+								{if $value['驻波1'][0]['result'] eq 0}
+									<span style="color: red;">{$value['驻波1'][0]['mark']|default:''}/{$value['驻波1'][0]['value']|default:''}</span>
+								{else}
+									{$value['驻波1'][0]['mark']|default:''}/{$value['驻波1'][0]['value']|default:''}
+								{/if}
+							{else}
+							{/if}
+							{if isset($value['回波损耗1'][0]['mark'])}
+								{if $value['回波损耗1'][0]['result'] eq 0}
+									<span style="color: red;">{$value['回波损耗1'][0]['mark']|default:''}/{$value['回波损耗1'][0]['value']|default:''}</span>	
+								{else}
+									{$value['回波损耗1'][0]['mark']|default:''}/{$value['回波损耗1'][0]['value']|default:''}								
+								{/if}
+							{else}
+							{/if}
 						</td>
 						<td>
-							{$value['驻波1'][1]['mark']|default:''}/{$value['驻波1'][1]['value']|default:''}
-							{$value['回波损耗1'][1]['mark']|default:''}/{$value['回波损耗1'][1]['value']|default:''}
+							{if isset($value['驻波1'][1]['mark'])}
+								{if $value['驻波1'][1]['result'] eq 0}
+									<span style="color: red;">{$value['驻波1'][1]['mark']|default:''}/{$value['驻波1'][1]['value']|default:''}</span>
+								{else}
+									{$value['驻波1'][1]['mark']|default:''}/{$value['驻波1'][1]['value']|default:''}
+								{/if}
+							{else}	
+							{/if}
+							{if isset($value['回波损耗1'][1]['mark'])}
+								{if $value['回波损耗1'][1]['result'] eq 0}
+									<span style="color: red;">{$value['回波损耗1'][1]['mark']|default:''}/{$value['回波损耗1'][1]['value']|default:''}</span>
+								{else}
+									{$value['回波损耗1'][1]['mark']|default:''}/{$value['回波损耗1'][1]['value']|default:''}
+								{/if}					
+							{else}	
+							{/if}
 						</td>
 						<td>
-							{$value['驻波1'][2]['mark']|default:''}/{$value['驻波1'][2]['value']|default:''}
-							{$value['回波损耗1'][2]['mark']|default:''}/{$value['回波损耗1'][2]['value']|default:''}
+							{if isset($value['驻波1'][2]['mark'])}
+								{if $value['驻波1'][2]['result'] eq 0}
+									<span style="color: red;">{$value['驻波1'][2]['mark']|default:''}/{$value['驻波1'][2]['value']|default:''}</span>
+								{else}
+									{$value['驻波1'][2]['mark']|default:''}/{$value['驻波1'][2]['value']|default:''}
+								{/if}
+							{else}	
+							{/if}
+							{if isset($value['回波损耗1'][2]['mark'])}
+								{if $value['回波损耗1'][2]['result']}
+									<span style="color: red;">{$value['回波损耗1'][2]['mark']|default:''}/{$value['回波损耗1'][2]['value']|default:''}</span>
+								{else}
+									{$value['回波损耗1'][2]['mark']|default:''}/{$value['回波损耗1'][2]['value']|default:''}
+								{/if}
+							{else}
+							{/if}
 						</td>
 						<td rowspan="2">
 							{if count($value['衰减']) eq 0}
 							{elseif $value['衰减'][0]['testResult'] eq 0}
-							不合格
+								<span style="color: red;">不合格</span>
 							{else}
-							合格
+								合格
 							{/if}
 						</td>
 						<td rowspan="2">
 							{if count($value['时域阻抗']) eq 0}
 							{else}
-								{foreach from=$value['时域阻抗'] item=val}
-									{$val['mark']}/{$val['value']}
+								{foreach from=$value['时域阻抗'] item=val name=shuyuzukangforeach}
+									{if $smarty.foreach.shuyuzukangforeach.index > 0}
+										/{$val['value']}
+									{else}
+										{$val['value']}
+									{/if}
 								{/foreach}
 							{/if}
 						</td>
 						<td rowspan="2">
 							{if count($value['TDR电长度']) eq 0}
 							{else}
-								{foreach from=$value['TDR电长度'] item=val}
-									{$val['mark']}/{$val['value']}
+								{foreach from=$value['TDR电长度'] item=val name=tdrforeach}
+									{if $smarty.foreach.tdrforeach.index > 0}
+										/{$val['value']}
+									{else}
+										{$val['value']}
+									{/if}
 								{/foreach}
 							{/if}
 						</td>
@@ -207,16 +266,58 @@
 					<tr>
 						<td>外端</td>
 						<td>
-							{$value['驻波2'][0]['mark']|default:''}/{$value['驻波2'][0]['value']|default:''}
-							{$value['回波损耗2'][0]['mark']|default:''}/{$value['回波损耗2'][0]['value']|default:''}
+							{if isset($value['驻波2'][0]['mark'])}
+								{if $value['驻波2'][0]['result'] eq 0}
+									<span style="color: red;">{$value['驻波2'][0]['mark']|default:''}/{$value['驻波2'][0]['value']|default:''}</span>
+								{else}
+									{$value['驻波2'][0]['mark']|default:''}/{$value['驻波2'][0]['value']|default:''}
+								{/if}
+							{else}
+							{/if}
+							{if isset($value['回波损耗2'][0]['mark'])}
+								{if $value['回波损耗2'][0]['result'] eq 0}
+									<span style="color: red;">{$value['回波损耗2'][0]['mark']|default:''}/{$value['回波损耗2'][0]['value']|default:''}</span>
+								{else}
+									{$value['回波损耗2'][0]['mark']|default:''}/{$value['回波损耗2'][0]['value']|default:''}
+								{/if}
+							{else}
+							{/if}
 						</td>
 						<td>
-							{$value['驻波2'][1]['mark']|default:''}/{$value['驻波2'][1]['value']|default:''}
-							{$value['回波损耗2'][1]['mark']|default:''}/{$value['回波损耗2'][1]['value']|default:''}
+							{if isset($value['驻波2'][1]['mark'])}
+								{if $value['驻波2'][1]['result'] eq 0}
+									<span style="color: red;">{$value['驻波2'][1]['mark']|default:''}/{$value['驻波2'][1]['value']|default:''}</span>
+								{else}
+									{$value['驻波2'][1]['mark']|default:''}/{$value['驻波2'][1]['value']|default:''}
+								{/if}
+							{else}
+							{/if}
+							{if isset($value['回波损耗2'][1]['mark'])}
+								{if $value['回波损耗2'][1]['result'] eq 0}
+									<span style="color: red;">{$value['回波损耗2'][1]['mark']|default:''}/{$value['回波损耗2'][1]['value']|default:''}</span>
+								{else}
+									{$value['回波损耗2'][1]['mark']|default:''}/{$value['回波损耗2'][1]['value']|default:''}
+								{/if}	
+							{else}
+							{/if}
 						</td>
 						<td>
-							{$value['驻波2'][2]['mark']|default:''}/{$value['驻波2'][2]['value']|default:''}
-							{$value['回波损耗2'][2]['mark']|default:''}/{$value['回波损耗2'][2]['value']|default:''}
+							{if isset($value['驻波2'][2]['mark'])}
+								{if $value['驻波2'][2]['result'] eq 0}
+									<span style="color: red;">{$value['驻波2'][2]['mark']|default:''}/{$value['驻波2'][2]['value']|default:''}</span>
+								{else}
+									{$value['驻波2'][2]['mark']|default:''}/{$value['驻波2'][2]['value']|default:''}
+								{/if}
+							{else}
+							{/if}
+							{if isset($value['回波损耗2'][2]['mark'])}
+								{if $value['回波损耗2'][2]['result'] eq 0}
+									<span style="color: red;">{$value['回波损耗2'][2]['mark']|default:''}/{$value['回波损耗2'][2]['value']|default:''}</span>
+								{else}
+									{$value['回波损耗2'][2]['mark']|default:''}/{$value['回波损耗2'][2]['value']|default:''}
+								{/if}					
+							{else}
+							{/if}
 						</td>
 					</tr>
 					<input name="id{$k+1}" type="hidden" value="{$value['id']}"/>
@@ -227,10 +328,19 @@
 			{$CI->pagination->create_links()}
 			{if $CI->session->userdata('team') eq '技术员' || $CI->session->userdata('team') eq '测试员及其他人员'}	
 			{else}
-				<input type="submit" value="保存"/>
-				<input class="exportResult" type="button" value="Export"/>
+				<div style="text-align: right;margin-top:10px;margin-bottom: 10px;">
+					<input style="width:75px;height:30px;" type="submit" value="保存"/>
+				</div>
+				<div style="text-align: right;margin-top:10px;margin-bottom: 10px;">
+					<input style="width:75px;height:30px;" class="exportResult" type="button" value="Export"/>
+				</div>
 			{/if}
 		</form>
+		<div style="font-size:10px;">
+			注：<br/>
+			1.本页面为江苏亨鑫科技有限公司订制版同轴质量放行记录表。按要求只列出驻波/回波损耗、衰减、时域阻抗、TDR电长度指标信息。<br/>
+			2.驻波1/回波损耗1为内端。驻波2/回波损耗2为外端。
+		</div>
 	</div>
 </div>
 <!--{/block}-->

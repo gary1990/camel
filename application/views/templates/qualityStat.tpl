@@ -6,6 +6,34 @@
 <link rel="stylesheet" type="text/css" href="{base_url()}resource/css/ui.datepicker.css" />
 <link rel="stylesheet" type="text/css" href="{base_url()}resource/css/chosen.css" />
 <style>
+	.seprateline
+	{
+		height:5px;
+		margin:1em 0 1em 0;
+	}
+	.seprateline_short
+	{
+		height:5px;
+		width:89%;
+		position: relative;
+		top:20px;
+		margin-bottom:8px;
+	}
+	.qualitylosspercent_span{
+		cursor: pointer;
+		color: blue;
+		text-decoration: underline;
+	}
+	.qualitylosspercent_div{
+		display:none;
+	}
+	.dateinput{
+		width:100px;
+	}
+	.qualitylossinput
+	{
+		width:50px;
+	}
 	.top_title
 	{
 		width:900px;
@@ -21,7 +49,7 @@
 	{
 		border:1px solid #DDDDDD;
 	}
-	th{
+	th,td{
 		text-align:center;
 	}
 	/*
@@ -40,6 +68,10 @@
 <script type="text/javascript"> 
 	jQuery(function($)
 	{	
+		//质量损失费用比例点击
+		$('.qualitylosspercent_span').click(function(){
+			$(".qualitylosspercent_div").toggle("slow");
+		});
 		//分页 
 		$(".locPage > a").click(function(e) {
 			e.preventDefault();
@@ -75,14 +107,14 @@
 <!--{block name=body}-->
 <div class="span-64 last subitems">
 	<div class="prepend-1 top_title">
-		不合格质量统计-同轴
+		同轴不合格质量统计表
 	</div>
 	<div>
 		<form id="locForm" method="post" action="#">
 			<span>起始日期：</span>
-			<input id="startdate" name="startdate" value="{$smarty.post.startdate|default:$startTime}" type="text"/>
+			<input class="dateinput" id="startdate" name="startdate" value="{$smarty.post.startdate|default:$startTime}" type="text"/>
 			<span>截止日期：</span>
-			<input id="enddate" name="enddate" value="{$smarty.post.enddate|default:$endTime}" type="text"/>
+			<input class="dateinput" id="enddate" name="enddate" value="{$smarty.post.enddate|default:$endTime}" type="text"/>
 			<span>工序：</span>
 			{html_options class=process name=process options=$processArr selected=$smarty.post.process|default:''}
 			<span>车台：</span>
@@ -93,64 +125,107 @@
 		</form>
 	</div>
 	<div style="color: red;">{$errorMsg|default:''}</div>
-	<div style="margin-bottom: 50px;">
-		<div style="width: 960px; overflow: auto;">
-			<table border="1" cellspacing="1" cellpadding="1">
+	{if $errorMsg eq ''}
+		<hr align="left" class="seprateline_short"/>
+		<div style="text-align:right;">
+			<span class="qualitylosspercent_span">质量损失费用比例</span>
+		</div>
+		<div class="qualitylosspercent_div" style="width: 960px; overflow: auto;">
+			<table>
 				<tr>
-					<th rowspan="3">车台</th>
-					<th rowspan="3">产品型号</th>
-					<th rowspan="3">产量(km)</th>
-					<th rowspan="3">不合格量</th>
-					<th rowspan="3">合格率</th>
-					<th colspan="13">驻波/回波损耗</th>
+					<th colspan="13"><div class="th7">驻波/回波损耗</div></th>
 					{foreach from=$totalTestitemArray item=itemvalue}
-						<th rowspan="3">{$itemvalue['name']|default:''}</th>
+						<th rowspan="3"><div class="th7">{$itemvalue['name']|default:''}</div></th>
 					{/foreach}
 				</tr>
 				<tr>
-					<th colspan="4">0.8GHz~1GHz</th>
-					<th colspan="4">1.7GHz~2.5GHz</th>
-					<th colspan="4">0.8GHz~1GHz且1.7GHz~2.5GHz</th>
-					<th rowspan="2">5MHz~3GHz</th>
+					<th colspan="4"><div class="th6">0.8GHz~1GHz</div></th>
+					<th colspan="4"><div class="th7">1.7GHz~2.5GHz</div></th>
+					<th colspan="4"><div class="th14">0.8GHz~1GHz且1.7GHz~2.5GHz</div></th>
+					<th rowspan="2"><div class="th5">5MHz~3GHz</div></th>
 				</tr>
 				<tr>
-					<th>1.15以下</th>
-					<th>1.15-1.2</th>
-					<th>1.2-1.3</th>
-					<th>1.3以上</th>
-					<th>1.15以下</th>
-					<th>1.15-1.2</th>
-					<th>1.2-1.3</th>
-					<th>1.3以上</th>
-					<th>1.15以下</th>
-					<th>1.15-1.2</th>
-					<th>1.2-1.3</th>
-					<th>1.3以上</th>
+					<th><div class="th4">1.15以下</div></th>
+					<th><div class="th4">1.15-1.2</div></th>
+					<th><div class="th4">1.2-1.3</div></th>
+					<th><div class="th4">1.3以上</div></th>
+					<th><div class="th4">1.15以下</div></th>
+					<th><div class="th4">1.15-1.2</div></th>
+					<th><div class="th4">1.2-1.3</div></th>
+					<th><div class="th4">1.3以上</div></th>
+					<th><div class="th4">1.15以下</div></th>
+					<th><div class="th4">1.15-1.2</div></th>
+					<th><div class="th4">1.2-1.3</div></th>
+					<th><div class="th4">1.3以上</div></th>
 				</tr>
-				{foreach from=$resultArr item=perresult}
-					<tr>
-						{foreach from=$perresult item=val name=resultforeach}
-							{if $smarty.foreach.resultforeach.index eq 4}
-								<td>{$val|default:''}%</td>
-							{else}
-								<td>{$val|default:''}</td>
-							{/if}
-						{/foreach}
-					</tr>
-				{/foreach}
 				<tr>
-					<td colspan="2">总计</td>
-					{foreach from=$totalStat item=valstat name=statforeach}
-						{if $smarty.foreach.statforeach.index eq 2}
-							<td>{$valstat|default:''}%</td>
-						{else}
-							<td>{$valstat|default:''}</td>
-						{/if}
+					{foreach from=$qualityLossArry key=qualitylossk item=qualityloss}
+						<td>{$qualityloss|default:''}%</td>
 					{/foreach}
 				</tr>
 			</table>
 		</div>
-		{$CI->pagination->create_links()}
-	</div>
+		<hr class="seprateline"/>
+		<div style="margin-bottom: 50px;">
+			<div style="width: 960px; overflow: auto;">
+				<table border="1" cellspacing="1" cellpadding="1">
+					<tr>
+						<th rowspan="3"><div class="th2">车台</div></th>
+						<th rowspan="3"><div class="th4">产品型号</div></th>
+						<th rowspan="3"><div class="th4">产量(km)</div></th>
+						<th rowspan="3"><div class="th4">不合格量</div></th>
+						<th rowspan="3"><div class="th3">合格率</div></th>
+						<th colspan="13"><div class="th7">驻波/回波损耗</div></th>
+						{foreach from=$totalTestitemArray item=itemvalue}
+							<th rowspan="3"><div class="th7">{$itemvalue['name']|default:''}</div></th>
+						{/foreach}
+					</tr>
+					<tr>
+						<th colspan="4"><div class="th6">0.8GHz~1GHz</div></th>
+						<th colspan="4"><div class="th7">1.7GHz~2.5GHz</div></th>
+						<th colspan="4"><div class="th14">0.8GHz~1GHz且1.7GHz~2.5GHz</div></th>
+						<th rowspan="2"><div class="th5">5MHz~3GHz</div></th>
+					</tr>
+					<tr>
+						<th><div class="th4">1.15以下</div></th>
+						<th><div class="th4">1.15-1.2</div></th>
+						<th><div class="th4">1.2-1.3</div></th>
+						<th><div class="th4">1.3以上</div></th>
+						<th><div class="th4">1.15以下</div></th>
+						<th><div class="th4">1.15-1.2</div></th>
+						<th><div class="th4">1.2-1.3</div></th>
+						<th><div class="th4">1.3以上</div></th>
+						<th><div class="th4">1.15以下</div></th>
+						<th><div class="th4">1.15-1.2</div></th>
+						<th><div class="th4">1.2-1.3</div></th>
+						<th><div class="th4">1.3以上</div></th>
+					</tr>
+					{foreach from=$resultArr item=perresult}
+						<tr>
+							{foreach from=$perresult item=val name=resultforeach}
+								{if $smarty.foreach.resultforeach.index eq 4}
+									<td>{$val|default:''}%</td>
+								{else}
+									<td>{$val|default:''}</td>
+								{/if}
+							{/foreach}
+						</tr>
+					{/foreach}
+					<tr>
+						<td colspan="2"><div class="th2">总计</div></td>
+						{foreach from=$totalStat item=valstat name=statforeach}
+							{if $smarty.foreach.statforeach.index eq 2}
+								<td>{$valstat|default:''}%</td>
+							{else}
+								<td>{$valstat|default:''}</td>
+							{/if}
+						{/foreach}
+					</tr>
+				</table>
+			</div>
+			{$CI->pagination->create_links()}
+		</div>
+	{else}
+	{/if}
 </div>
 <!--{/block}-->

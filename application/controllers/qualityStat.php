@@ -108,20 +108,23 @@ class QualityStat extends CW_Controller
 		//保存所有质量损失费用比例数组
 		$qualityLossArry = array();
 		//取得“驻波1”，“回波损耗1”，“驻波2”，“回波损耗2”质量损失比
-		$generalQualityLossObj = $this->db->query("SELECT qualitylosspercentval FROM qualitylosspercent");
+		$generalQualityLossObj = $this->db->query("SELECT a.frquencelimits,qualitylosspercentval FROM qualitylosspercent a");
 		$generalQualityLossArr = $generalQualityLossObj->result_array();
 		foreach ($generalQualityLossArr as $key => $value) 
 		{
 			$qualityLossArry['general'.($key+1)] = substr($value['qualitylosspercentval'], 0, -1);
 		}
+
 		//取得除去“驻波1”，“驻波2”，“回波损耗1”，“回波损耗2”测试项的其他测试项
 		$totalTestitemObj = $this->db->query("SELECT DISTINCT b.id,b.name,b.qualitylosspercent
 		    								  FROM testitem b
 		    								  JOIN testitemresult c ON c.testItem = b.id
-		    								  JOIN producttestinfo a ON c.productTestInfo = a.id".
+		    								  JOIN producttestinfo a ON c.productTestInfo = a.id
+		    								  JOIN testitemsection d ON b.testitemsection = d.id".
 		    								  $startTimeSql.$endTimeSql.$searchTeststationSql.$latheSql."
 		    								  AND b.name NOT IN ('驻波1','驻波2','回波损耗1','回波损耗2')
 		    								  AND a.result = 0
+		    								  AND d.sectionname = '同轴'
 		    								 ");
 		$totalTestitemArray = $totalTestitemObj->result_array();
 		foreach ($totalTestitemArray as $key => $value) 
@@ -132,12 +135,18 @@ class QualityStat extends CW_Controller
 			}
 			else
 			{
+				$totalTestitemArray = array();
+				$resultArr = array();
+				$totalStat = array();
 				$errorMsg .= "测试项:'".$value['name']."'的质量损失费用比例不能为空！";
+				$this->smarty->assign('totalTestitemArray', $totalTestitemArray);
+				$this->smarty->assign('resultArr', $resultArr);
+				$this->smarty->assign('totalStat', $totalStat);
 				$this->smarty->assign('errorMsg', $errorMsg);
 				$this->smarty->assign('startTime', $startTime);
 				$this->smarty->assign('endTime', $endTime);
-				$this->smarty->assign('item', '质量统计');
-				$this->smarty->assign('title', '质量统计');
+				$this->smarty->assign('item', '同轴不合格质量统计表');
+				$this->smarty->assign('title', '同轴不合格质量统计表');
 				$this->smarty->display("qualityStat.tpl");
 				return;
 			}
@@ -653,11 +662,13 @@ class QualityStat extends CW_Controller
 		$this->smarty->assign('totalTestitemArray', $totalTestitemArray);
 		//出错信息
 		$this->smarty->assign('errorMsg', $errorMsg);
-
+		//质量损失费用比例
+		$this->smarty->assign('qualityLossArry', $qualityLossArry);
+		
 		$this->smarty->assign('startTime', $startTime);
 		$this->smarty->assign('endTime', $endTime);
-		$this->smarty->assign('item', '质量统计');
-		$this->smarty->assign('title', '质量统计');
+		$this->smarty->assign('item', '同轴不合格质量统计表');
+		$this->smarty->assign('title', '同轴不合格质量统计表');
 		$this->smarty->display("qualityStat.tpl");
 	}
 	

@@ -137,7 +137,7 @@ class QualitypassTongzhou extends CW_Controller
 			$testitems = array("驻波1","驻波2","回波损耗1","回波损耗2","时域阻抗","TDR电长度");
 			foreach ($testitems as $k => $val) 
 			{
-				$itemObj = $this->db->query("SELECT a.mark,a.value
+				$itemObj = $this->db->query("SELECT a.mark,a.value,a.result
 										   FROM 
 										   testitemmarkvalue a
 										   JOIN testitemresult b ON a.testItemResult = b.id
@@ -160,10 +160,9 @@ class QualitypassTongzhou extends CW_Controller
 			$infoArr[$key]['衰减'] = $shuaijianResultArr;
 		}
 		$this->smarty->assign('infoArr',$infoArr);
-		
 		$this->smarty->assign('searchDate',$searchDate);
-		$this->smarty->assign('item', '质量放行-同轴');
-		$this->smarty->assign('title', '质量放行-同轴');
+		$this->smarty->assign('item', '同轴质量放行记录表');
+		$this->smarty->assign('title', '同轴质量放行记录表');
 		$this->smarty->display("qualitypassTongzhou.tpl");
 	}
 	

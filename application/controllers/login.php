@@ -442,7 +442,7 @@ class Login extends CW_Controller
 		set_time_limit(0);
 		if (PHP_OS == 'WINNT')
 		{
-			$uploadRoot = "D:\\camel\\camel5.0.6.0\\assets\\uploadedSource";
+			$uploadRoot = "E:\\wwwRoot\\camel\\assets\\uploadedSource";
 			$slash = "\\";
 		}
 		else if (PHP_OS == 'Darwin')
@@ -834,7 +834,7 @@ class Login extends CW_Controller
 	{
 		if (PHP_OS == 'WINNT')
 		{
-			$uploadRoot = "D:\\camel\\camel5.0.6.0\\assets\\uploadedSource\\pim";
+			$uploadRoot = "E:\\wwwRoot\\camel\\assets\\uploadedSource\\pim";
 			$slash = "\\";
 		}
 		else if (PHP_OS == 'Darwin')

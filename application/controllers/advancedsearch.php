@@ -254,7 +254,7 @@ class Advancedsearch extends CW_Controller
 				{
 					$filterSql .= " aaaa.$key > '".trim($value[1])."' AND aaaa.$key < '".trim($value[2])."' AND";
 				}
-				$notnullSql .= " aaaa.$key IS NOT NULL";
+				$notnullSql .= " AND aaaa.$key IS NOT NULL";
 			}
 			//截去最后一个","号
 			$testItemsSql = substr($testItemsSql, 0 ,-1);
@@ -264,11 +264,11 @@ class Advancedsearch extends CW_Controller
 			if(strlen($filterSql) > 0)
 			{
 				$filterSql = " WHERE ".substr($filterSql, 0 ,-3);
-				$notnullSql = " AND ".$notnullSql;
+				$notnullSql = $notnullSql;
 			}
 			else
 			{
-				$notnullSql = " WHERE ".$notnullSql;
+				$notnullSql = " WHERE ".substr($notnullSql, 4);
 			}
 			$advanceSearchSql = "SELECT aaaa.* FROM
 								(

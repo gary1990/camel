@@ -59,16 +59,16 @@
 						case "报表":
 							window.location.href = baseurl+"index.php/reportform";
 							break;
-						case "质量放行-同轴":
+						case "同轴质量放行记录表":
 							window.location.href = baseurl+"index.php/qualitypassTongzhou";
 							break;
-						case "质量放行-跳线":
+						case "跳线质量放行记录表":
 							window.location.href = baseurl+"index.php/qualitypass";
 							break;
-						case "质量统计":
+						case "同轴不合格质量统计表":
 							window.location.href = baseurl+"index.php/qualityStat";
 							break;
-						case "产品指标统计":
+						case "同轴产品指标统计表":
 							window.location.href = baseurl+"index.php/productQualityIndex";
 							break;
 						case "用户":
@@ -106,10 +106,10 @@
 				<div class="span-8">
 					{$CI->session->userdata('username')}，您好
 				</div>
-				<div class="span-40">
+				<div class="span-39" style="margin-top: 8px;">
 					{$CI->session->userdata('today')}，工作愉快
 				</div>
-				<div class="span-10">
+				<div class="span-11">
 					{html_options class=items name=items options=$items selected=$item|default:''}
 				</div>
 				<div class="span-4 last">

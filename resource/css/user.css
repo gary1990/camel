@@ -87,13 +87,13 @@ a.normal:hover {
 }
 .defaultStr1 {
 	padding-top: 4px;
-	padding-bottom: 2px;
+	padding-bottom: 0px;
 	position: absolute;
-	top: 2px;
-	left: 4px;
-	font-size: 11px;
+	top: 8px;
+	left: 90px;
+	font-size: 13px;
 	line-height: 11px;
-	height: 14px;
+	height: 28px;
 	color: #a1a1a1;
 	z-index: 200;
 	display: none;
@@ -357,4 +357,63 @@ div.pageTop a:hover {
 .append-bottom20 {
 	margin-bottom: 20px;
 }
-
+.th2{
+	width:30px;
+	display:inline-block;
+}
+.th3{
+	width:60px;
+	display:inline-block;
+}
+.th4{
+	width:90px;
+	display:inline-block;
+}
+.th5{
+	width:120px;
+	display:inline-block;
+}
+.th6{
+	width:150px;
+	display:inline-block;
+}
+.th7{
+	width:180px;
+	display:inline-block;
+}
+.th8{
+	width:210px;
+	display:inline-block;
+}
+.th9{
+	width:240px;
+	display:inline-block;
+}
+.th10{
+	width:270px;
+	display:inline-block;
+}
+.th11{
+	width:300px;
+	display:inline-block;
+}
+.th12{
+	width:330px;
+	display:inline-block;
+}
+.th13{
+	width:360px;
+	display:inline-block;
+}
+.th14{
+	width:390px;
+	display:inline-block;
+}
+.th15{
+	width:420px;
+	display:inline-block;
+}
+.th16{
+	width:450px;
+	display:inline-block;
+}

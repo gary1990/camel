@@ -17,40 +17,62 @@
 		<title>登录</title>
 		<style>
 			.logo_appName{
-				text-align:center;
-				margin-top:50px;
-				margin-bottom:30px;
+				margin: 0 auto;
+				padding-top:130px;
+				width: 390px;
 			}
-			.appName{
-				font-size:38px;
-			    font-family:Arial;
+			.appName {
+			    color: #767676;
+			    display: inline-block;
+			    font-size: 23px;
+			    font-weight: bold;
+			    line-height: 83px;
+			    vertical-align: top;
+			    font-family: Arial;
 			}
-			img{
-				width:25px;
-				height:20px;
-				vertical-align: -8px;
+			img.logo{
+				width:100px;
+				height:80px;
 			}
 			.locBlue{
-				margin-left:50%;
-				border-left:1px solid #666666;
-				padding-left:30px;
+				margin: 0 auto;
+				width: 390px;
+				padding-top:10px;
+				padding-left:8px;
+			}
+			.formItem {
+			    color: #767676;
+			    font-size: 13px;
+			    padding-top: 15px;
+			}
+			.formItem label {
+			    color: #767676;
+			    display: inline;
+			    float: left;
+			    font-size: 13px;
+			    line-height: 28px;
+			    top: 10px;
+			    width: 85px;
 			}
 			.label1{
+				font-family:Arial;
 				font-size:16px;
 			}
 			.input1{
-				height:20px;
-				width:149px;
+				height:28px;
+				width:226px;
 			}
 			.button1{
 				cursor:pointer;
-				color:gray;
+				color: white;
 				background-color:#001429;
-				border: 0;
-				border-radius:5px;
-				width:75px;
-				height:25px;
-				font-size:16px;
+				border: medium none;
+				border-radius: 0 5px 0 5px;
+			    font-size: 15px;
+			    margin-left: 70px;
+			    outline: medium none;
+			    padding: 7px 100px;
+			    width:226px;
 			}
 			.inline{
 				margin-right:20px;
@@ -61,6 +83,16 @@
 			}
 			.error1{
 				font-size:13px;
+			}
+			.body-div{
+				position: relative;
+				width:100%;
+				height:245px;
+				background: #E8EAE9;
+			}
+			.foot-div{
+				text-align:right;
+				margin-top:125px;
 			}
 		</style>
 		<script>
@@ -124,72 +156,45 @@
 		</script>
 	</head>
 	<body>
-		<div class="container">
-			<div class="prepend-2 span-60 append-2 last">
-				<div class="logo_appName">
-					<span class="appName">{$producter}</span>
-				</div>
-				<div class="locSecond prepend-2 span-56 append-2 last">
-					<div class="locBlue span-28 last">
-						<form id="locLoginForm" action="{site_url('login/validateLogin')}" method="post">
-							<div class="clear prepend-1">
-								<div class="locWhite locMid label1">
-									用户名
-								</div>
+		<div class="logo_appName head-div">
+			<img class="logo" src="{base_url()}resource/img/gemcycle.png"/>
+			<div class="appName">Camel Production System</div>
+		</div>
+		<div class="body-div">
+			<form id="locLoginForm" action="{site_url('login/validateLogin')}" method="post">
+				<div class="locBlue">
+					<div class="formItem clear span-30 inline">
+						<label for="username">用户名</label>
+						<div class="relative">
+							<input id="userName" name="userName" class="locInputYellow locDefaultStrContainer input1 validate[required, custom[onlyLetterNumber], minSize[6]]" value="{$smarty.post.userName|default:''}" type="text" />
+							<div class="locDefaultStr defaultStr1 locUserNameDefaultStr">
+								请输入用户名
 							</div>
-							<div class="clear prepend-1 span-11 inline append-bottom10">
-								<div class="relative">
-									<input id="userName" name="userName" class="locInputYellow locDefaultStrContainer input1 validate[required, custom[onlyLetterNumber], minSize[6]]" value="{$smarty.post.userName|default:''}" type="text" />
-									<div class="locDefaultStr defaultStr1 locUserNameDefaultStr">
-										请输入用户名
-									</div>
-								</div>
-							</div>
-							<div class="clear prepend-1">
-								<div class="locWhite locMid label1">
-									密码
-								</div>
-							</div>
-							<div class="clear prepend-1 span-11 inline append-bottom20">
-								<div class="relative">
-									<input id="password" name="password" class="locInputYellow locDefaultStrContainer input1 validate[required, custom[onlyLetterNumber], minSize[6], maxSize[20]]" type="password" />
-									<div class="locDefaultStr defaultStr1 locUserNameDefaultStr">
-										请输入密码
-									</div>
-								</div>
-							</div>
-							<div class="clear prepend-1">
-								<div class="inline span-5">
-									<button id="loginButton" class="button1" type="submit">
-										登录
-									</button>
-								</div>
-								<div class="span-10 locGeneralErrorInfo">
-									<span class="error1">{$loginErrorInfo|default:''}</span>
-								</div>
-							</div>
-							<div class="clear span-1">
-								&nbsp;
-							</div>
-						</form>
+						</div>
 					</div>
-					<div class="clear">
-						&nbsp;
+					<div class="formItem clear span-30 inline append-bottom20">
+						<label for="username">密码</label>
+						<div class="relative">
+							<input id="password" name="password" class="locInputYellow locDefaultStrContainer input1 validate[required, custom[onlyLetterNumber], minSize[6], maxSize[20]]" type="password" />
+							<div class="locDefaultStr defaultStr1 locUserNameDefaultStr">
+								请输入密码
+							</div>
+						</div>
 					</div>
-					<div class="clear">
-						&nbsp;
-					</div>
-					<div class="clear">
-						&nbsp;
-					</div>
-					<div class="clear">
-						&nbsp;
+					<div class="clear prepend-1">
+						<div class="inline span-5">
+							<input id="loginButton" class="button1" type="submit" value="登录"/>
+						</div>
+						<div class="span-10 locGeneralErrorInfo">
+							<span class="error1">{$loginErrorInfo|default:''}</span>
+						</div>
 					</div>
 				</div>
-				<div class="clear prepend-20 span-21">
-					<img src="{base_url()}resource/img/gemcycle.png"/>
-					<span>Camel Production System 5.0,Powered by Gemcycle</span>
-				</div>
+			</form>
+		</div>
+		<div class="foot-div">
+			<div class="clear">
+				<span style="color: #767676;">Camel Production System 5.0,Powered by Gemcycle</span>
 			</div>
 		</div>
 	</body>

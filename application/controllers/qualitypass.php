@@ -220,8 +220,8 @@ class Qualitypass extends CW_Controller
 		
 		$this->smarty->assign('qualitypassArr', $qualitypassArr);
 		$this->smarty->assign('passedArr', $passedArr);
-		$this->smarty->assign('item', '质量放行-跳线');
-		$this->smarty->assign('title', '质量放行-跳线');
+		$this->smarty->assign('item', '跳线质量放行记录表');
+		$this->smarty->assign('title', '跳线质量放行记录表');
 		$this->smarty->display("qualitypass.tpl");
 	}
 	
