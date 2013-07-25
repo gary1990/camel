@@ -128,7 +128,9 @@
 			<div class="prepend-2 span-60 append-2 last">
 				<div class="logo_appName">
 					<img src="{base_url()}resource/img/gemcycle.png"/>
-					<span class="appName"><b>CAMEL</b>生产管理平台</span>
+					<span class="appName">
+						<b>CAMEL</b>生产管理平台
+					</span>
 				</div>
 				<div class="locSecond prepend-2 span-56 append-2 last">
 					<div class="locBlue span-28 last">
