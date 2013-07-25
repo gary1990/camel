@@ -9,7 +9,6 @@ class Advancedsearch extends CW_Controller
 		$this->_init();
 	}
 	
-	
 	private function _init()
 	{
 		$hourList = array(''=>'');
