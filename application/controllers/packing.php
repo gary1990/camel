@@ -374,7 +374,7 @@ class Packing extends CW_Controller
 		
 		
 		//获取vna测试详情
-		$testDetailObject = $this->db->query("SELECT tm.name,tt.testResult,tt.img,te.value,te.mark
+		$testDetailObject = $this->db->query("SELECT tm.name,tt.testResult,tt.img,te.value,te.mark,te.result AS perresult
 										FROM producttestinfo po 
 										JOIN testitemresult tt ON tt.productTestInfo = po.id
 										JOIN testitemmarkvalue te ON te.testItemResult = tt.id
@@ -391,19 +391,19 @@ class Packing extends CW_Controller
 			{
 				if(!in_array($value['name'], $testitem))
 				{
-					$arr = array($value['img'],array(array($value['mark'],$value['value'],$value['testResult'])));
+					$arr = array($value['img'],array(array($value['mark'],$value['value'],$value['perresult'])));
 					$result[$value['name']] = $arr;
 					array_push($testitem,$value['name']);
 				}
 				else
 				{
-					$arr = array($value['mark'],$value['value'],$value['testResult']);
+					$arr = array($value['mark'],$value['value'],$value['perresult']);
 					array_push($result[$value['name']][1],$arr);
 				}
 			}
 		}
 		$this->smarty->assign("result",$result);
-		
+
 		//获取PIM基本信息
 		$pimbasicInfoObject = $this->db->query("SELECT pl.name,pm.col12,pm.col13,MAX(pp.test_time) AS testtime,pp.upload_date
 												FROM pim_label pl

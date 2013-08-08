@@ -352,18 +352,19 @@ class QualitypassTongzhou extends CW_Controller
 					->setCellValue('E1', '序列号')
 					->setCellValue('F1', '内外端')
 					->setCellValue('G1', '驻波/回波损耗')
-					->setCellValue('J1', '衰减')
-					->setCellValue('K1', '时域阻抗')
-					->setCellValue('L1', 'TDR电长度')
-					->setCellValue('M1', '外观及其他')
-					->setCellValue('N1', '客户')
-					->setCellValue('O1', '质量工程师/技术部意见')
-					->setCellValue('P1', '责任部门')
-					->setCellValue('Q1', '质量经理审核')
-					->setCellValue('R1', '总工审核');
+					->setCellValue('K1', '衰减')
+					->setCellValue('L1', '时域阻抗')
+					->setCellValue('M1', 'TDR电长度')
+					->setCellValue('N1', '外观及其他')
+					->setCellValue('O1', '客户')
+					->setCellValue('P1', '质量工程师/技术部意见')
+					->setCellValue('Q1', '责任部门')
+					->setCellValue('R1', '质量经理审核')
+					->setCellValue('S1', '总工审核');
 		$objPHPExcel->getActiveSheet()
 					->mergeCells('G1:H1')
-					->mergeCells('G1:I1');
+					->mergeCells('G1:I1')
+					->mergeCells('G1:J1');
 		if(count($infoArr) != 0)
 		{
 			$i = 2;
@@ -386,32 +387,86 @@ class QualitypassTongzhou extends CW_Controller
 				$zhuboOrSunhao11 = '';
 				$zhuboOrSunhao12 = '';
 				$zhuboOrSunhao13 = '';
+				$zhuboOrSunhao14 = '';
 				$zhuboOrSunhao21 = '';
 				$zhuboOrSunhao22 = '';
 				$zhuboOrSunhao23 = '';
+				$zhuboOrSunhao24 = '';
 				if(count($value['驻波1']) != 0)
 				{
-					$zhuboOrSunhao11 .= $value['驻波1'][0]['mark'].'/'.$value['驻波1'][0]['value'];
-					$zhuboOrSunhao12 .= $value['驻波1'][1]['mark'].'/'.$value['驻波1'][1]['value'];
-					$zhuboOrSunhao13 .= $value['驻波1'][2]['mark'].'/'.$value['驻波1'][2]['value'];
+					if(isset($value['驻波1'][0]['mark']))
+					{
+						$zhuboOrSunhao11 .= $value['驻波1'][0]['mark'].'/'.$value['驻波1'][0]['value'];
+					}
+					if(isset($value['驻波1'][1]['mark']))
+					{
+						$zhuboOrSunhao12 .= $value['驻波1'][1]['mark'].'/'.$value['驻波1'][1]['value'];
+					}
+					if(isset($value['驻波1'][2]['mark']))
+					{
+						$zhuboOrSunhao13 .= $value['驻波1'][2]['mark'].'/'.$value['驻波1'][2]['value'];
+					}
+					if(isset($value['驻波1'][3]['mark']))
+					{
+						$zhuboOrSunhao14 .= $value['驻波1'][3]['mark'].'/'.$value['驻波1'][3]['value'];
+					}	
 				}
 				if(count($value['回波损耗1']) != 0)
 				{
-					$zhuboOrSunhao11 .= $value['回波损耗1'][0]['mark'].'/'.$value['回波损耗1'][0]['value'];
-					$zhuboOrSunhao12 .= $value['回波损耗1'][1]['mark'].'/'.$value['回波损耗1'][1]['value'];
-					$zhuboOrSunhao13 .= $value['回波损耗1'][2]['mark'].'/'.$value['回波损耗1'][2]['value'];
+					if(isset($value['回波损耗1'][0]['mark']))
+					{
+						$zhuboOrSunhao11 .= $value['回波损耗1'][0]['mark'].'/'.$value['回波损耗1'][0]['value'];
+					}
+					if(isset($value['回波损耗1'][1]['mark']))
+					{
+						$zhuboOrSunhao12 .= $value['回波损耗1'][1]['mark'].'/'.$value['回波损耗1'][1]['value'];
+					}
+					if(isset($value['回波损耗1'][2]['mark']))
+					{
+						$zhuboOrSunhao13 .= $value['回波损耗1'][2]['mark'].'/'.$value['回波损耗1'][2]['value'];
+					}
+					if(isset($value['回波损耗1'][3]['mark']))
+					{
+						$zhuboOrSunhao14 .= $value['回波损耗1'][3]['mark'].'/'.$value['回波损耗1'][3]['value'];
+					}	
 				}
 				if(count($value['驻波2']) != 0)
 				{
-					$zhuboOrSunhao21 .= $value['驻波2'][0]['mark'].'/'.$value['驻波2'][0]['value'];
-					$zhuboOrSunhao22 .= $value['驻波2'][1]['mark'].'/'.$value['驻波2'][1]['value'];
-					$zhuboOrSunhao23 .= $value['驻波2'][2]['mark'].'/'.$value['驻波2'][2]['value'];
+					if(isset($value['驻波2'][0]['mark']))
+					{
+						$zhuboOrSunhao21 .= $value['驻波2'][0]['mark'].'/'.$value['驻波2'][0]['value'];
+					}
+					if(isset($value['驻波2'][1]['mark']))
+					{
+						$zhuboOrSunhao22 .= $value['驻波2'][1]['mark'].'/'.$value['驻波2'][1]['value'];
+					}
+					if(isset($value['驻波2'][2]['mark']))
+					{
+						$zhuboOrSunhao23 .= $value['驻波2'][2]['mark'].'/'.$value['驻波2'][2]['value'];
+					}
+					if(isset($value['驻波2'][3]['mark']))
+					{
+						$zhuboOrSunhao24 .= $value['驻波2'][3]['mark'].'/'.$value['驻波2'][3]['value'];
+					}	
 				}
 				if(count($value['回波损耗2']) != 0)
 				{
-					$zhuboOrSunhao21 .= $value['回波损耗2'][0]['mark'].'/'.$value['回波损耗2'][0]['value'];
-					$zhuboOrSunhao22 .= $value['回波损耗2'][1]['mark'].'/'.$value['回波损耗2'][1]['value'];
-					$zhuboOrSunhao23 .= $value['回波损耗2'][2]['mark'].'/'.$value['回波损耗2'][2]['value'];
+					if(isset($value['回波损耗2'][0]['mark']))
+					{
+						$zhuboOrSunhao21 .= $value['回波损耗2'][0]['mark'].'/'.$value['回波损耗2'][0]['value'];
+					}
+					if(isset($value['回波损耗2'][1]['mark']))
+					{
+						$zhuboOrSunhao22 .= $value['回波损耗2'][1]['mark'].'/'.$value['回波损耗2'][1]['value'];
+					}
+					if(isset($value['回波损耗2'][2]['mark']))
+					{
+						$zhuboOrSunhao23 .= $value['回波损耗2'][2]['mark'].'/'.$value['回波损耗2'][2]['value'];
+					}
+					if(isset($value['回波损耗2'][3]['mark']))
+					{
+						$zhuboOrSunhao24 .= $value['回波损耗2'][3]['mark'].'/'.$value['回波损耗2'][3]['value'];
+					}
 				}
 				
 				$shuaijian = '';
@@ -432,7 +487,7 @@ class QualitypassTongzhou extends CW_Controller
 				{
 					foreach ($value['时域阻抗'] as $k => $val) 
 					{
-						$zukang .= $val['mark'].'/'.$val['value'];
+						$zukang .= $val['value'];
 					}
 				}
 				
@@ -441,7 +496,7 @@ class QualitypassTongzhou extends CW_Controller
 				{
 					foreach ($value['TDR电长度'] as $k => $val) 
 					{
-						$tdrLength .= $val['mark'].'/'.$val['value'];
+						$tdrLength .= $val['value'];
 					}
 				}
 				
@@ -456,18 +511,20 @@ class QualitypassTongzhou extends CW_Controller
 							->setCellValue('G'.$i, $zhuboOrSunhao11)
 							->setCellValue('H'.$i, $zhuboOrSunhao12)
 							->setCellValue('I'.$i, $zhuboOrSunhao13)
+							->setCellValue('J'.$i, $zhuboOrSunhao14)
 							->setCellValue('G'.($i+1), $zhuboOrSunhao21)
 							->setCellValue('H'.($i+1), $zhuboOrSunhao22)
 							->setCellValue('I'.($i+1), $zhuboOrSunhao23)
-							->setCellValue('J'.$i, $shuaijian)
-							->setCellValue('K'.$i, $zukang)
-							->setCellValue('L'.$i, $tdrLength)
-							->setCellValue('M'.$i, $value['facadeorother'])
-							->setCellValue('N'.$i, $value['client'])
-							->setCellValue('O'.$i, $value['qualityengineersuggestion'])
-							->setCellValue('P'.$i, $value['responsibledepartment'])
-							->setCellValue('Q'.$i, $value['qualitymanagerreview'])
-							->setCellValue('R'.$i, $value['headengineerreview']);
+							->setCellValue('J'.($i+1), $zhuboOrSunhao24)
+							->setCellValue('K'.$i, $shuaijian)
+							->setCellValue('L'.$i, $zukang)
+							->setCellValue('M'.$i, $tdrLength)
+							->setCellValue('N'.$i, $value['facadeorother'])
+							->setCellValue('O'.$i, $value['client'])
+							->setCellValue('P'.$i, $value['qualityengineersuggestion'])
+							->setCellValue('Q'.$i, $value['responsibledepartment'])
+							->setCellValue('R'.$i, $value['qualitymanagerreview'])
+							->setCellValue('S'.$i, $value['headengineerreview']);
 					
 				$objPHPExcel->getActiveSheet()
 						    ->mergeCells('A'.$i.':A'.($i+1))
@@ -475,7 +532,6 @@ class QualitypassTongzhou extends CW_Controller
 							->mergeCells('C'.$i.':C'.($i+1))
 							->mergeCells('D'.$i.':D'.($i+1))
 							->mergeCells('E'.$i.':E'.($i+1))
-							->mergeCells('J'.$i.':J'.($i+1))
 							->mergeCells('K'.$i.':K'.($i+1))
 							->mergeCells('L'.$i.':L'.($i+1))
 							->mergeCells('M'.$i.':M'.($i+1))
@@ -483,7 +539,8 @@ class QualitypassTongzhou extends CW_Controller
 							->mergeCells('O'.$i.':O'.($i+1))
 							->mergeCells('P'.$i.':P'.($i+1))
 							->mergeCells('Q'.$i.':Q'.($i+1))
-							->mergeCells('R'.$i.':R'.($i+1));
+							->mergeCells('R'.$i.':R'.($i+1))
+							->mergeCells('S'.$i.':S'.($i+1));
 				$i = $i+2;
 			}
 		}

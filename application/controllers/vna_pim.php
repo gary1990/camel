@@ -549,6 +549,7 @@ class Vna_pim extends CW_Controller
 						array_push($pimdataFormart[$value["test_time"]],$value["value"]);
 					}
 				}
+				
 				//判断有几组数据大于极限值
 				$i = 0;
 				foreach($pimdataFormart as $value)

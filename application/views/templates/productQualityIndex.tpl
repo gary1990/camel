@@ -103,8 +103,8 @@
 			<table border="1" cellspacing="1" cellpadding="1">
 				<tr>
 					<th rowspan="2"><div class="th3">序列号</div></th>
-					<th rowspan="2" colspan="3"><div class="th3">驻波1</div></th>
-					<th rowspan="2" colspan="3"><div class="th3">驻波2</div></th>
+					<th rowspan="2" colspan="4"><div class="th3">驻波1</div></th>
+					<th rowspan="2" colspan="4"><div class="th3">驻波2</div></th>
 					<th colspan="15"><div class="th2">衰减</div></th>
 					<th rowspan="2"><div class="th2">阻抗</div></th>
 				</tr>
@@ -127,7 +127,9 @@
 				</tr>
 				{foreach from=$resultArr item=value}
 					<tr>
-						<td>{$value['sn']|default:''}</td>
+						<td>
+							<a href="{site_url('/packing/detail_vna')}/{$value['id']}" target="_blank">{$value['sn']|default:''}</a>
+						</td>
 						<td>
 							{if isset($value['zhubo11']['value'])}
 								{$value['zhubo11']['value']|default:''}/{$value['zhubo11']['mark']|default:''}
@@ -147,6 +149,12 @@
 							{/if}
 						</td>
 						<td>
+							{if isset($value['zhubo14']['value'])}
+								{$value['zhubo14']['value']|default:''}/{$value['zhubo14']['mark']|default:''}
+							{else}
+							{/if}
+						</td>
+						<td>
 							{if isset($value['zhubo21']['value'])}
 								{$value['zhubo21']['value']|default:''}/{$value['zhubo21']['mark']|default:''}
 							{else}
@@ -161,6 +169,12 @@
 						<td>
 							{if isset($value['zhubo23']['value'])}
 								{$value['zhubo23']['value']|default:''}/{$value['zhubo23']['mark']|default:''}
+							{else}
+							{/if}
+						</td>
+						<td>
+							{if isset($value['zhubo24']['value'])}
+								{$value['zhubo24']['value']|default:''}/{$value['zhubo24']['mark']|default:''}
 							{else}
 							{/if}
 						</td>
@@ -187,9 +201,11 @@
 					<td>{$zhubo11Max|default:''}</td>
 					<td>{$zhubo12Max|default:''}</td>
 					<td>{$zhubo13Max|default:''}</td>
+					<td>{$zhubo14Max|default:''}</td>
 					<td>{$zhubo21Max|default:''}</td>
 					<td>{$zhubo22Max|default:''}</td>
 					<td>{$zhubo23Max|default:''}</td>
+					<td>{$zhubo24Max|default:''}</td>
 					{foreach from=$shuajianMax item=shuaijianmax}
 						<td>{$shuaijianmax|default:''}</td>
 					{/foreach}
@@ -200,9 +216,11 @@
 					<td>{$zhubo11Min|default:''}</td>
 					<td>{$zhubo12Min|default:''}</td>
 					<td>{$zhubo13Min|default:''}</td>
+					<td>{$zhubo14Min|default:''}</td>
 					<td>{$zhubo21Min|default:''}</td>
 					<td>{$zhubo22Min|default:''}</td>
 					<td>{$zhubo23Min|default:''}</td>
+					<td>{$zhubo24Min|default:''}</td>
 					{foreach from=$shuajianMin item=shuaijianmin}
 						<td>{$shuaijianmin|default:''}</td>
 					{/foreach}
@@ -213,9 +231,11 @@
 					<td>{$zhubo11Avg|default:''}</td>
 					<td>{$zhubo12Avg|default:''}</td>
 					<td>{$zhubo13Avg|default:''}</td>
+					<td>{$zhubo14Avg|default:''}</td>
 					<td>{$zhubo21Avg|default:''}</td>
 					<td>{$zhubo22Avg|default:''}</td>
 					<td>{$zhubo23Avg|default:''}</td>
+					<td>{$zhubo24Avg|default:''}</td>
 					{foreach from=$shuajianAvg item=shuaijianavg}
 						<td>{$shuaijianavg|default:''}</td>
 					{/foreach}

@@ -94,6 +94,7 @@
 			<span><a href="{site_url()}/firstPage/teststation">4.测试站点</a></span><br/>
 			<span><a href="{site_url()}/firstPage/equipment">5.测试设备</a></span><br/>
 			<span><a href="{site_url()}/firstPage/tester">6.测试员</a></span><br/>
+			<span><a href="{site_url()}/testStandard">7.测试项判断标准</a></span><br/>
 		</div>
 	</div>
 	<div class="span-11 subitem">

@@ -112,7 +112,7 @@
 						<th><div class="th5">长度(千米)</div></th>
 						<th><div class="th3">序列号</div></th>
 						<th><div class="th3">内外端</div></th>
-						<th colspan="3"><div class="th7">驻波/回波损耗</div></th>
+						<th colspan="4"><div class="th7">驻波/回波损耗</div></th>
 						<th><div class="th2">衰减</div></th>
 						<th><div class="th4">时域阻抗</div></th>
 						<th><div class="th5">TDR电长度</div></th>
@@ -148,7 +148,7 @@
 							{abs($value['innermeter']-$value['outmeter'])|default:''}
 						</td>
 						<td rowspan="2">
-							{$value['sn']|default:''}
+							<a href="{site_url('/packing/detail_vna')}/{$value['id']}" target="_blank">{$value['sn']|default:''}</a>
 						</td>
 						<td>内端</td>
 						<td>
@@ -183,7 +183,7 @@
 									<span style="color: red;">{$value['回波损耗1'][1]['mark']|default:''}/{$value['回波损耗1'][1]['value']|default:''}</span>
 								{else}
 									{$value['回波损耗1'][1]['mark']|default:''}/{$value['回波损耗1'][1]['value']|default:''}
-								{/if}					
+								{/if}	
 							{else}	
 							{/if}
 						</td>
@@ -201,6 +201,24 @@
 									<span style="color: red;">{$value['回波损耗1'][2]['mark']|default:''}/{$value['回波损耗1'][2]['value']|default:''}</span>
 								{else}
 									{$value['回波损耗1'][2]['mark']|default:''}/{$value['回波损耗1'][2]['value']|default:''}
+								{/if}
+							{else}
+							{/if}
+						</td>
+						<td>
+							{if isset($value['驻波1'][3]['mark'])}
+								{if $value['驻波1'][3]['result'] eq 0}
+									<span style="color: red;">{$value['驻波1'][3]['mark']|default:''}/{$value['驻波1'][3]['value']|default:''}</span>
+								{else}
+									{$value['驻波1'][3]['mark']|default:''}/{$value['驻波1'][3]['value']|default:''}
+								{/if}
+							{else}	
+							{/if}
+							{if isset($value['回波损耗1'][3]['mark'])}
+								{if $value['回波损耗1'][3]['result'] eq 0}
+									<span style="color: red;">{$value['回波损耗1'][3]['mark']|default:''}/{$value['回波损耗1'][3]['value']|default:''}</span>
+								{else}
+									{$value['回波损耗1'][3]['mark']|default:''}/{$value['回波损耗1'][3]['value']|default:''}
 								{/if}
 							{else}
 							{/if}
@@ -331,6 +349,24 @@
 									<span style="color: red;">{$value['回波损耗2'][2]['mark']|default:''}/{$value['回波损耗2'][2]['value']|default:''}</span>
 								{else}
 									{$value['回波损耗2'][2]['mark']|default:''}/{$value['回波损耗2'][2]['value']|default:''}
+								{/if}					
+							{else}
+							{/if}
+						</td>
+						<td>
+							{if isset($value['驻波2'][3]['mark'])}
+								{if $value['驻波2'][3]['result'] eq 0}
+									<span style="color: red;">{$value['驻波2'][3]['mark']|default:''}/{$value['驻波2'][3]['value']|default:''}</span>
+								{else}
+									{$value['驻波2'][3]['mark']|default:''}/{$value['驻波2'][3]['value']|default:''}
+								{/if}
+							{else}
+							{/if}
+							{if isset($value['回波损耗2'][3]['mark'])}
+								{if $value['回波损耗2'][3]['result'] eq 0}
+									<span style="color: red;">{$value['回波损耗2'][3]['mark']|default:''}/{$value['回波损耗2'][3]['value']|default:''}</span>
+								{else}
+									{$value['回波损耗2'][3]['mark']|default:''}/{$value['回波损耗2'][3]['value']|default:''}
 								{/if}					
 							{else}
 							{/if}

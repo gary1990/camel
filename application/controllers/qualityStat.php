@@ -627,10 +627,18 @@ class QualityStat extends CW_Controller
 							}
 						}
 						//print_r($tempFailArr);
-						$qualityLossMax = max($tempFailArr);
-						$qualityLossKey = array_search($qualityLossMax, $qualityLossArry);
-						//计入质量损失比例最高的对应的
-						$resultArr[$key][$qualityLossKey] +=  abs($val2['innermeter']-$val2['outmeter']);
+						//判断不合格项数组是否为空，外观不合格时次数组为空
+						if(count($tempFailArr) != 0)
+						{
+							$qualityLossMax = max($tempFailArr);
+							$qualityLossKey = array_search($qualityLossMax, $qualityLossArry);
+							//计入质量损失比例最高的对应的
+							$resultArr[$key][$qualityLossKey] +=  abs($val2['innermeter']-$val2['outmeter']);
+						}
+						else
+						{
+							//暂不计入
+						}
 					}
 					else//合格
 					{

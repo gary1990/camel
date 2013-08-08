@@ -355,6 +355,60 @@ class Login extends CW_Controller
 		}
 		xml_print($root);
 	}
+
+	public function downloadStandard()
+	{
+		$this->load->helper('xml');
+		$root = xml_dom();
+		$dom = xml_add_child($root, 'teststandard');
+		$tdrEleLengthObj = $this->db->query("SELECT a.standard FROM producttype_tdrelelength_standard a");
+		$tdrEleLengthArr = $tdrEleLengthObj->result_array();
+		//TDR电长度
+		$tdrEleLength = '';
+		if(count($tdrEleLengthArr) != 0)
+		{
+			$tdrEleLength = $tdrEleLengthArr[0]['standard'];
+		}
+		
+		$damping_timedomainimpedanceSql = "SELECT a.name AS producttypename,b.frequence,b.standard,c.min,c.max
+										   FROM
+										   producttype a
+										   JOIN producttype_damping_standard b ON b.producttype = a.id
+										   JOIN producttype_timedomainimpedance_standard c ON c.producttype = a.id";
+		$damping_timedomainimpedanceObj = $this->db->query($damping_timedomainimpedanceSql);
+		$damping_timedomainimpedanceArr = $damping_timedomainimpedanceObj->result_array();
+		if(count($damping_timedomainimpedanceArr) != 0)
+		{
+			$producttype = array();
+			$producttypedom = '';
+			$dampingdom = '';
+			foreach ($damping_timedomainimpedanceArr as $key => $value) 
+			{
+				if(in_array($value['producttypename'], $producttype))
+				{
+					$dampingstandarddom = xml_add_child($dampingdom, 'standard');
+					xml_add_child($dampingstandarddom, 'frequence',$value['frequence']);
+					xml_add_child($dampingstandarddom, 'standardnum',$value['standard']);
+				}
+				else
+				{
+					$producttypedom = xml_add_child($dom, 'producttype');
+					xml_add_child($producttypedom, 'name',$value['producttypename']);
+					$dampingdom = xml_add_child($producttypedom, 'damping');
+					$dampingstandarddom = xml_add_child($dampingdom, 'standard');
+					xml_add_child($dampingstandarddom, 'frequence',$value['frequence']);
+					xml_add_child($dampingstandarddom, 'standardnum',$value['standard']);
+					xml_add_child($producttypedom, 'tdrelelength',$tdrEleLength);
+					$timedomainimpedancedom = xml_add_child($producttypedom, 'timedomainimpedance');
+					xml_add_child($timedomainimpedancedom, 'min',$value['min']);
+					xml_add_child($timedomainimpedancedom, 'max',$value['max']);
+					array_push($producttype,$value['producttypename']);
+				}
+			}
+		}
+		xml_print($root);
+	}
+
 	//处理测试方案中BeginStim和EndStim
 	private function getBeginOrEndStim($val)
 	{
@@ -402,6 +456,22 @@ class Login extends CW_Controller
 			$username = xml_add_child($dom, 'username');
 			xml_add_child($username, 'result', 'false');
 		}
+		$producttypesDom = xml_add_child($dom, 'producttypes');
+		$producttypeSql = "SELECT DISTINCT a.id, a.name
+		 				   FROM producttype a
+		 				   JOIN status b ON a.status = b.id
+		 				   AND b.statusname = 'active'";
+		$producttypeObj = $this->db->query($producttypeSql);
+		$producttypeArr = $producttypeObj->result_array();
+		if(count($producttypeArr) != 0)
+		{
+			foreach ($producttypeArr as $key => $value) 
+			{
+				$producttypeDom = xml_add_child($producttypesDom, 'producttype');
+				xml_add_child($producttypeDom, 'id', $value['id']);
+				xml_add_child($producttypeDom, 'name', iconv("utf-8", "gbk", $value['name']));
+			}
+		}		   
 		xml_print($root);
 	}
 	

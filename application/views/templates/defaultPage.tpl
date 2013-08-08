@@ -86,6 +86,9 @@
 						case "质量损失费用比例":
 							window.location.href = baseurl+"index.php/qualitylosspercent";
 							break;
+						case "测试项判断标准":
+							window.location.href = baseurl+"index.php/testStandard";
+							break;
 						default:
 							window.location.href = baseurl+"index.php/login/toIndex";
 							break;
