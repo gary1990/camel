@@ -29,7 +29,7 @@
 		width: 330px;
 	}
 	.search{
-		width: 70px
+		width: 200px
 	}
 	.bt {
 		width: 70px
@@ -151,6 +151,10 @@
 			$("#locForm").attr('action', url);
 			$("#locForm").submit();
 		});
+		$(".export_vna").click(function(){
+			$("#locForm").attr('action', "{site_url()}/vna_pim/export_vna");
+			$("#locForm").submit();
+		});
 	});
 	jQuery(function($)
 	{
@@ -180,15 +184,15 @@
 		<form name="locForm" id="locForm" method="post" action="{site_url('vna_pim/vna')}">
 			<div class="condition">
 				<span class="span-5 spanStyle"> 时间: </span>
-				<input id="date_from" class="locLong" type="text" name="timeFrom1" value="{$smarty.post.timeFrom1|default:''}"/>
-				{html_options name=timeFrom2 options=$hourList selected=$smarty.post.timeFrom2|default:''}
+				<input id="date_from" class="locLong" type="text" name="timeFrom1" value="{$timeFrom1|default:''}"/>
+				{html_options name=timeFrom2 options=$hourList selected=$timeFrom2|default:''}
 				:
-				{html_options name=timeFrom3 options=$minuteList selected=$smarty.post.timeFrom3|default:''}
+				{html_options name=timeFrom3 options=$minuteList selected=$timeFrom3|default:''}
 				至:
-				<input id="date_to" class="locLong" type="text" name="timeTo1" value="{$smarty.post.timeTo1|default:''}"/>
-				{html_options name=timeTo2 options=$hourList selected=$smarty.post.timeTo2|default:''}
+				<input id="date_to" class="locLong" type="text" name="timeTo1" value="{$timeTo1|default:''}"/>
+				{html_options name=timeTo2 options=$hourList selected=$timeTo2|default:''}
 				:
-				{html_options name=timeTo3 options=$minuteList selected=$smarty.post.timeTo3|default:''}
+				{html_options name=timeTo3 options=$minuteList selected=$timeTo3|default:''}
 			</div>
 			<div class="condition">
 				<div class="subCondition teststationCn">
@@ -247,6 +251,7 @@
 				</div>
 				<div class="subCondition search">
 					<input class="bt" id="search" type="submit" value="查询"/>
+					<input class="export_vna" type="button" value="导出报告"/>
 					<input name="current_item" class="current_item" value="{if $title=='VNA测试记录'}VNA{else}PIM{/if}" type="hidden"/>
 					<input name="current_page" class="current_page" value="{$smarty.post.current_page|default:'1'}" type="hidden"/>
 				</div>

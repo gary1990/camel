@@ -8,6 +8,7 @@ class Vna_pim extends CW_Controller
 		parent::__construct();
 		$this->_init();
 		$this->load->library("Pagefenye");
+		$this->load->library("zip");
 	}
 
 	private function _init()
@@ -87,12 +88,14 @@ class Vna_pim extends CW_Controller
 		$timeFrom1 = emptyToNull($this->input->post("timeFrom1"));
 		if ($timeFrom1 == null)
 		{
-			$timeFrom1 = 1900;
+			$timeFrom1 = date("Y-m-d");
 		}
+		//$current_time = date("H:i:s");
+		//echo $current_time;
 		$timeFrom2 = emptyToNull($this->input->post("timeFrom2"));
 		if ($timeFrom2 == null)
 		{
-			$timeFrom2 = 0;
+			$timeFrom2 = date("H")-1+1;
 		}
 		$timeFrom3 = emptyToNull($this->input->post("timeFrom3"));
 		if ($timeFrom3 == null)
@@ -103,17 +106,17 @@ class Vna_pim extends CW_Controller
 		$timeTo1 = emptyToNull($this->input->post("timeTo1"));
 		if ($timeTo1 == null)
 		{
-			$timeTo1 = 2999;
+			$timeTo1 = date("Y-m-d");
 		}
 		$timeTo2 = emptyToNull($this->input->post("timeTo2"));
 		if ($timeTo2 == null)
 		{
-			$timeTo2 = 00;
+			$timeTo2 = date("H")+1;
 		}
 		$timeTo3 = emptyToNull($this->input->post("timeTo3"));
 		if ($timeTo3 == null)
 		{
-			$timeTo3 = 00;
+			$timeTo3 = 0;
 		}
 		$timeTo = $timeTo1." ".$timeTo2.":".$timeTo3;
 		$testResult = emptyToNull($this->input->post('testResult'));
@@ -146,6 +149,7 @@ class Vna_pim extends CW_Controller
 		$pim_producttypeSql = "";
 		$pim_ordernumSql = "";
 		$pim_testerSql = ""; 
+		$pim_limitSql = "";
 		if($testResult != null)
 		{
 			if($testResult == 0 || $testResult == 1)
@@ -156,6 +160,10 @@ class Vna_pim extends CW_Controller
 			{
 				$testResultSql = " AND 0 ";
 			}
+		}
+		else
+		{
+			$pim_limitSql = " LIMIT ".($offset-1)*$limit.",".$limit;
 		}
 		if($sn != null)
 		{
@@ -226,7 +234,7 @@ class Vna_pim extends CW_Controller
 		$vnaResultSql = $vnaResultSql." LIMIT ".($offset-1)*$limit.",".$limit;
 		$vnaResultObject = $this->db->query($vnaResultSql);
 		$vnaResultArray = $vnaResultObject->result_array();
-		
+		/*
 		$pimResultSql = "SELECT t.id,MAX(t.test_time) AS test_time,t.col12,t.upload_date,t.model,t.ser_num,t.work_num,t.name
 							FROM (SELECT pm.id,pm.col12,pp.test_time,pp.upload_date,pm.model,pm.ser_num,pm.work_num,pl.name 
 								  FROM pim_ser_num pm
@@ -236,9 +244,25 @@ class Vna_pim extends CW_Controller
 								  ) t
 							GROUP BY t.id
 							ORDER BY t.test_time DESC";
+		 * 
+		 */
+		$pimResultSql = "SELECT pm.id,pm.col12,MAX(pp.test_time) AS test_time,pp.upload_date,pm.model,pm.ser_num,pm.work_num,pl.name 
+						  FROM pim_ser_num pm
+						  JOIN pim_label pl ON pm.pim_label = pl.id 
+						  JOIN pim_ser_num_group pp ON pp.pim_ser_num = pm.id
+						  ".$pim_timeFromSql.$pim_timeToSql.$pim_snSql.$pim_labelnumSql."
+						  GROUP BY pm.id
+						  ORDER BY pp.test_time DESC
+						";
 		$pimResultObject = $this->db->query($pimResultSql);
 		$pimResultArray = $pimResultObject->result_array();
-		
+		$pimtotal = count($pimResultArray);
+		if($pim_limitSql != "")
+		{
+			$pimResultSql .= $pim_limitSql;
+			$pimResultObject = $this->db->query($pimResultSql);
+			$pimResultArray = $pimResultObject->result_array();
+		}
 		//处理pim结果
 		if(count($pimResultArray) != 0)
 		{
@@ -339,9 +363,16 @@ class Vna_pim extends CW_Controller
 		}
 		
 		//总数，供tpl页面中序列号计数用
-		$this->smarty->assign("pimCount",count($pimResultArray));
-		$pimFenye = $this->pagefenye->getFenye(1,count($pimResultArray),$limit,3);
+		$this->smarty->assign("pimCount",$pimtotal);
+		$pimFenye = $this->pagefenye->getFenye(1,$pimtotal,$limit,3);
 		$pimResultArray = array_slice($pimResultArray, 0 , $limit);
+		
+		$this->smarty->assign("timeFrom1",$timeFrom1);
+		$this->smarty->assign("timeFrom2", $timeFrom2);
+		$this->smarty->assign("timeFrom3", $timeFrom3);
+		$this->smarty->assign("timeTo1",$timeTo1);
+		$this->smarty->assign("timeTo2", $timeTo2);
+		$this->smarty->assign("timeTo3", $timeTo3);
 		
 		$this->smarty->assign("vnaResultArray",$vnaResultArray);
 		$this->smarty->assign("vnaFenye", $vnaFenye);
@@ -360,12 +391,12 @@ class Vna_pim extends CW_Controller
 		$timeFrom1 = emptyToNull($this->input->post("timeFrom1"));
 		if ($timeFrom1 == null)
 		{
-			$timeFrom1 = 1900;
+			$timeFrom1 = date("Y-m-d");
 		}
 		$timeFrom2 = emptyToNull($this->input->post("timeFrom2"));
 		if ($timeFrom2 == null)
 		{
-			$timeFrom2 = 0;
+			$timeFrom2 = date("H")-1+1;
 		}
 		$timeFrom3 = emptyToNull($this->input->post("timeFrom3"));
 		if ($timeFrom3 == null)
@@ -376,17 +407,17 @@ class Vna_pim extends CW_Controller
 		$timeTo1 = emptyToNull($this->input->post("timeTo1"));
 		if ($timeTo1 == null)
 		{
-			$timeTo1 = 2999;
+			$timeTo1 = date("Y-m-d");
 		}
 		$timeTo2 = emptyToNull($this->input->post("timeTo2"));
 		if ($timeTo2 == null)
 		{
-			$timeTo2 = 00;
+			$timeTo2 = date("H")+1;
 		}
 		$timeTo3 = emptyToNull($this->input->post("timeTo3"));
 		if ($timeTo3 == null)
 		{
-			$timeTo3 = 00;
+			$timeTo3 = 0;
 		}
 		$timeTo = $timeTo1." ".$timeTo2.":".$timeTo3;
 		$testResult = emptyToNull($this->input->post('testResult'));
@@ -419,6 +450,7 @@ class Vna_pim extends CW_Controller
 		$pim_producttypeSql = "";
 		$pim_ordernumSql = "";
 		$pim_testerSql = "";
+		$pim_limitSql = "";
 		
 		if($testResult != null)
 		{
@@ -430,6 +462,10 @@ class Vna_pim extends CW_Controller
 			{
 				$testResultSql = " AND 0 ";
 			}
+		}
+		else
+		{
+			$pim_limitSql = " LIMIT ".($offset-1)*$limit.",".$limit;
 		}
 		if($sn != null)
 		{
@@ -499,17 +535,23 @@ class Vna_pim extends CW_Controller
 		$vnaResultObject = $this->db->query($vnaResultSql);
 		$vnaResultArray = $vnaResultObject->result_array();
 		
-		$pimResultSql = "SELECT t.id,MAX(t.test_time) AS test_time,t.col12,t.upload_date,t.model,t.ser_num,t.work_num,t.name
-							FROM (SELECT pm.id,pm.col12,pp.test_time,pp.upload_date,pm.model,pm.ser_num,pm.work_num,pl.name 
-								  FROM pim_ser_num pm 
-								  JOIN pim_label pl ON pm.pim_label = pl.id 
-								  JOIN pim_ser_num_group pp ON pp.pim_ser_num = pm.id
-								  ".$pim_timeFromSql.$pim_timeToSql.$pim_snSql.$pim_labelnumSql."
-								  ) t
-							GROUP BY t.id
-							ORDER BY t.test_time DESC";
+		$pimResultSql = "SELECT pm.id,pm.col12,MAX(pp.test_time) AS test_time,pp.upload_date,pm.model,pm.ser_num,pm.work_num,pl.name 
+						  FROM pim_ser_num pm 
+						  JOIN pim_label pl ON pm.pim_label = pl.id 
+						  JOIN pim_ser_num_group pp ON pp.pim_ser_num = pm.id
+						  ".$pim_timeFromSql.$pim_timeToSql.$pim_snSql.$pim_labelnumSql."
+						  GROUP BY pm.id
+						  ORDER BY pp.test_time DESC
+						  ";
 		$pimResultObject = $this->db->query($pimResultSql);
 		$pimResultArray = $pimResultObject->result_array();
+		$pimtotal = count($pimResultArray);
+		if($pim_limitSql != "")
+		{
+			$pimResultSql .= $pim_limitSql;
+			$pimResultObject = $this->db->query($pimResultSql);
+			$pimResultArray = $pimResultObject->result_array();
+		}
 		
 		//处理pim结果
 		if(count($pimResultArray) != 0)
@@ -609,10 +651,29 @@ class Vna_pim extends CW_Controller
 				//do noting
 			}
 		}
-		
+		/*
 		$this->smarty->assign("pimCount",count($pimResultArray)-($offset-1)*$limit);
 		$pimFenye = $this->pagefenye->getFenye($offset,count($pimResultArray),$limit,3);
 		$pimResultArray = array_slice($pimResultArray, ($offset-1)*$limit,$limit);
+		*/
+		if($pim_limitSql == '')
+		{
+			$this->smarty->assign("pimCount",count($pimResultArray)-($offset-1)*$limit);
+			$pimFenye = $this->pagefenye->getFenye($offset,count($pimResultArray),$limit,3);
+			$pimResultArray = array_slice($pimResultArray, ($offset-1)*$limit,$limit);
+		}
+		else
+		{
+			$this->smarty->assign("pimCount",$pimtotal-($offset-1)*$limit);
+			$pimFenye = $this->pagefenye->getFenye($offset,$pimtotal,$limit,3);
+		}
+		
+		$this->smarty->assign("timeFrom1",$timeFrom1);
+		$this->smarty->assign("timeFrom2", $timeFrom2);
+		$this->smarty->assign("timeFrom3", $timeFrom3);
+		$this->smarty->assign("timeTo1",$timeTo1);
+		$this->smarty->assign("timeTo2", $timeTo2);
+		$this->smarty->assign("timeTo3", $timeTo3);
 		
 		$this->smarty->assign("vnaResultArray",$vnaResultArray);
 		$this->smarty->assign("vnaFenye", $vnaFenye);
@@ -623,6 +684,399 @@ class Vna_pim extends CW_Controller
 		$this->smarty->display("vna_pim.tpl");
 	}
 
+	public function export_vna()
+	{
+		set_time_limit(0);
+		
+		//获得选中产品测试项的id,name
+		$testItemSql = "SELECT a.id,a.name FROM testitem a 
+						JOIN status b ON a.status = b.id
+						AND b.statusname = 'active'";
+		$testitemObject = $this->db->query($testItemSql);
+		$testitemArray = $testitemObject->result_array();
+		
+		//根据当前用户填选状况查到满足情况的SN
+		$timeFrom1 = $this->input->post("timeFrom1");
+		if($timeFrom1 == "")
+		{
+			$timeFrom1 = date("Y-m-d");
+		}
+		$timeFrom2 = $this->input->post("timeFrom2");
+		if($timeFrom2 == "")
+		{
+			$timeFrom2 = "00";
+		}
+		$timeFrom3 = $this->input->post("timeFrom3");
+		if($timeFrom3 == "")
+		{
+			$timeFrom3 = "00";
+		}
+		$timeTo1 = $this->input->post("timeTo1");
+		if($timeTo1 == "")
+		{
+			$timeTo1 = date("Y-m-d");
+		}
+		$timeTo2 = $this->input->post("timeTo2");
+		if($timeTo2 == "")
+		{
+			$timeTo2 = "23";
+		}
+		$timeTo3 = $this->input->post("timeTo3");
+		if($timeTo3 == "")
+		{
+			$timeTo3 = "59";
+		}
+		$timeFrom = $timeFrom1." ".$timeFrom2.":".$timeFrom3;
+		$timeTo = $timeTo1." ".$timeTo2.":".$timeTo3;
+		
+		$producttype = $this->input->post("producttype");
+
+		$timeConditionSql = " AND (a.testTime >= '".$timeFrom."' AND a.testTime <= '".$timeTo."')";
+		if($timeFrom != "1900-01-01 00:00" || $timeTo != "2999-01-01 00:00")
+		{
+			$timeConditionSql = " AND a.testTime >= '".$timeFrom."' AND a.testTime <= '".$timeTo."'";
+		}
+
+		$producttypeSql = "";
+
+		if($producttype != null)
+		{
+			$producttypeSql = " AND b.id = '".$producttype."'";
+		}
+		
+		$vnaTotalSnSql = "SELECT a.id,a.sn AS productsn,a.result,b.name AS producttypename,a.tag
+						  FROM producttestinfo a
+						  JOIN producttype b ON a.productType = b.id
+						   ".$timeConditionSql.$producttypeSql."
+						  ORDER BY a.testTime DESC
+						  ";
+		//echo $vnaTotalSnSql;
+		$packingTotalSnObject = $this->db->query($vnaTotalSnSql);
+		$packingTotalSnArray= $packingTotalSnObject->result_array();
+//$packingTotalSnArray = array();
+		/*
+		$packingTotalSnSql = "SELECT DISTINCT pt.id,pt.productsn,pt.boxsn,pt.result,pt.tag
+		                          FROM packingresult pt 
+		                          JOIN tester tr ON pt.packer=tr.employeeid 
+								  LEFT JOIN producttestinfo po ON pt.productsn = po.sn
+								  LEFT JOIN producttype pe ON po.productType = pe.id
+							 	  ".$timeConditionSql.$packBoxSql.$producttypeSql.$productSnSql.$orderNumSql.$packerSql.$testResultSql." 
+							      ORDER BY pt.packingtime DESC";
+		 * 
+		 */
+		//$packingTotalSnObject = $this->db->query($packingTotalSnSql);
+		//$packingTotalSnArray= $packingTotalSnObject->result_array();
+		
+		//遍历得到的序列号数组
+		if(count($packingTotalSnArray) == 0)
+		{
+			$this->_returnUploadFailed("查询数据为空");
+			return;
+		}
+		else
+		{
+			date_default_timezone_set('Asia/Shanghai');
+			$dateStamp = date("YmdHis");
+			$dateInReport = date("Y年m月d日");
+			
+			if(PHP_OS == 'WINNT')
+			{
+				$slash = "\\";
+				$downloadRoot = getcwd().$slash."assets".$slash."downloadedSource";
+			}
+			else
+			{
+				$this->_returnUploadFailed("错误的服务器操作系统");
+				return;
+			}
+			
+			//创建文件下载的根目录downloadedSource
+			if(file_exists($downloadRoot) && is_dir($downloadRoot))
+			{
+				//do nothing
+			}
+			else
+			{
+				if(mkdir($downloadRoot))
+				{
+				}
+				else
+				{
+					$this->_returnUploadFailed("文件下载目录创建失败");
+					return;
+				}
+			}
+			//创建当前下载的文件夹
+			$currdownloadRoot = $downloadRoot.$slash.$dateStamp;
+			if(file_exists($currdownloadRoot) && is_dir($currdownloadRoot))
+			{
+				//do noting
+			}
+			else
+			{
+				if(mkdir($currdownloadRoot))
+				{
+					//拷贝公司logo
+					$logoRoot = getcwd().$slash."resource".$slash."img".$slash."logo.png";
+					if(file_exists($logoRoot))
+					{
+						copy($logoRoot,$currdownloadRoot.$slash."logo.png");
+					}
+					else
+					{
+						$this->_returnUploadFailed($logoRoot."公司logo不存在");
+						return;
+					}
+				}
+				else
+				{
+					$this->_returnUploadFailed("创建下载根目录时出错");
+					return;
+				}
+			}
+			//获取生产厂家名称
+			$producterRoot = getcwd().$slash."resource".$slash."producter.txt";
+			
+			if(file_exists($producterRoot))
+			{
+				$producterName = file_get_contents($producterRoot);
+			}
+			else
+			{
+				$this->_returnUploadFailed($producterRoot."未找到");
+				return;
+			}
+			
+			//创建html文件，先写index.html
+			$indexHandle = fopen($currdownloadRoot.$slash."index.html", "a");
+			fwrite($indexHandle, '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+								  <html xmlns="http://www.w3.org/1999/xhtml">
+									<head>
+										<meta http-equiv="content-type" content="text/html;charset=utf-8">
+										<style type="text/css">
+											body{border:0px;margin:0px}
+											a{text-decoration:none;}
+											.container{width:1024px;margin:0px auto;border:1px solid black;padding:15px;}
+											img{width:60px;height:30px;}
+											table{border-collapse:collapse;}
+											table, td, th{border:1px solid black;}
+										</style>
+									</head>
+										<body>
+											<div class="container">
+												<div class="top">
+													<div style="float:left;width:45%;"><img src="./logo.png"/></div>
+													<div style="font-weight:bold;font-size:28px;text-align:left">质量报告</div>
+												</div>
+												<div style="margin-top:30px;margin-bottom:10px;">
+													<div style="text-align:left;padding-left:70%;">
+														<span>生产厂家：'.iconv("gbk", "utf-8", $producterName).'</span>
+													</div>
+													<div style="text-align:left;padding-left:70%;">
+														<span>报告日期：'.$dateInReport.'</span>
+													</div>
+												</div>'
+												);
+			fwrite($indexHandle,'<div class="content" style="padding-left:10px;padding-right:10px;font-size:13px;">
+								');
+			fwrite($indexHandle, '<table style="width:100%;"><tr><th>序号</th><th>产品型号</th><th>产品序列号</th><th>检测结果</th>');
+			//index.html中写入表头<th>部分的测试项--用户所选
+			if(count($testitemArray) == 0)
+			{
+				//do noting
+			}
+			else
+			{
+				//循环写入vna测试项--用户所选
+				foreach($testitemArray as $value)
+				{
+					fwrite($indexHandle, '<th>'.$value['name'].'</th>');
+				}
+			}
+			fwrite($indexHandle, "</tr>");
+			//循环得到的序列号数组sn数组
+			foreach($packingTotalSnArray as $key=>$value)
+			{
+				fwrite($indexHandle, '<tr><td>'.($key+1).'</td>');
+				//取得产品序列号
+				$producttestinfoId = $value['id'];
+				$sn = $value['productsn'];
+				//取得测试结果
+				$result = $value['result'];
+				//取得标志位
+				$packTag = $value['tag'];
+				//取得产品类型
+				$producttype = $value['producttypename'];
+				/*
+				//取得产品类型
+				$producttypeObject = $this->db->query("SELECT pe.name FROM producttestinfo po 
+								  					   JOIN producttype pe ON po.productType = pe.id
+								                       AND po.sn = '".$sn."'
+								                       AND po.tag = '".$packTag."'");
+
+				$producttypeArray = $producttypeObject->result_array();
+				if(count($producttypeArray) == 0)
+				{
+					$producttype = "";
+				}
+				else
+				{
+					$producttype = $producttypeArray[0]["name"];
+				}
+				*/
+				//index.html中写入产品类型，装箱号，序列号
+				fwrite($indexHandle, '<td>'.$producttype.'</td><td>'.$sn.'</td>');
+				//index.html中写入检测结果
+				if($result == "1")
+				{
+					fwrite($indexHandle, '<td><span style="color:green;"><b>合格</b></span></td>');
+				}
+				else if($result == "0")
+				{
+					fwrite($indexHandle, '<td style="color:red"><b>不合格</b></td>');
+				}
+				
+				
+				//写入各vna测试项最大值--用户所选
+				if(count($testitemArray) == 0)
+				{
+					//do noting
+				}
+				else
+				{
+					//从产品测试方案表中取得当前产品--实际测试项
+					$actualTestItemObject = $this->db->query("SELECT pn.testitem FROM test_configuration pn 
+									  						  JOIN producttestinfo po ON pn.producttype = po.productType
+									  						  AND po.id = '".$producttestinfoId."'"
+									  						  );
+															  
+					$actualTestItemArray = $actualTestItemObject->result_array();
+					$actualTestItem = array();
+					
+					if(count($actualTestItemArray) != 0)
+					{
+						foreach($actualTestItemArray as $value)
+						{
+							array_push($actualTestItem,$value['testitem']);
+						}
+					}
+					else
+					{
+					}
+					
+					//循环	用户所选的测试项
+					foreach($testitemArray as $value)
+					{
+						$testitemId = $value['id'];
+						
+						//判断当前测试项，是否包含在当前产品实际测试项中
+						if(in_array($testitemId,$actualTestItem))
+						{
+							$maxvalueObject = $this->db->query("SELECT MAX(te.value) AS value FROM testitemmarkvalue te
+							 				  					JOIN testitemresult tt ON te.testItemResult = tt.id
+							 				  					JOIN producttestinfo po ON tt.productTestInfo = po.id
+							 				  					AND po.id = '".$producttestinfoId."'
+							 				  					AND tt.testItem = '".$testitemId."'
+							 				  					
+							 				 					");
+							$maxvalueArray = $maxvalueObject->result_array();
+							
+							if(count($maxvalueArray) == 0)
+							{
+								fwrite($indexHandle, '<td>&nbsp;</td>');
+							}
+							else
+							{
+								$maxvalue = $maxvalueArray[0]['value'];
+								fwrite($indexHandle, '<td>'.$maxvalue.'</td>');
+							}
+						}
+						else
+						{
+							fwrite($indexHandle, '<td>&nbsp;</td>');
+						}
+					}
+				}
+				
+				fwrite($indexHandle, "</tr>");
+			}
+
+			fwrite($indexHandle, "</table>");
+			fwrite($indexHandle, '</div></div></body></html>');
+			fclose($indexHandle);
+			
+			exec('C:\Progra~1\7-Zip\7z.exe a -tzip '.$currdownloadRoot.'.zip '.$currdownloadRoot);
+			$this->delDirAndFile($currdownloadRoot);
+			
+			$fileRoot = $currdownloadRoot.".zip";
+			$fileName = $dateStamp.".zip";
+
+			if(!file_exists($fileRoot))
+			{
+				die("Error:File not found.");
+			}
+			else
+			{
+				header("Pragma: public");
+       			header("Expires: 0");
+        		header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        		header("Cache-Control: public");
+        		header("Content-Description: File Transfer");
+        		header("Content-type: application/octet-stream");
+        		header("Content-Disposition: attachment; filename=\"" . $fileName . "\"");
+        		header("Content-Transfer-Encoding: binary");
+        		header("Content-Length: " . filesize($fileRoot));
+        		ob_end_flush();
+				@readfile($fileRoot);
+			}	
+		}
+	}
+
+	private function _returnUploadFailed($err)
+	{
+		$this->load->helper('xml');
+		$dom = xml_dom();
+		$uploadResult = xml_add_child($dom, 'uploadResult');
+		xml_add_child($uploadResult, 'result', 'false');
+		xml_add_child($uploadResult, 'info', $err);
+		xml_print($dom);
+	}
+	
+	//循环删除目录和文件函数
+	private function delDirAndFile($dirName)
+	{
+		if (PHP_OS == 'WINNT')
+		{
+			$slash = "\\";
+		}
+		else if (PHP_OS == 'Darwin')
+		{
+			$slash = "/";
+		}
+		if (file_exists($dirName))
+		{
+			if ($handle = opendir($dirName))
+			{
+				while (false !== ($item = readdir($handle)))
+				{
+					if ($item != "." && $item != "..")
+					{
+						if (is_dir($dirName.$slash.$item))
+						{
+							$this->delDirAndFile($dirName.$slash.$item);
+						}
+						else
+						{
+							unlink($dirName.$slash.$item);
+						}
+					}
+				}
+				closedir($handle);
+				rmdir($dirName);
+			}
+		}
+	}
+	
 	//转换从数据库根据id,另一项项取出的数组，赋给页面下拉列表
 	protected function array_switch($var1,$var2,$var3)
 	{
