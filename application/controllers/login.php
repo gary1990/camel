@@ -370,11 +370,21 @@ class Login extends CW_Controller
 			$tdrEleLength = $tdrEleLengthArr[0]['standard'];
 		}
 		
-		$damping_timedomainimpedanceSql = "SELECT a.name AS producttypename,b.frequence,b.standard,c.min,c.max
+		$damping_timedomainimpedanceSql = "SELECT ab.name AS producttypename,a.producttype as producttype1,a.frequence,a.standard,b.producttype as producttype2,b.min,b.max
 										   FROM
-										   producttype a
-										   JOIN producttype_damping_standard b ON b.producttype = a.id
-										   JOIN producttype_timedomainimpedance_standard c ON c.producttype = a.id";
+										   producttype_damping_standard a
+										   LEFT JOIN producttype_timedomainimpedance_standard b ON a.producttype = b.producttype
+										   JOIN producttype ab ON a.producttype = ab.id
+										   JOIN status ss ON ab.status = ss.id
+										   AND ss.statusname = 'active'
+										   UNION
+										   SELECT cd.name AS producttypename,c.producttype as producttype1,c.frequence,c.standard,d.producttype as producttype2,d.min,d.max
+										   FROM
+										   producttype_damping_standard c
+										   RIGHT JOIN producttype_timedomainimpedance_standard d ON c.producttype = d.producttype
+										   JOIN producttype cd ON d.producttype = cd.id
+										   JOIN status s ON cd.status = s.id
+										   AND s.statusname = 'active'";
 		$damping_timedomainimpedanceObj = $this->db->query($damping_timedomainimpedanceSql);
 		$damping_timedomainimpedanceArr = $damping_timedomainimpedanceObj->result_array();
 		if(count($damping_timedomainimpedanceArr) != 0)
@@ -386,22 +396,32 @@ class Login extends CW_Controller
 			{
 				if(in_array($value['producttypename'], $producttype))
 				{
-					$dampingstandarddom = xml_add_child($dampingdom, 'standard');
-					xml_add_child($dampingstandarddom, 'frequence',$value['frequence']);
-					xml_add_child($dampingstandarddom, 'standardnum',$value['standard']);
+					if($value['frequence'] != '')
+					{
+						$dampingstandarddom = xml_add_child($dampingdom, 'standard');
+						xml_add_child($dampingstandarddom, 'frequence',$value['frequence']);
+						xml_add_child($dampingstandarddom, 'standardnum',$value['standard']);
+					}
 				}
 				else
 				{
 					$producttypedom = xml_add_child($dom, 'producttype');
 					xml_add_child($producttypedom, 'name',$value['producttypename']);
 					$dampingdom = xml_add_child($producttypedom, 'damping');
-					$dampingstandarddom = xml_add_child($dampingdom, 'standard');
-					xml_add_child($dampingstandarddom, 'frequence',$value['frequence']);
-					xml_add_child($dampingstandarddom, 'standardnum',$value['standard']);
+					if($value['frequence'] != '')
+					{
+						$dampingstandarddom = xml_add_child($dampingdom, 'standard');
+						xml_add_child($dampingstandarddom, 'frequence',$value['frequence']);
+						xml_add_child($dampingstandarddom, 'standardnum',$value['standard']);
+					}
+					
 					xml_add_child($producttypedom, 'tdrelelength',$tdrEleLength);
 					$timedomainimpedancedom = xml_add_child($producttypedom, 'timedomainimpedance');
-					xml_add_child($timedomainimpedancedom, 'min',$value['min']);
-					xml_add_child($timedomainimpedancedom, 'max',$value['max']);
+					if($value['min'] != '')
+					{
+						xml_add_child($timedomainimpedancedom, 'min',$value['min']);
+						xml_add_child($timedomainimpedancedom, 'max',$value['max']);
+					}
 					array_push($producttype,$value['producttypename']);
 				}
 			}
