@@ -95,14 +95,14 @@ class Vna_pim extends CW_Controller
 		$timeFrom2 = emptyToNull($this->input->post("timeFrom2"));
 		if ($timeFrom2 == null)
 		{
-			$timeFrom2 = date("H")-1+1;
+			$timeFrom2 = 0;
 		}
 		$timeFrom3 = emptyToNull($this->input->post("timeFrom3"));
 		if ($timeFrom3 == null)
 		{
 			$timeFrom3 = 0;
 		}
-		$timeFrom = $timeFrom1." ".$timeFrom2.":".$timeFrom3;
+		$timeFrom = $timeFrom1." ".$timeFrom2.":".$timeFrom3.":0";
 		$timeTo1 = emptyToNull($this->input->post("timeTo1"));
 		if ($timeTo1 == null)
 		{
@@ -111,14 +111,14 @@ class Vna_pim extends CW_Controller
 		$timeTo2 = emptyToNull($this->input->post("timeTo2"));
 		if ($timeTo2 == null)
 		{
-			$timeTo2 = date("H")+1;
+			$timeTo2 = 23;
 		}
 		$timeTo3 = emptyToNull($this->input->post("timeTo3"));
 		if ($timeTo3 == null)
 		{
-			$timeTo3 = 0;
+			$timeTo3 = 59;
 		}
-		$timeTo = $timeTo1." ".$timeTo2.":".$timeTo3;
+		$timeTo = $timeTo1." ".$timeTo2.":".$timeTo3.":59";
 		$testResult = emptyToNull($this->input->post('testResult'));
 		$sn = emptyToNull($this->input->post('sn'));
 		$teststation = emptyToNull($this->input->post('teststation'));
@@ -155,16 +155,14 @@ class Vna_pim extends CW_Controller
 			if($testResult == 0 || $testResult == 1)
 			{
 				$testResultSql = " AND po.result = ".$testResult;
+				$pim_testResultSql = " AND pm.result = ".$testResult;
 			}
 			else
 			{
 				$testResultSql = " AND 0 ";
 			}
 		}
-		else
-		{
-			$pim_limitSql = " LIMIT ".($offset-1)*$limit.",".$limit;
-		}
+		
 		if($sn != null)
 		{
 			$start = strpos($sn, "+");
@@ -234,138 +232,23 @@ class Vna_pim extends CW_Controller
 		$vnaResultSql = $vnaResultSql." LIMIT ".($offset-1)*$limit.",".$limit;
 		$vnaResultObject = $this->db->query($vnaResultSql);
 		$vnaResultArray = $vnaResultObject->result_array();
-		/*
-		$pimResultSql = "SELECT t.id,MAX(t.test_time) AS test_time,t.col12,t.upload_date,t.model,t.ser_num,t.work_num,t.name
-							FROM (SELECT pm.id,pm.col12,pp.test_time,pp.upload_date,pm.model,pm.ser_num,pm.work_num,pl.name 
-								  FROM pim_ser_num pm
-								  JOIN pim_label pl ON pm.pim_label = pl.id 
-								  JOIN pim_ser_num_group pp ON pp.pim_ser_num = pm.id
-								  ".$pim_timeFromSql.$pim_timeToSql.$pim_snSql.$pim_labelnumSql."
-								  ) t
-							GROUP BY t.id
-							ORDER BY t.test_time DESC";
-		 * 
-		 */
-		$pimResultSql = "SELECT pm.id,pm.col12,MAX(pp.test_time) AS test_time,pp.upload_date,pm.model,pm.ser_num,pm.work_num,pl.name 
+		
+		$pimResultSql = "SELECT pm.result,pm.id,pm.col12,MAX(pp.test_time) AS test_time,pp.upload_date,pm.model,pm.ser_num,pm.work_num,pl.name 
 						  FROM pim_ser_num pm
 						  JOIN pim_label pl ON pm.pim_label = pl.id 
 						  JOIN pim_ser_num_group pp ON pp.pim_ser_num = pm.id
-						  ".$pim_timeFromSql.$pim_timeToSql.$pim_snSql.$pim_labelnumSql."
+						  ".$pim_timeFromSql.$pim_timeToSql.$pim_snSql.$pim_labelnumSql.$pim_testResultSql."
 						  GROUP BY pm.id
 						  ORDER BY pp.test_time DESC
 						";
 		$pimResultObject = $this->db->query($pimResultSql);
 		$pimResultArray = $pimResultObject->result_array();
-		$pimtotal = count($pimResultArray);
-		if($pim_limitSql != "")
-		{
-			$pimResultSql .= $pim_limitSql;
-			$pimResultObject = $this->db->query($pimResultSql);
-			$pimResultArray = $pimResultObject->result_array();
-		}
-		//处理pim结果
-		if(count($pimResultArray) != 0)
-		{
-			foreach($pimResultArray as $key=>$value)
-			{
-				//取得极限值
-				$limitLine = substr($value["col12"], strrpos($value["col12"], ":")+1);
-				//取得pim_ser_num的id
-				$pim_ser_num_id = $value['id'];
-				//取得所有值
-				$pimdataObject = $this->db->query("SELECT pp.test_time,pa.value
-										  FROM pim_label pl
-										  JOIN pim_ser_num pm ON pm.pim_label = pl.id
-										  JOIN pim_ser_num_group pp ON pp.pim_ser_num = pm.id
-										  JOIN pim_ser_num_group_data pa ON pa.pim_ser_num_group = pp.id
-										  WHERE pm.id = '".$pim_ser_num_id."'");
-				$pimdataArray = $pimdataObject->result_array();
-				//对数据处理，将同一测试时间的数据放到一组
-				$pim_testtime = array();
-				$pimdataFormart = array();
-				foreach($pimdataArray as $value)
-				{
-					if(!in_array($value["test_time"], $pim_testtime))
-					{
-						$arr = array($value["value"]);
-						$pimdataFormart[$value["test_time"]] = $arr;
-						array_push($pim_testtime,$value["test_time"]);
-					}
-					else
-					{
-						array_push($pimdataFormart[$value["test_time"]],$value["value"]);
-					}
-				}
-				//pim判断有几组数据大于极限值
-				$i = 0;
-				foreach($pimdataFormart as $value)
-				{
-					foreach($value as $val)
-					{
-						if($val >= $limitLine)
-						{
-							$i++;
-							break;
-						}
-					}
-				}
-				//pim判断是否合格，0代表不合格，1代表合格
-				if(count($pimdataFormart) == 1)
-				{
-					if($i > 0)
-					{
-						$pimtestResult = "0";
-					}
-					else
-					{
-						$pimtestResult = "1";
-					}
-				}
-				else
-				{
-					if($i >= 2)
-					{
-						$pimtestResult = "0";
-					}
-					else
-					{
-						$pimtestResult = "1";
-					}
-				}
-				//将结果放入已查询出的数组最后
-				$pimResultArray[$key]["result"] = $pimtestResult;
-			}
-			//根据用户所选pim结果过滤条件，对pim结果数组处理
-			if($testResult == "0")
-			{
-				foreach ($pimResultArray as $key => $value) 
-				{
-					if($value["result"] == "1")
-					{
-						unset($pimResultArray[$key]);
-					}
-				}
-			}
-			else if($testResult == "1")
-			{
-				foreach ($pimResultArray as $key => $value) 
-				{
-					if($value["result"] == "0")
-					{
-						unset($pimResultArray[$key]);
-					}
-				}
-			}
-			else
-			{
-				
-			}
-		}
-		
-		//总数，供tpl页面中序列号计数用
-		$this->smarty->assign("pimCount",$pimtotal);
-		$pimFenye = $this->pagefenye->getFenye(1,$pimtotal,$limit,3);
-		$pimResultArray = array_slice($pimResultArray, 0 , $limit);
+
+		$this->smarty->assign("pimCount",count($pimResultArray));
+		$pimFenye = $this->pagefenye->getFenye(1, count($pimResultArray), $limit, 3);
+		$pimResultSql = $pimResultSql." LIMIT 0,".$limit;
+		$pimResultObject = $this->db->query($pimResultSql);
+		$pimResultArray = $pimResultObject->result_array();
 		
 		$this->smarty->assign("timeFrom1",$timeFrom1);
 		$this->smarty->assign("timeFrom2", $timeFrom2);
@@ -396,14 +279,14 @@ class Vna_pim extends CW_Controller
 		$timeFrom2 = emptyToNull($this->input->post("timeFrom2"));
 		if ($timeFrom2 == null)
 		{
-			$timeFrom2 = date("H")-1+1;
+			$timeFrom2 = 0;
 		}
 		$timeFrom3 = emptyToNull($this->input->post("timeFrom3"));
 		if ($timeFrom3 == null)
 		{
 			$timeFrom3 = 0;
 		}
-		$timeFrom = $timeFrom1." ".$timeFrom2.":".$timeFrom3;
+		$timeFrom = $timeFrom1." ".$timeFrom2.":".$timeFrom3.":0";
 		$timeTo1 = emptyToNull($this->input->post("timeTo1"));
 		if ($timeTo1 == null)
 		{
@@ -412,14 +295,14 @@ class Vna_pim extends CW_Controller
 		$timeTo2 = emptyToNull($this->input->post("timeTo2"));
 		if ($timeTo2 == null)
 		{
-			$timeTo2 = date("H")+1;
+			$timeTo2 = 23;
 		}
 		$timeTo3 = emptyToNull($this->input->post("timeTo3"));
 		if ($timeTo3 == null)
 		{
-			$timeTo3 = 0;
+			$timeTo3 = 59;
 		}
-		$timeTo = $timeTo1." ".$timeTo2.":".$timeTo3;
+		$timeTo = $timeTo1." ".$timeTo2.":".$timeTo3.":59";
 		$testResult = emptyToNull($this->input->post('testResult'));
 		$sn = emptyToNull($this->input->post('sn'));
 		$teststation = emptyToNull($this->input->post('teststation'));
@@ -457,16 +340,14 @@ class Vna_pim extends CW_Controller
 			if($testResult == 0 || $testResult == 1)
 			{
 				$testResultSql = " AND po.result = ".$testResult;
+				$pim_testResultSql = " AND pm.result = ".$testResult;
 			}
 			else
 			{
 				$testResultSql = " AND 0 ";
 			}
 		}
-		else
-		{
-			$pim_limitSql = " LIMIT ".($offset-1)*$limit.",".$limit;
-		}
+
 		if($sn != null)
 		{
 			$start = strpos($sn, "+");
@@ -535,138 +416,22 @@ class Vna_pim extends CW_Controller
 		$vnaResultObject = $this->db->query($vnaResultSql);
 		$vnaResultArray = $vnaResultObject->result_array();
 		
-		$pimResultSql = "SELECT pm.id,pm.col12,MAX(pp.test_time) AS test_time,pp.upload_date,pm.model,pm.ser_num,pm.work_num,pl.name 
+		$pimResultSql = "SELECT pm.result,pm.id,pm.col12,MAX(pp.test_time) AS test_time,pp.upload_date,pm.model,pm.ser_num,pm.work_num,pl.name 
 						  FROM pim_ser_num pm 
 						  JOIN pim_label pl ON pm.pim_label = pl.id 
 						  JOIN pim_ser_num_group pp ON pp.pim_ser_num = pm.id
-						  ".$pim_timeFromSql.$pim_timeToSql.$pim_snSql.$pim_labelnumSql."
+						  ".$pim_timeFromSql.$pim_timeToSql.$pim_snSql.$pim_labelnumSql.$pim_testResultSql."
 						  GROUP BY pm.id
 						  ORDER BY pp.test_time DESC
 						  ";
 		$pimResultObject = $this->db->query($pimResultSql);
 		$pimResultArray = $pimResultObject->result_array();
-		$pimtotal = count($pimResultArray);
-		if($pim_limitSql != "")
-		{
-			$pimResultSql .= $pim_limitSql;
-			$pimResultObject = $this->db->query($pimResultSql);
-			$pimResultArray = $pimResultObject->result_array();
-		}
 		
-		//处理pim结果
-		if(count($pimResultArray) != 0)
-		{
-			foreach($pimResultArray as $key=>$value)
-			{
-				//取得极限值
-				$limitLine = substr($value["col12"], strrpos($value["col12"], ":")+1);
-				//取得pim_ser_num的id
-				$pim_ser_num_id = $value['id'];
-				//取得所有值
-				$pimdataObject = $this->db->query("SELECT pp.test_time,pa.value
-										  FROM pim_label pl
-										  JOIN pim_ser_num pm ON pm.pim_label = pl.id
-										  JOIN pim_ser_num_group pp ON pp.pim_ser_num = pm.id
-										  JOIN pim_ser_num_group_data pa ON pa.pim_ser_num_group = pp.id
-										  WHERE pm.id = '".$pim_ser_num_id."'");
-				$pimdataArray = $pimdataObject->result_array();
-				//对数据处理，将同一测试时间的数据放到一组
-				$pim_testtime = array();
-				$pimdataFormart = array();
-				foreach($pimdataArray as $value)
-				{
-					if(!in_array($value["test_time"], $pim_testtime))
-					{
-						$arr = array($value["value"]);
-						$pimdataFormart[$value["test_time"]] = $arr;
-						array_push($pim_testtime,$value["test_time"]);
-					}
-					else
-					{
-						array_push($pimdataFormart[$value["test_time"]],$value["value"]);
-					}
-				}
-				//判断有几组数据大于极限值
-				$i = 0;
-				foreach($pimdataFormart as $value)
-				{
-					foreach($value as $val)
-					{
-						if($val >= $limitLine)
-						{
-							$i++;
-							break;
-						}
-					}
-				}
-				//判断是否合格，0代表不合格，1代表合格
-				if(count($pimdataFormart) == 1)
-				{
-					if($i > 0)
-					{
-						$pimtestResult = "0";
-					}
-					else
-					{
-						$pimtestResult = "1";
-					}
-				}
-				else
-				{
-					if($i >= 2)
-					{
-						$pimtestResult = "0";
-					}
-					else
-					{
-						$pimtestResult = "1";
-					}
-				}
-				//将结果放入已查询出的数组最后
-				$pimResultArray[$key]["result"] = $pimtestResult;
-			}
-			//根据用户所选pim结果过滤条件，对pim结果数组处理
-			if($testResult == "0")
-			{
-				foreach ($pimResultArray as $key => $value) 
-				{
-					if($value["result"] == "1")
-					{
-						unset($pimResultArray[$key]);
-					}
-				}
-			}
-			else if($testResult == "1")
-			{
-				foreach ($pimResultArray as $key => $value) 
-				{
-					if($value["result"] == "0")
-					{
-						unset($pimResultArray[$key]);
-					}
-				}
-			}
-			else
-			{
-				//do noting
-			}
-		}
-		/*
 		$this->smarty->assign("pimCount",count($pimResultArray)-($offset-1)*$limit);
-		$pimFenye = $this->pagefenye->getFenye($offset,count($pimResultArray),$limit,3);
-		$pimResultArray = array_slice($pimResultArray, ($offset-1)*$limit,$limit);
-		*/
-		if($pim_limitSql == '')
-		{
-			$this->smarty->assign("pimCount",count($pimResultArray)-($offset-1)*$limit);
-			$pimFenye = $this->pagefenye->getFenye($offset,count($pimResultArray),$limit,3);
-			$pimResultArray = array_slice($pimResultArray, ($offset-1)*$limit,$limit);
-		}
-		else
-		{
-			$this->smarty->assign("pimCount",$pimtotal-($offset-1)*$limit);
-			$pimFenye = $this->pagefenye->getFenye($offset,$pimtotal,$limit,3);
-		}
+		$pimFenye = $this->pagefenye->getFenye($offset, count($pimResultArray), $limit, 3);
+		$pimResultSql = $pimResultSql." LIMIT ".($offset-1)*$limit.",".$limit;
+		$pimResultObject = $this->db->query($pimResultSql);
+		$pimResultArray = $pimResultObject->result_array();
 		
 		$this->smarty->assign("timeFrom1",$timeFrom1);
 		$this->smarty->assign("timeFrom2", $timeFrom2);
@@ -682,6 +447,62 @@ class Vna_pim extends CW_Controller
 		$this->smarty->assign("item","PIM测试记录");
 		$this->smarty->assign("title","PIM测试记录");
 		$this->smarty->display("vna_pim.tpl");
+	}
+
+	public function pim_result()
+	{
+		
+		set_time_limit(0);
+		$pim_nullObj = $this->db->query("SELECT a.id,a.result FROM pim_ser_num a WHERE a.result IS NULL");
+		$pim_nullArr = $pim_nullObj->result_array();
+		if(count($pim_nullArr) != 0)
+		{
+			foreach ($pim_nullArr as $key => $value) 
+			{
+				$pim_ser_num = $value['id'];
+				$pim_failcountSql = "
+							SELECT t.id,COUNT(CASE WHEN t.value=1 THEN 0 ELSE NULL END) AS failcount FROM
+							(
+								SELECT a.id,MAX(c.value) > SUBSTRING(a.col12,13) AS value
+								FROM
+								pim_ser_num a
+								JOIN pim_label pl ON a.pim_label = pl.id 
+								JOIN pim_ser_num_group b ON b.pim_ser_num = a.id
+								JOIN pim_ser_num_group_data c ON c.pim_ser_num_group = b.id
+								AND a.id = ".$pim_ser_num."
+								GROUP BY b.test_time
+							) t
+							GROUP BY t.id
+							";
+				$pim_failcountObj = $this->db->query($pim_failcountSql);
+				$pim_failcountArr = $pim_failcountObj->result_array();
+				$result = NULL;
+				if(count($pim_failcountArr) != 0)
+				{
+					$failCount = $pim_failcountArr[0]['failcount'];
+					if($failCount > 1)
+					{
+						$result = 0;
+					}
+					elseif($failCount == 1 || $failCount == 0)
+					{
+						$result = 1;
+					}
+					else
+					{
+						
+					}
+					$this->db->query("UPDATE pim_ser_num a SET a.result = ".$result." WHERE a.id = ".$pim_ser_num);
+				}
+			}
+			$pim_nullLastObj = $this->db->query("SELECT a.id,a.result FROM pim_ser_num a WHERE a.result IS NULL");
+			$pim_nullLastArr = $pim_nullLastObj->result_array();
+			echo count($pim_nullLastArr)." record lasted";
+		}
+		else
+		{
+			echo "No record need calculate";
+		}
 	}
 
 	public function export_vna()

@@ -854,7 +854,7 @@ class Login extends CW_Controller
 						//如果是第一个组,使用此组值来初始化pim_ser_num中的值					
 						if ($firstGroup)
 						{
-							$tmpSql = "INSERT INTO `pim_ser_num`(`work_num`, `test_time`, `model`, `ser_num`, `pim_label`, `col1`, `col2`, `col3`, `col4`, `col5`, `col6`, `col7`, `col8`, `col9`, `col10`, `col11`, `col12`, `col13`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+							$tmpSql = "INSERT INTO `pim_ser_num`(`work_num`, `test_time`, `model`, `ser_num`, `pim_label`, `col1`, `col2`, `col3`, `col4`, `col5`, `col6`, `col7`, `col8`, `col9`, `col10`, `col11`, `col12`, `col13`,result) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 							$tmpRes = $this->db->query($tmpSql, array(
 								' ',
 								'0000-00-00 00:00:00',
@@ -873,7 +873,8 @@ class Login extends CW_Controller
 								$lineContentArray[9],
 								$lineContentArray[10],
 								$lineContentArray[13],
-								$lineContentArray[15]
+								$lineContentArray[15],
+								NULL
 							));
 							if ($tmpRes === TRUE)
 							{
@@ -954,6 +955,47 @@ class Login extends CW_Controller
 							return;
 						}
 						$firstGroup = false;					
+					}
+					//计算pim结果
+					$pim_failcountSql = "
+							SELECT t.id,COUNT(CASE WHEN t.value=1 THEN 0 ELSE NULL END) AS failcount FROM
+							(
+								SELECT a.id,MAX(c.value) > SUBSTRING(a.col12,13) AS value
+								FROM
+								pim_ser_num a
+								JOIN pim_label pl ON a.pim_label = pl.id 
+								JOIN pim_ser_num_group b ON b.pim_ser_num = a.id
+								JOIN pim_ser_num_group_data c ON c.pim_ser_num_group = b.id
+								AND a.id = ".$pim_ser_num."
+								GROUP BY b.test_time
+							) t
+							GROUP BY t.id
+							";
+					$pim_failcountObj = $this->db->query($pim_failcountSql);
+					if($pim_failcountObj)
+					{
+						$pim_failcountArr = $pim_failcountObj->result_array();
+						$result = NULL;
+						$failCount = $pim_failcountArr[0]['failcount'];
+						if($failCount > 1)
+						{
+							$result = 0;
+						}
+						elseif($failCount == 1 || $failCount == 0)
+						{
+							$result = 1;
+						}
+						else
+						{
+							
+						}
+						$this->db->query("UPDATE pim_ser_num a SET a.result = ".$result." WHERE a.id = ".$pim_ser_num);
+					}
+					else
+					{
+						$this->db->trans_rollback();
+						$this->_returnUploadFailed("false13");
+						return;
 					}
 				}
 				else

@@ -267,6 +267,7 @@
 	<div class="gqts_item" id="PIM">
 		PIM
 	</div>
+	<a href="{site_url('vna_pim/pim_result')}">计算pim结果</a>
 	<hr/>
 	<div class="testResult VNA">
 		<table border="0">
