@@ -59,11 +59,15 @@ class Login extends CW_Controller
 		}
 	}
 	
-	public function toIndex()
+	public function toIndex($err = null)
 	{
 		$today = date("Y年m月d日");
 		$this->session->set_userdata("today",$today);
 		//redirect(base_url().'index.php/sckb');
+		if($err != null)
+		{
+			$this->smarty->assign('nopermissionErr','无此权限！');
+		}
 		$this->smarty->display("index.tpl");
 	}
 	
@@ -168,9 +172,10 @@ class Login extends CW_Controller
 							{
 								$this->session->set_userdata('username', strtolower($this->input->post('userName')));
 								$this->session->set_userdata('userId', $tmpArr['id']);
+								$this->session->set_userdata('fullname', $tmpArr['fullname']);
 								$userRoleObj = $this->db->query("SELECT name FROM team WHERE id = '".$tmpArr['team']."'");
 								$userRoleArr = $userRoleObj->result_array();
-								$this->session->set_userdata('userrole', $userRoleArr[0]['name']);
+								$this->session->set_userdata('team', $userRoleArr[0]['name']);
 								return TRUE;
 							}
 							else
@@ -231,16 +236,35 @@ class Login extends CW_Controller
 										AND et.sn = ?", array($equipmentSn));
 			if ($tmpRes->num_rows() > 0)
 			{
-				$tmpResEquipmentArry = $tmpRes->result_array();
-				$testStation = xml_add_child($dom, 'test_station');
+				$testStation = xml_add_child($dom, 'equipment');
 				xml_add_child($testStation, 'result', 'true');
-				xml_add_child($testStation, 'id', $tmpResEquipmentArry[0]["id"]);
 			}
 			else
 			{
 				//没有查到测试设备
-				$testStation = xml_add_child($dom, 'test_station');
+				$testStation = xml_add_child($dom, 'equipment');
 				xml_add_child($testStation, 'result', 'false');
+			}
+			//取得测试站
+			$testastationRes = $this->db->query("SELECT tn.* FROM teststation tn
+												JOIN status ss ON tn.status = ss.id
+												AND ss.statusname = 'active'");
+			if($testastationRes->num_rows() > 0)
+			{
+				$testastationArr = $testastationRes->result_array();
+				$teststaions = xml_add_child($dom, 'teststations');
+				xml_add_child($teststaions, 'result', 'true');
+				foreach ($testastationArr as $value) 
+				{
+					$teststaion = xml_add_child($teststaions,"teststaion");
+					xml_add_child($teststaion,"name",$value['name']);
+					xml_add_child($teststaion,"id",$value['id']);
+				}
+			}
+			else
+			{
+				$teststaions = xml_add_child($dom, 'teststations');
+				xml_add_child($teststaions, 'result', 'false');
 			}
 			//取得产品类型列表
 			$tmpRes = $this->db->query("SELECT a.* FROM productType a 
@@ -253,18 +277,20 @@ class Login extends CW_Controller
 				$productTestCase = xml_add_child($dom, 'product_test_case');
 				xml_add_child($productTestCase, 'result', 'true');
 				$tmpProductTypeArray = $tmpRes->result_array();
+				//遍历所有产品型号
 				foreach ($tmpProductTypeArray as $productTypeItem)
 				{
 					$productType = xml_add_child($productTestCase, 'product_type');
 					xml_add_child($productType, 'id', $productTypeItem['id']);
 					xml_add_child($productType, 'name', $productTypeItem['name']);
 					//取得产品测试案例内容
-					$tmpRes = $this->db->query("SELECT DISTINCT a.producttype,a.testitem,a.statefile,a.ports,a.channel,a.trace,a.startf,a.stopf,a.mark,a.min,a.max,b.name testItemName 
+					$tmpRes = $this->db->query("SELECT DISTINCT a.producttype,a.testitem,a.statefile,a.ports,a.channel,a.trace,a.type,a.beginstim,a.endstim,a.beginresp,a.endresp,b.name AS testItemName 
 												FROM test_configuration a 
 												JOIN testItem b ON a.testItem = b.id 
 												JOIN status c ON b.status = c.id
 								   				AND c.statusname = 'active'
 												AND a.productType = ? 
+												GROUP BY a.testitem,a.statefile,a.channel,a.trace,a.type,a.beginstim,a.endstim,a.beginresp,a.endresp
 												ORDER BY a.testItem", array($productTypeItem['id']));
 					if ($tmpRes->num_rows() > 0)
 					{
@@ -277,6 +303,36 @@ class Login extends CW_Controller
 							xml_add_child($testItem, 'name', $testItemItem['testItemName']);
 							xml_add_child($testItem, 'state_file', $testItemItem['statefile']);
 							xml_add_child($testItem, 'port_num', $testItemItem['ports']);
+							//处理channel，不为空时写入XML
+							$channel = "";
+							if($testItemItem['channel'] == "")
+							{
+								xml_add_child($testItem, 'limitline', 'null');
+							}
+							else
+							{
+								$channel = $testItemItem['channel'];
+								$trace = $testItemItem['trace'];
+								$type = $testItemItem['type'];
+								if($type == "MAX")
+								{
+									$type = 1;
+								}
+								else if($type == "MIN")
+								{
+									$type = 2;
+								}
+								else
+								{
+									$type = 0;
+								}
+								$beginStim = $this->getBeginOrEndStim($testItemItem['beginstim']);
+								$endStim = $this->getBeginOrEndStim($testItemItem['endstim']);
+								$beginResp = $testItemItem['beginresp'];
+								$endResp = $testItemItem['endresp'];
+								$limitLine = $channel.",".$trace.";".$type.",".$beginStim.",".$endStim.",".$beginResp.",".$endResp;
+								xml_add_child($testItem, 'limitline', $limitLine);
+							}
 						}
 					}
 					else
@@ -299,6 +355,111 @@ class Login extends CW_Controller
 		}
 		xml_print($root);
 	}
+
+	public function downloadStandard()
+	{
+		$this->load->helper('xml');
+		$root = xml_dom();
+		$dom = xml_add_child($root, 'teststandard');
+		$tdrEleLengthObj = $this->db->query("SELECT a.standard FROM producttype_tdrelelength_standard a");
+		$tdrEleLengthArr = $tdrEleLengthObj->result_array();
+		//TDR电长度
+		$tdrEleLength = '';
+		if(count($tdrEleLengthArr) != 0)
+		{
+			$tdrEleLength = $tdrEleLengthArr[0]['standard'];
+		}
+		
+		$damping_timedomainimpedanceSql = "SELECT ab.name AS producttypename,a.producttype as producttype1,a.frequence,a.standard,b.producttype as producttype2,b.min,b.max
+										   FROM
+										   producttype_damping_standard a
+										   LEFT JOIN producttype_timedomainimpedance_standard b ON a.producttype = b.producttype
+										   JOIN producttype ab ON a.producttype = ab.id
+										   JOIN status ss ON ab.status = ss.id
+										   AND ss.statusname = 'active'
+										   UNION
+										   SELECT cd.name AS producttypename,c.producttype as producttype1,c.frequence,c.standard,d.producttype as producttype2,d.min,d.max
+										   FROM
+										   producttype_damping_standard c
+										   RIGHT JOIN producttype_timedomainimpedance_standard d ON c.producttype = d.producttype
+										   JOIN producttype cd ON d.producttype = cd.id
+										   JOIN status s ON cd.status = s.id
+										   AND s.statusname = 'active'";
+		$damping_timedomainimpedanceObj = $this->db->query($damping_timedomainimpedanceSql);
+		$damping_timedomainimpedanceArr = $damping_timedomainimpedanceObj->result_array();
+		if(count($damping_timedomainimpedanceArr) != 0)
+		{
+			$producttype = array();
+			$producttypedom = '';
+			$dampingdom = '';
+			foreach ($damping_timedomainimpedanceArr as $key => $value) 
+			{
+				if(in_array($value['producttypename'], $producttype))
+				{
+					if($value['frequence'] != '')
+					{
+						$dampingstandarddom = xml_add_child($dampingdom, 'standard');
+						xml_add_child($dampingstandarddom, 'frequence',$value['frequence']);
+						xml_add_child($dampingstandarddom, 'standardnum',$value['standard']);
+					}
+				}
+				else
+				{
+					$producttypedom = xml_add_child($dom, 'producttype');
+					xml_add_child($producttypedom, 'name',$value['producttypename']);
+					$dampingdom = xml_add_child($producttypedom, 'damping');
+					if($value['frequence'] != '')
+					{
+						$dampingstandarddom = xml_add_child($dampingdom, 'standard');
+						xml_add_child($dampingstandarddom, 'frequence',$value['frequence']);
+						xml_add_child($dampingstandarddom, 'standardnum',$value['standard']);
+					}
+					
+					xml_add_child($producttypedom, 'tdrelelength',$tdrEleLength);
+					$timedomainimpedancedom = xml_add_child($producttypedom, 'timedomainimpedance');
+					if($value['min'] != '')
+					{
+						xml_add_child($timedomainimpedancedom, 'min',$value['min']);
+						xml_add_child($timedomainimpedancedom, 'max',$value['max']);
+					}
+					array_push($producttype,$value['producttypename']);
+				}
+			}
+		}
+		xml_print($root);
+	}
+
+	//处理测试方案中BeginStim和EndStim
+	private function getBeginOrEndStim($val)
+	{
+		$value = substr($val, 0, strpos($val, "#"));
+		$unit = substr($val, strpos($val, "#")+1);
+		switch ($unit) {
+			case 'n':
+				$unit = "E-9";
+				break;
+			case 'u':
+				$unit = "E-6";
+				break;
+			case 'm':
+				$unit = "E-3";
+				break;
+			case 'k':
+				$unit = "E3";
+				break;
+			case 'M':
+				$unit = "E6";
+				break;
+			case 'G':
+				$unit = "E9";
+				break;
+			default:
+				$unit = "";
+				break;
+		}
+		return $value.$unit;
+	}
+
 	//pim客户端登陆
 	public function pimClientLogin($username = null, $password = null)
 	{
@@ -315,6 +476,22 @@ class Login extends CW_Controller
 			$username = xml_add_child($dom, 'username');
 			xml_add_child($username, 'result', 'false');
 		}
+		$producttypesDom = xml_add_child($dom, 'producttypes');
+		$producttypeSql = "SELECT DISTINCT a.id, a.name
+		 				   FROM producttype a
+		 				   JOIN status b ON a.status = b.id
+		 				   AND b.statusname = 'active'";
+		$producttypeObj = $this->db->query($producttypeSql);
+		$producttypeArr = $producttypeObj->result_array();
+		if(count($producttypeArr) != 0)
+		{
+			foreach ($producttypeArr as $key => $value) 
+			{
+				$producttypeDom = xml_add_child($producttypesDom, 'producttype');
+				xml_add_child($producttypeDom, 'id', $value['id']);
+				xml_add_child($producttypeDom, 'name', iconv("utf-8", "gbk", $value['name']));
+			}
+		}		   
 		xml_print($root);
 	}
 	
@@ -353,6 +530,7 @@ class Login extends CW_Controller
 
 	public function uploadFile($username = null, $password = null)
 	{
+		set_time_limit(0);
 		if (PHP_OS == 'WINNT')
 		{
 			$uploadRoot = "E:\\wwwRoot\\camel\\assets\\uploadedSource";
@@ -376,7 +554,12 @@ class Login extends CW_Controller
 		else
 		{
 			//保存上传文件
-			$file_temp = $_FILES['file']['tmp_name'];
+			$file_temp = @$_FILES['file']['tmp_name'];
+			if($file_temp == '')
+			{
+				$this->_returnUploadFailed("文件上传失败");
+				return;
+			}
 			date_default_timezone_set('Asia/Shanghai');
 			$dateStamp = date("Y_m_d");
 			$dateStampFolder = $uploadRoot.$slash.$dateStamp;
@@ -401,7 +584,7 @@ class Login extends CW_Controller
 			$filestatus = move_uploaded_file($file_temp, $uploadRoot.$slash.$file_name);
 			if (!$filestatus)
 			{
-				$this->_returnUploadFailed("文件:".$_FILES['file']['name']."上传失败");
+				$this->_returnUploadFailed("文件:保存失败");
 				return;
 			}
 			//解压缩文件
@@ -541,8 +724,8 @@ class Login extends CW_Controller
 						}
 					}
 					//插入producttestinfo
-					$tmpSql = "INSERT INTO `producttestinfo`(`sn`, `equipmentSn`, `testTime`, `testStation`, `tester`, `productType`, `result`, `temp`, `platenum`, `lathe`, `innermeter`, `outmeter`, `workorder`, `tag`, `tag1`, `column9`, `column10`) ";
-					$tmpSql .= "VALUES ('$sn','$equipmentSn','$testTime'+ INTERVAL 0 SECOND,$testStation,$tester,$productType,$testResult,'$temp','$platenum','$lathe','$innermeter','$outmeter','$workorder','$tag','$tag1',null,null)";
+					$tmpSql = "INSERT INTO `producttestinfo`(`sn`, `equipmentSn`, `testTime`, `testStation`, `tester`, `productType`, `result`, `temp`, `platenum`, `lathe`, `innermeter`, `outmeter`, `workorder`, `tag`, `tag1`) ";
+					$tmpSql .= "VALUES ('$sn','$equipmentSn','$testTime'+ INTERVAL 0 SECOND,$testStation,$tester,$productType,$testResult,'$temp','$platenum','$lathe','$innermeter','$outmeter','$workorder','$tag','$tag1')";
 					$tmpRes = $this->db->query($tmpSql);
 					
 					if ($tmpRes === TRUE)
@@ -616,12 +799,23 @@ class Login extends CW_Controller
 										$singleTextChannel = $tmpArray2[2];
 										//取得trace
 										$singleTextTrace = $tmpArray2[3];
-										$tmpRes = $this->db->query("INSERT INTO `testitemmarkvalue`(`testItemResult`, `value`, `mark`, `channel`, `trace`) VALUES (?, ?, ?, ?, ?)", array(
+										//取得结果
+										$singleResult = trim($tmpArray2[4]);
+										if (strtolower($singleResult) == 'pass')
+										{
+											$singleResult = 1;
+										}
+										else
+										{
+											$singleResult = 0;
+										}
+										$tmpRes = $this->db->query("INSERT INTO `testitemmarkvalue`(`testItemResult`, `value`, `mark`, `channel`, `trace`, `result`) VALUES (?, ?, ?, ?, ?, ?)", array(
 											$testItemResult,
 											$singleTestResult,
 											$singleTextMark,
 											$singleTextChannel,
-											$singleTextTrace
+											$singleTextTrace,
+											$singleResult
 										));
 										if ($tmpRes === TRUE)
 										{
@@ -854,7 +1048,7 @@ class Login extends CW_Controller
 						//如果是第一个组,使用此组值来初始化pim_ser_num中的值					
 						if ($firstGroup)
 						{
-							$tmpSql = "INSERT INTO `pim_ser_num`(`work_num`, `test_time`, `model`, `ser_num`, `pim_label`, `col1`, `col2`, `col3`, `col4`, `col5`, `col6`, `col7`, `col8`, `col9`, `col10`, `col11`, `col12`, `col13`,result) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+							$tmpSql = "INSERT INTO `pim_ser_num`(`work_num`, `test_time`, `model`, `ser_num`, `pim_label`, `col1`, `col2`, `col3`, `col4`, `col5`, `col6`, `col7`, `col8`, `col9`, `col10`, `col11`, `col12`, `col13`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 							$tmpRes = $this->db->query($tmpSql, array(
 								' ',
 								'0000-00-00 00:00:00',
@@ -873,8 +1067,7 @@ class Login extends CW_Controller
 								$lineContentArray[9],
 								$lineContentArray[10],
 								$lineContentArray[13],
-								$lineContentArray[15],
-								NULL
+								$lineContentArray[15]
 							));
 							if ($tmpRes === TRUE)
 							{
@@ -955,47 +1148,6 @@ class Login extends CW_Controller
 							return;
 						}
 						$firstGroup = false;					
-					}
-					//计算pim结果
-					$pim_failcountSql = "
-							SELECT t.id,COUNT(CASE WHEN t.value=1 THEN 0 ELSE NULL END) AS failcount FROM
-							(
-								SELECT a.id,MAX(c.value) > SUBSTRING(a.col12,13) AS value
-								FROM
-								pim_ser_num a
-								JOIN pim_label pl ON a.pim_label = pl.id 
-								JOIN pim_ser_num_group b ON b.pim_ser_num = a.id
-								JOIN pim_ser_num_group_data c ON c.pim_ser_num_group = b.id
-								AND a.id = ".$pim_ser_num."
-								GROUP BY b.test_time
-							) t
-							GROUP BY t.id
-							";
-					$pim_failcountObj = $this->db->query($pim_failcountSql);
-					if($pim_failcountObj)
-					{
-						$pim_failcountArr = $pim_failcountObj->result_array();
-						$result = NULL;
-						$failCount = $pim_failcountArr[0]['failcount'];
-						if($failCount > 1)
-						{
-							$result = 0;
-						}
-						elseif($failCount == 1 || $failCount == 0)
-						{
-							$result = 1;
-						}
-						else
-						{
-							
-						}
-						$this->db->query("UPDATE pim_ser_num a SET a.result = ".$result." WHERE a.id = ".$pim_ser_num);
-					}
-					else
-					{
-						$this->db->trans_rollback();
-						$this->_returnUploadFailed("false13");
-						return;
 					}
 				}
 				else
