@@ -1022,6 +1022,7 @@ class Login extends CW_Controller
 			//取得所有csv文件列表
 			//get all image files with a .cvs extension.
 			$csvArray = glob($uploadRoot.$slash.substr($file_name, 0, -4).$slash."*.csv");
+			$pim_ser_num = "";
 			//print each file name
 			foreach ($csvArray as $csv)
 			{
@@ -1155,6 +1156,52 @@ class Login extends CW_Controller
 					$this->db->trans_rollback();
 					//false11->打开文件$csv失败!
 					$this->_returnUploadFailed("false11");
+					return;
+				}
+			}
+
+			$pim_failcountSql = "
+						SELECT t.id,COUNT(CASE WHEN t.value=1 THEN 0 ELSE NULL END) AS failcount FROM
+						(
+							SELECT a.id,MAX(c.value) > SUBSTRING(a.col12,13) AS value
+							FROM
+							pim_ser_num a
+							JOIN pim_label pl ON a.pim_label = pl.id 
+							JOIN pim_ser_num_group b ON b.pim_ser_num = a.id
+							JOIN pim_ser_num_group_data c ON c.pim_ser_num_group = b.id
+							AND a.id = ".$pim_ser_num."
+							GROUP BY b.test_time
+						) t
+						GROUP BY t.id
+						";
+			$pim_failcountObj = $this->db->query($pim_failcountSql);
+			$pim_failcountArr = $pim_failcountObj->result_array();
+			$result = NULL;
+			if(count($pim_failcountArr) != 0)
+			{
+				$failCount = $pim_failcountArr[0]['failcount'];
+				if($failCount > 1)
+				{
+					$result = 0;
+				}
+				elseif($failCount == 1 || $failCount == 0)
+				{
+					$result = 1;
+				}
+				else
+				{
+					
+				}
+				$updateResult = $this->db->query("UPDATE pim_ser_num a SET a.result = ".$result." WHERE a.id = ".$pim_ser_num);
+				if ($updateResult === TRUE)
+				{
+					
+				}
+				else
+				{
+					$this->db->trans_rollback();
+					//false13->插入pim结果失败
+					$this->_returnUploadFailed("false13");
 					return;
 				}
 			}
