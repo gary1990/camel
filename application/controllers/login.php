@@ -923,6 +923,11 @@ class Login extends CW_Controller
 
 	public function uploadPimFile($username = null, $password = null, $ordernum = null)
 	{
+		if(isset($_POST['username']))
+		{
+			$username = $_POST['username'];
+			$password = $_POST['password'];
+		}
 		if (PHP_OS == 'WINNT')
 		{
 			$uploadRoot = "E:\\wwwRoot\\camel\\assets\\uploadedSource\\pim";
