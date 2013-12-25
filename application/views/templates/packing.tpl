@@ -43,7 +43,7 @@
 	.packingrecord
 	{
 		display:inline-block;
-		background:blue;
+		background:#E5ECF9;
 		font-weight: bold;
 	}
 	
@@ -86,7 +86,7 @@
 <script type="text/javascript" src="{base_url()}resource/js/calendar/ui.datepicker-zh-CN.js"></script>
 <script type="text/javascript" src="{base_url()}resource/js/jquery.mulitselector.js"></script>
 <script type="text/javascript" src="{base_url()}resource/js/chosen.jquery.js"></script>
-<script src="http://malsup.github.com/jquery.form.js"></script>
+<script type="text/javascript" src="{base_url()}resource/js/jquery.form.js"></script>
 <script type="text/javascript">
 	$(document).ready(function(){
 		//可输入选择的下拉列表
@@ -99,7 +99,10 @@
 			$("#locForm").submit();
 		});
 		//点击导出按钮时事件
-		$(".export").click(function(){
+		$(".export,.exportexcel").click(function(){
+			//导出html还是excel,隐藏控件赋val值
+			var exportclass = $(this).attr("class");
+			$(".htmlorexcel").attr("value",exportclass);
 			var timefrom1 = $(".locLong1").val();
 			if(timefrom1 == "")
 			{
@@ -209,16 +212,30 @@
 		$(".expBtn").click(function(){
 			$(this).parent().parent().hide();
 			$("#mask").remove();
-			
-			var u = $(".baseurl").val()+"index.php/packing/export";
-			var options = {
-				url:u,
-				type:'POST'
-			};
-			//$("#locForm").ajaxSubmit(options);
-			$("#locForm").attr("action",u);
-			$("#locForm").submit();
-			
+			//取得隐藏控件val
+			var exportval = $(".htmlorexcel").val();
+			if(exportval == "export")
+			{
+				var u = $(".baseurl").val()+"index.php/packing/export";
+				var options = {
+					url:u,
+					type:'POST'
+				};
+				//$("#locForm").ajaxSubmit(options);
+				$("#locForm").attr("action",u);
+				$("#locForm").submit();
+			}
+			else
+			{
+				var u = $(".baseurl").val()+"index.php/packing/exportExcel";
+				var options = {
+					url:u,
+					type:'POST'
+				};
+				//$("#locForm").ajaxSubmit(options);
+				$("#locForm").attr("action",u);
+				$("#locForm").submit();
+			}		
 		});
 		//导出时测试项选择框的取消按钮
 		$(".cancelBtn").click(function(){
@@ -284,8 +301,12 @@
 			{html_options name=packer options=$packer class="packingConditionhtml_options packer" selected=$smarty.post.packer|default:''}
 			<span class="span-block span-withmargin"> 复检结果: </span>
 			{html_options name=testresult options=$testresult class="packingConditionhtml_options testresult" selected=$smarty.post.testresult|default:''}
+		</div>
+		<div class="packcondition">
 			<input class="search" type="submit"  value="查询"/>
-			<input class="export" type="button" value="导出报告"/>
+			<input class="export" type="button" value="导出(HTML)"/>
+			<input class="exportexcel" type="button" value="导出(EXCEL)"/>
+			<input class="htmlorexcel" type="hidden" value=""/>
 		</div>
 		<div class="testitem">
 			<div style="text-align:left">请选择要导出的测试项：</div>

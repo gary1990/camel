@@ -176,6 +176,9 @@ class Packing extends CW_Controller
 		$producter = iconv("gbk", "utf-8", $producter);
 		$this->smarty->assign("producter",$producter);
 		
+		$reportdate = date("Y年m月d日");
+		$this->smarty->assign("reportdate",$reportdate);
+		
 		//取得产品序列号,包装标志位
 		$snObj = $this->db->query("SELECT pt.productsn,pt.tag FROM packingresult pt WHERE pt.id = '".$var."'");
 		$packTag = $snObj->first_row()->tag;
@@ -344,8 +347,11 @@ class Packing extends CW_Controller
 		{
 			$producter = iconv("gbk", "utf-8", $producter);
 		}
-		$producter = iconv("gbk", "utf-8", $producter);
 		$this->smarty->assign("producter",$producter);
+		
+		$reportdate = date("Y年m月d日");
+		$this->smarty->assign("reportdate",$reportdate);
+		
 		$productsnObj = $this->db->query("SELECT sn ,tag1 FROM producttestinfo WHERE id = $var");
 		$productsn = $productsnObj->first_row()->sn;
 		$tag1 = $productsnObj->first_row()->tag1;
@@ -513,8 +519,10 @@ class Packing extends CW_Controller
 		{
 			$producter = iconv("gbk", "utf-8", $producter);
 		}
-		$producter = iconv("gbk", "utf-8", $producter);
 		$this->smarty->assign("producter",$producter);
+		
+		$reportdate = date("Y年m月d日");
+		$this->smarty->assign("reportdate",$reportdate);
 		
 		//取得序列号
 		$productSnObj = $this->db->query("SELECT pm.ser_num FROM pim_ser_num pm WHERE pm.id = '".$var."'");
@@ -1392,6 +1400,327 @@ class Packing extends CW_Controller
 		}
 	}
 	
+	//导出报告
+	public function exportExcel()
+	{
+		set_time_limit(0);
+		$this->load->library('PHPExcel');
+		//取得所有测试项总数（页面隐藏控件传过来）
+		$testitemcount = $this->input->post("testitemcount");
+		//遍历所有页面上vna测试项的状态，检查用户是否选中，并放入数组。
+		$selectTestItemArray = array();
+		for($i=1;$i <= $testitemcount;$i++)
+		{
+			if($this->input->post("testitem".$i) != "")
+			{
+				array_push($selectTestItemArray,$this->input->post("testitem".$i));
+			}
+		}
+
+		//根据用户所选测试项--获得选中产品测试项的id,name
+		$testItemSql1 = $this->sqlColumnInArray($selectTestItemArray, "id");
+		$testItemSql = "SELECT id,name FROM testitem WHERE ".$testItemSql1;
+		$testitemObject = $this->db->query($testItemSql);
+		$testitemArray = $testitemObject->result_array();
+		
+		//取得PIM测试的选中状态
+		$testitempim = $this->input->post("testitempim");
+		
+		//根据当前用户填选状况查到满足情况的SN
+		$timeFrom1 = $this->input->post("timeFrom1");
+		if($timeFrom1 == "")
+		{
+			$timeFrom1 = "1900-01-01";
+		}
+		$timeFrom2 = $this->input->post("timeFrom2");
+		if($timeFrom2 == "")
+		{
+			$timeFrom2 = "00";
+		}
+		$timeFrom3 = $this->input->post("timeFrom3");
+		if($timeFrom3 == "")
+		{
+			$timeFrom3 = "00";
+		}
+		$timeTo1 = $this->input->post("timeTo1");
+		if($timeTo1 == "")
+		{
+			$timeTo1 = "2999-01-01";
+		}
+		$timeTo2 = $this->input->post("timeTo2");
+		if($timeTo2 == "")
+		{
+			$timeTo2 = "23";
+		}
+		$timeTo3 = $this->input->post("timeTo3");
+		if($timeTo3 == "")
+		{
+			$timeTo3 = "59";
+		}
+		$timeFrom = $timeFrom1." ".$timeFrom2.":".$timeFrom3;
+		$timeTo = $timeTo1." ".$timeTo2.":".$timeTo3;
+		$packBox = $this->input->post("packbox");
+		$productSn = $this->input->post("productsn");
+		$producttype = $this->input->post("producttype");
+		$orderNum = $this->input->post("ordernum");
+		$packer = $this->input->post("packer");
+		$testResult = $this->input->post("testresult");
+		$timeConditionSql = " WHERE (pt.packingtime >= '".$timeFrom."' AND pt.packingtime <= '".$timeTo."')";
+		if($timeFrom != "1900-01-01 00:00" || $timeTo != "2999-01-01 00:00")
+		{
+			$timeConditionSql = " WHERE pt.packingtime >= '".$timeFrom."' AND pt.packingtime <= '".$timeTo."'";
+		}
+		$packBoxSql = "";
+		$producttypeSql = "";
+		$productSnSql = "";
+		$orderNumSql = "";
+		$packerSql = "";
+		$testResultSql = "";
+		if($packBox != null)
+		{
+			$packBoxSql = " AND pt.boxsn LIKE '%".$packBox."%'";
+		}
+		if($producttype != null)
+		{
+			$producttypeSql = " AND pe.id = '".$producttype."'";
+		}
+		if($productSn !=null)
+		{
+			$productSnSql = " AND pt.productsn LIKE '%".$productSn."%'";
+		}
+		if($orderNum != null)
+		{
+			$orderNumSql = " AND pt.ordernum LIKE '%".$orderNum."%'";
+		}
+		if($packer != null)
+		{
+			$packerSql = " AND ps.employeeId = '".$packer."'";
+		}
+		if($testResult != null)
+		{
+			$testResultSql = " AND pt.result = '".$testResult."'";
+		}
+		$packingTotalSnSql = "SELECT DISTINCT pt.id,pt.productsn,pt.boxsn,pt.result,pt.tag
+		                          FROM packingresult pt 
+		                          JOIN tester tr ON pt.packer=tr.employeeid 
+								  LEFT JOIN producttestinfo po ON pt.productsn = po.sn
+								  LEFT JOIN producttype pe ON po.productType = pe.id
+							 	  ".$timeConditionSql.$packBoxSql.$producttypeSql.$productSnSql.$orderNumSql.$packerSql.$testResultSql." 
+							      ORDER BY pt.packingtime DESC";
+		$packingTotalSnObject = $this->db->query($packingTotalSnSql);
+		$packingTotalSnArray= $packingTotalSnObject->result_array();
+		
+		//遍历得到的序列号数组
+		if(count($packingTotalSnArray) == 0)
+		{
+			$this->_returnUploadFailed("查询数据为空");
+			return;
+		}
+		else
+		{
+			error_reporting(E_ALL);
+			ini_set('display_errors', TRUE);
+			ini_set('display_startup_errors', TRUE);
+			date_default_timezone_set('Asia/Shanghai');
+			
+			$objPHPExcel = new PHPExcel();
+			
+			$objPHPExcel->setActiveSheetIndex(0)
+			            ->setCellValueByColumnAndRow(0, 1, "序号")
+						->setCellValueByColumnAndRow(1, 1, "产品型号")
+						->setCellValueByColumnAndRow(2, 1, "产品序列号")
+						->setCellValueByColumnAndRow(3, 1, "检测结果");
+			//excel中写入表头<th>部分的测试项--用户所选
+			if(count($testitemArray) == 0 && $testitempim == "")
+			{
+				//do noting
+			}
+			else
+			{
+				//循环写入vna测试项--用户所选,从第五列开始
+				$i = 4;
+				foreach($testitemArray as $value)
+				{
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($i, 1, $value['name']);
+					$i++;
+				}
+				//写入pim
+				if($testitempim == "")
+				{
+					
+				}
+				else
+				{
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($i, 1, "PIM");
+				}
+			}
+			//循环得到的序列号数组sn数组
+			$rowStart = 2;//从第二行开始
+			foreach($packingTotalSnArray as $key=>$value)
+			{
+				//取得产品序列号
+				$sn = $value['productsn'];
+				//取得包装箱号
+				$boxSn = $value['boxsn'];
+				//取得测试结果
+				$result = $value['result'];
+				//取得标志位
+				$packTag = $value['tag'];
+
+				//取得产品类型
+				$producttypeObject = $this->db->query("SELECT pe.name FROM producttestinfo po 
+								  					   JOIN producttype pe ON po.productType = pe.id
+								                       AND po.sn = '".$sn."'
+								                       AND po.tag = '".$packTag."'");
+
+				$producttypeArray = $producttypeObject->result_array();
+				if(count($producttypeArray) == 0)
+				{
+					$producttype = "";
+				}
+				else
+				{
+					$producttype = $producttypeArray[0]["name"];
+				}
+				
+				//excel中写入产品类型，装箱号，序列号
+				$objPHPExcel->setActiveSheetIndex(0)
+			            	->setCellValueByColumnAndRow(0, $rowStart, $rowStart-1)
+							->setCellValueByColumnAndRow(1, $rowStart, $producttype)
+							->setCellValueByColumnAndRow(2, $rowStart, $sn." ");
+				//excel中写入检测结果
+				if($result == "PASS")
+				{
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3, $rowStart, "合格");
+				}
+				else if($result == "FAIL")
+				{
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3, $rowStart, "不合格");
+				}
+				else
+				{
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3, $rowStart, "未测试");
+				}
+				
+				//写入各vna测试项最大值--用户所选
+				if(count($testitemArray) == 0)
+				{
+					//do noting
+				}
+				else
+				{
+					//从产品测试方案表中取得当前产品--实际测试项
+					$actualTestItemObject = $this->db->query("SELECT pn.testitem FROM test_configuration pn 
+									  						  JOIN producttestinfo po ON pn.producttype = po.productType
+									  						  AND po.sn = '".$sn."'
+									  						  AND po.tag = '".$packTag."'");
+					$actualTestItemArray = $actualTestItemObject->result_array();
+					$actualTestItem = array();
+					
+					if(count($actualTestItemArray) != 0)
+					{
+						foreach($actualTestItemArray as $value)
+						{
+							array_push($actualTestItem,$value['testitem']);
+						}
+					}
+					else
+					{
+					}
+					
+					//循环	用户所选的测试项
+					$colStart = 4;//从第五列开始写入个测试项的值
+					foreach($testitemArray as $value)
+					{
+						$testitemId = $value['id'];
+						
+						//判断当前测试项，是否包含在当前产品实际测试项中
+						if(in_array($testitemId,$actualTestItem))
+						{
+							$maxvalueObject = $this->db->query("SELECT MAX(te.value) AS value FROM testitemmarkvalue te
+							 				  					JOIN testitemresult tt ON te.testItemResult = tt.id
+							 				  					JOIN producttestinfo po ON tt.productTestInfo = po.id
+							 				  					AND po.sn = '".$sn."'
+							 				  					AND tt.testItem = '".$testitemId."'
+							 				  					AND po.tag = '".$packTag."'
+							 				 					");
+							$maxvalueArray = $maxvalueObject->result_array();
+							
+							if(count($maxvalueArray) == 0)
+							{
+								$objPHPExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($colStart, $rowStart, "");
+							}
+							else
+							{
+								$maxvalue = $maxvalueArray[0]['value'];
+								$objPHPExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($colStart, $rowStart, $maxvalue);
+							}
+						}
+						else
+						{
+							$objPHPExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($colStart, $rowStart, "");
+						}
+						
+						$colStart++;//下一个测试项
+					}
+					
+					//判断并取得pim最大值
+					if($testitempim != "")
+					{
+						//取得当前序列号产品的各组的最大值
+						$pimMaxValueObject = $this->db->query("SELECT MAX(pa.value) as value,pp.test_time 
+									  						   FROM pim_ser_num_group_data pa
+									  						   JOIN pim_ser_num_group pp ON pa.pim_ser_num_group = pp.id
+									  						   JOIN pim_ser_num pm ON pp.pim_ser_num = pm.id
+									  						   AND pm.ser_num = '".$sn."'
+						  			  						   GROUP BY pp.test_time
+						              						  ");
+						$pimMaxValueArray = $pimMaxValueObject->result_array();
+	
+						if(count($pimMaxValueArray) == 0)
+						{
+							$objPHPExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($colStart, $rowStart, "");
+						}
+						else if(count($pimMaxValueArray) == 1)
+						{
+							$objPHPExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($colStart, $rowStart, $pimMaxValueArray[0]["value"]);
+						}
+						else
+						{
+							//去除第一组值
+							array_shift($pimMaxValueArray);
+							//取得剩下的最大值，返回的是数组
+							$maxArr = max($pimMaxValueArray);
+							$objPHPExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($colStart, $rowStart, $maxArr["value"]);
+						}
+					}
+					else
+					{
+						//do nothing
+					}
+				}
+				$rowStart++;//下一行
+			}
+			
+			// Redirect output to a client’s web browser (Excel5)
+			
+			header('Content-Type: application/vnd.ms-excel');
+			header('Content-Disposition: attachment;filename="qualityreport.xls"');
+			header('Cache-Control: max-age=0');
+			// If you're serving to IE 9, then the following may be needed
+			header('Cache-Control: max-age=1');
+			
+			// If you're serving to IE over SSL, then the following may be needed
+			header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+			header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+			header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+			header ('Pragma: public'); // HTTP/1.0
+			
+			$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+			$objWriter->save('php://output');
+			exit;
+		}
+	}
 	
 	//从数组中遍历元素，组成SQL的IN语句
 	protected function sqlColumnInArray($arr,$columName)

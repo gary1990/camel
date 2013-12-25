@@ -92,7 +92,7 @@
 				<span style="display:inline-block;padding-top: 15px;">Camel Production System</span>
 				<hr>
 				<div class="span-10">
-					{$CI->session->userdata('username')}，您好
+					{$CI->session->userdata('fullname')}，您好
 				</div>
 				<div class="span-40">
 					{$CI->session->userdata('today')}，工作愉快

@@ -25,6 +25,11 @@
 				margin-right:20px;
 				margin-top:10px;
 			}
+			.reportdate{
+				text-align:right;
+				margin-bottom:20px;
+				margin-right:20px;
+			}
 			.productsn{
 				margin-top:10px;
 			}
@@ -82,6 +87,9 @@
 			<div class="producter">
 				生产厂家：{$producter}
 			</div>
+			<div class="reportdate">
+					报告时间：{$reportdate}
+				</div>
 			<div class="productsn">
 				产品序列号：{$productsn}
 			</div>

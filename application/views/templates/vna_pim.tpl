@@ -22,11 +22,11 @@
 		line-height: 30px;
 		float: left;
 	}
-	.snCondition {
-		width: 520px;
-	}
-	.snInput{
-		width: 330px;
+	.oprateCondition
+	{
+		height: 30px;
+		line-height: 30px;
+		float: left;
 	}
 	.search{
 		width: 200px
@@ -83,6 +83,8 @@
 			$(".testerCn").hide();
 			$(".producttypeCn").hide();
 			$(".platenumCn").hide();
+			$(".export_vna").hide();
+			$(".exportexel_vna").hide();
 		}
 		$(".gqts_item").css("background-color","white");
 		$(".gqts_item").css("color","#DDDDDD");
@@ -111,6 +113,8 @@
 				$(".testerCn").hide();
 				$(".producttypeCn").hide();
 				$(".platenumCn").hide();
+				$(".export_vna").hide();
+				$(".exportexel_vna").hide();
 			}
 			else
 			{
@@ -119,6 +123,8 @@
 				$(".testerCn").show();
 				$(".producttypeCn").show();
 				$(".platenumCn").show();
+				$(".export_vna").show();
+				$(".exportexel_vna").show();
 			}
 		});
 		$(".bt").click(function(e){
@@ -153,6 +159,10 @@
 		});
 		$(".export_vna").click(function(){
 			$("#locForm").attr('action', "{site_url()}/vna_pim/export_vna");
+			$("#locForm").submit();
+		});
+		$(".exportexel_vna").click(function(){
+			$("#locForm").attr('action', "{site_url()}/vna_pim/exportExcel_vna");
 			$("#locForm").submit();
 		});
 	});
@@ -249,9 +259,10 @@
 					</div>
 					<input name="sn" class="snInput" value="{$smarty.post.sn|default:''}" type="text"/>
 				</div>
-				<div class="subCondition search">
+				<div class="oprateCondition">
 					<input class="bt" id="search" type="submit" value="查询"/>
-					<input class="export_vna" type="button" value="导出报告"/>
+					<input class="export_vna" type="button" value="导出(HTML)"/>
+					<input class="exportexel_vna" type="button" value="导出(EXCEL)"/>
 					<input name="current_item" class="current_item" value="{if $title=='VNA测试记录'}VNA{else}PIM{/if}" type="hidden"/>
 					<input name="current_page" class="current_page" value="{$smarty.post.current_page|default:'1'}" type="hidden"/>
 				</div>
@@ -267,7 +278,7 @@
 	<div class="gqts_item" id="PIM">
 		PIM
 	</div>
-	<a href="{site_url('vna_pim/pim_result')}">计算pim结果</a>
+	<!--<a href="{site_url('vna_pim/pim_result')}">计算pim结果</a>-->
 	<hr/>
 	<div class="testResult VNA">
 		<table border="0">

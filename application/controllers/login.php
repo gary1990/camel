@@ -61,10 +61,18 @@ class Login extends CW_Controller
 	
 	public function toIndex()
 	{
-		$today = date("Y年m月d日");
-		$this->session->set_userdata("today",$today);
-		//redirect(base_url().'index.php/sckb');
-		$this->smarty->display("index.tpl");
+		$userrole = $this->session->userdata("userrole");
+		//客户登陆
+		if($userrole == "customer")
+		{
+			redirect(base_url().'index.php/customerLogin');
+		}
+		else
+		{
+			$today = date("Y年m月d日");
+			$this->session->set_userdata("today",$today);
+			$this->smarty->display("index.tpl");
+		}
 	}
 	
 	private function _checkDataFormat(&$result)
@@ -168,6 +176,7 @@ class Login extends CW_Controller
 							{
 								$this->session->set_userdata('username', strtolower($this->input->post('userName')));
 								$this->session->set_userdata('userId', $tmpArr['id']);
+								$this->session->set_userdata('fullname', $tmpArr['fullname']);
 								$userRoleObj = $this->db->query("SELECT name FROM team WHERE id = '".$tmpArr['team']."'");
 								$userRoleArr = $userRoleObj->result_array();
 								$this->session->set_userdata('userrole', $userRoleArr[0]['name']);
@@ -355,7 +364,7 @@ class Login extends CW_Controller
 	{
 		if (PHP_OS == 'WINNT')
 		{
-			$uploadRoot = "E:\\wwwRoot\\camel\\assets\\uploadedSource";
+			$uploadRoot = "D:\\wwwRoot\\camel\\assets\\uploadedSource";
 			$slash = "\\";
 		}
 		else if (PHP_OS == 'Darwin')
@@ -739,7 +748,7 @@ class Login extends CW_Controller
 		}
 		if (PHP_OS == 'WINNT')
 		{
-			$uploadRoot = "E:\\wwwRoot\\camel\\assets\\uploadedSource\\pim";
+			$uploadRoot = "D:\\wwwRoot\\camel\\assets\\uploadedSource\\pim";
 			$slash = "\\";
 		}
 		else if (PHP_OS == 'Darwin')
@@ -1131,6 +1140,17 @@ class Login extends CW_Controller
 		$ordernum = $_POST["ordernum"];
 		$boxsn = $_POST["boxsn"];
 		$packingTime = date("Y-m-d H:i:s");
+		//验证数据库中包装记录里是否存在该序列号的合格记录
+		$productPassRecordObj = $this->db->query("SELECT count(a.id) AS passrecord FROM packingresult a
+		   										  WHERE a.productsn = '".$sn."' AND a.result = 'PASS'
+		   										 ");
+		$productPassRecordArr = $productPassRecordObj->result_array();
+		if($productPassRecordArr[0]['passrecord'] != 0)
+		{
+			print("<result><info>exists</info></result>");
+			return;
+		}
+		
 		//验证用户所选产品型号，是否与当前sn产品的实际型号对应
 		$productTypeObject = $this->db->query("SELECT pe.name 
 						     				  FROM producttestinfo po 
@@ -1163,9 +1183,9 @@ class Login extends CW_Controller
 				{
 					$packTag = $vnatagObj->first_row()->tag;
 				}
-				$this->db->query("INSERT INTO packingresult (packingtime,boxsn,productsn,ordernum,packer,result,tag)
-							VALUES ('".$packingTime."','','".$sn."','".$ordernum."','".$packer."','UNTESTED','".$packTag."')");
-				print("<result><info>pimresultnull</info></result>");
+				//$this->db->query("INSERT INTO packingresult (packingtime,boxsn,productsn,ordernum,packer,result,tag)
+				//			VALUES ('".$packingTime."','','".$sn."','".$ordernum."','".$packer."','UNTESTED','".$packTag."')");
+				print("<result><info>pimresultnull</info><vnatag>".$packTag."</vnatag></result>");
 			}
 			else
 			{
@@ -1188,9 +1208,9 @@ class Login extends CW_Controller
 					{
 						$packTag = $vnatagObj->first_row()->tag;
 					}
-					$this->db->query("INSERT INTO packingresult (packingtime,boxsn,productsn,ordernum,packer,result,tag) 
-									VALUES ('".$packingTime."','','".$sn."','".$ordernum."','".$packer."','FAIL','".$packTag."')");
-					print("<result><info>pimresultfail</info></result>");
+					//$this->db->query("INSERT INTO packingresult (packingtime,boxsn,productsn,ordernum,packer,result,tag) 
+					//				VALUES ('".$packingTime."','','".$sn."','".$ordernum."','".$packer."','FAIL','".$packTag."')");
+					print("<result><info>pimresultfail</info><vnatag>".$packTag."</vnatag></result>");
 					return;
 				}
 				else//pim合格
@@ -1203,9 +1223,9 @@ class Login extends CW_Controller
 					{
 						//vna测试不存在
 						$packTag = '0';
-						$this->db->query("INSERT INTO packingresult (packingtime,boxsn,productsn,ordernum,packer,result,tag) 
-										VALUES ('".$packingTime."','','".$sn."','".$ordernum."','".$packer."','UNTESTED','".$packTag."')");
-						print("<result><info>vnaresultnull</info></result>");
+						//$this->db->query("INSERT INTO packingresult (packingtime,boxsn,productsn,ordernum,packer,result,tag) 
+						//				VALUES ('".$packingTime."','','".$sn."','".$ordernum."','".$packer."','UNTESTED','".$packTag."')");
+						print("<result><info>vnaresultnull</info><vnatag>".$packTag."</vnatag></result>");
 					}
 					else
 					{
@@ -1214,15 +1234,15 @@ class Login extends CW_Controller
 						$vnaResult = $vnaResultArray[0]['result'];
 						if($vnaResult == 1)
 						{
-							$this->db->query("INSERT INTO packingresult (packingtime,boxsn,productsn,ordernum,packer,result,tag) 
-										VALUES ('".$packingTime."','".$boxsn."','".$sn."','".$ordernum."','".$packer."','PASS','".$packTag."')");
-							print("<result><info>pass</info></result>");
+							//$this->db->query("INSERT INTO packingresult (packingtime,boxsn,productsn,ordernum,packer,result,tag) 
+							//			VALUES ('".$packingTime."','".$boxsn."','".$sn."','".$ordernum."','".$packer."','PASS','".$packTag."')");
+							print("<result><info>pass</info><vnatag>".$packTag."</vnatag></result>");
 						}
 						else
 						{
-							$this->db->query("INSERT INTO packingresult (packingtime,boxsn,productsn,ordernum,packer,result,tag) 
-										VALUES ('".$packingTime."','','".$sn."','".$ordernum."','".$packer."','FAIL','".$packTag."')");
-							print("<result><info>vnaresultfail</info></result>");
+							//$this->db->query("INSERT INTO packingresult (packingtime,boxsn,productsn,ordernum,packer,result,tag) 
+							//			VALUES ('".$packingTime."','','".$sn."','".$ordernum."','".$packer."','FAIL','".$packTag."')");
+							print("<result><info>vnaresultfail</info><vnatag>".$packTag."</vnatag></result>");
 						}
 					}
 				}	
@@ -1245,9 +1265,9 @@ class Login extends CW_Controller
 				{
 					//van测试结果为空
 					$packTag = '0';
-					$this->db->query("INSERT INTO packingresult (packingtime,boxsn,productsn,ordernum,packer,result,tag) 
-										VALUES ('".$packingTime."','','".$sn."','".$ordernum."','".$packer."','UNTESTED','".$packTag."')");
-					print("<result><info>vnaresultnull</info></result>");
+					//$this->db->query("INSERT INTO packingresult (packingtime,boxsn,productsn,ordernum,packer,result,tag) 
+					//					VALUES ('".$packingTime."','','".$sn."','".$ordernum."','".$packer."','UNTESTED','".$packTag."')");
+					print("<result><info>vnaresultnull</info><vnatag>".$packTag."</vnatag></result>");
 				}
 				else
 				{
@@ -1256,15 +1276,15 @@ class Login extends CW_Controller
 					$vnaResult = $vnaResultArray[0]['result'];
 					if($vnaResult == 1)
 					{
-						$this->db->query("INSERT INTO packingresult (packingtime,boxsn,productsn,ordernum,packer,result,tag) 
-										VALUES ('".$packingTime."','".$boxsn."','".$sn."','".$ordernum."','".$packer."','PASS','".$packTag."')");
-						print("<result><info>pass</info></result>");
+						//$this->db->query("INSERT INTO packingresult (packingtime,boxsn,productsn,ordernum,packer,result,tag) 
+						//				VALUES ('".$packingTime."','".$boxsn."','".$sn."','".$ordernum."','".$packer."','PASS','".$packTag."')");
+						print("<result><info>pass</info><vnatag>".$packTag."</vnatag></result>");
 					}
 					else
 					{
-						$this->db->query("INSERT INTO packingresult (packingtime,boxsn,productsn,ordernum,packer,result,tag) 
-										VALUES ('".$packingTime."','','".$sn."','".$ordernum."','".$packer."','FAIL','".$packTag."')");
-						print("<result><info>vnaresultfail</info></result>");
+						//$this->db->query("INSERT INTO packingresult (packingtime,boxsn,productsn,ordernum,packer,result,tag) 
+						//				VALUES ('".$packingTime."','','".$sn."','".$ordernum."','".$packer."','FAIL','".$packTag."')");
+						print("<result><info>vnaresultfail</info><vnatag>".$packTag."</vnatag></result>");
 					}
 				}
 			}
@@ -1278,9 +1298,9 @@ class Login extends CW_Controller
 			{
 				//van测试结果为空
 				$packTag = '0';
-				$this->db->query("INSERT INTO packingresult (packingtime,boxsn,productsn,ordernum,packer,result,tag) 
-										VALUES ('".$packingTime."','','".$sn."','".$ordernum."','".$packer."','UNTESTED','".$packTag."')");
-				print("<result><info>vnaresultnull</info></result>");
+				//$this->db->query("INSERT INTO packingresult (packingtime,boxsn,productsn,ordernum,packer,result,tag) 
+				//						VALUES ('".$packingTime."','','".$sn."','".$ordernum."','".$packer."','UNTESTED','".$packTag."')");
+				print("<result><info>vnaresultnull</info><vnatag>".$packTag."</vnatag></result>");
 			}
 			else
 			{
@@ -1289,18 +1309,28 @@ class Login extends CW_Controller
 				$vnaResult = $vnaResultArray[0]['result'];
 				if($vnaResult == 1)
 				{
-					$this->db->query("INSERT INTO packingresult (packingtime,boxsn,productsn,ordernum,packer,result,tag) 
-										VALUES ('".$packingTime."','".$boxsn."','".$sn."','".$ordernum."','".$packer."','PASS','".$packTag."')");
-					print("<result><info>pass</info></result>");
+					//$this->db->query("INSERT INTO packingresult (packingtime,boxsn,productsn,ordernum,packer,result,tag) 
+					//					VALUES ('".$packingTime."','".$boxsn."','".$sn."','".$ordernum."','".$packer."','PASS','".$packTag."')");
+					print("<result><info>pass</info><vnatag>".$packTag."</vnatag></result>");
 				}
 				else
 				{
-					$this->db->query("INSERT INTO packingresult (packingtime,boxsn,productsn,ordernum,packer,result,tag) 
-										VALUES ('".$packingTime."','','".$sn."','".$ordernum."','".$packer."','FAIL','".$packTag."')");
-					print("<result><info>vnaresultfail</info></result>");
+					//$this->db->query("INSERT INTO packingresult (packingtime,boxsn,productsn,ordernum,packer,result,tag) 
+					//					VALUES ('".$packingTime."','','".$sn."','".$ordernum."','".$packer."','FAIL','".$packTag."')");
+					print("<result><info>vnaresultfail</info><vnatag>".$packTag."</vnatag></result>");
 				}
 			}	
 		}
+	}
+	//包装客户端插入记录方法
+	public function insertPackResult()
+	{
+		$recordString = $_POST['recordstring'];
+		$recordString = substr($recordString, 0, -1);
+		$recordSql = "INSERT INTO 
+					  `packingresult`(`packingtime`, `boxsn`, `productsn`, `ordernum`, `packer`, `result`, `tag`) 
+					   VALUES ".$recordString;
+		$this->db->query($recordSql);
 	}
 	//包装客户端取得产品型号的方法
 	public function getProducttype()
@@ -1308,7 +1338,10 @@ class Login extends CW_Controller
 		$producttype = $_POST['producttype'];
 		if($producttype == "")
 		{
-			$producttypeObject = $this->db->query("SELECT DISTINCT name FROM producttype");
+			$producttypeObject = $this->db->query("SELECT 
+												   DISTINCT a.name FROM producttype a
+												   JOIN status b ON a.status = b.id
+												   AND b.statusname = 'active'");
 			$producttypeArray = $producttypeObject->result_array();
 			$producttypeString = "";
 			foreach ($producttypeArray as $value) 
