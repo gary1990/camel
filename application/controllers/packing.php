@@ -1392,7 +1392,6 @@ class Packing extends CW_Controller
 		}
 	}
 	
-	
 	//从数组中遍历元素，组成SQL的IN语句
 	protected function sqlColumnInArray($arr,$columName)
 	{
